@@ -11,6 +11,15 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 
+#: Human-readable names for the game-level markets.
+MARKET_LABELS: dict[str, str] = {
+    "totals": "Game Total",
+    "spreads": "Spread",
+    "h2h": "Moneyline",
+    "player_anytime_td": "Anytime TD",
+}
+
+
 @dataclass(frozen=True)
 class Projection:
     """A baseline (pre-context) expectation for one player-market."""
@@ -63,13 +72,35 @@ class Leg:
 
     @property
     def subject(self) -> str:
-        """Player when it is a prop, otherwise the team/selection."""
-        return self.player_name or self.team or self.selection
+        """Diversification key: the player, else the team, else game+market.
+
+        Game markets with no team (a total) must not collide across games, so
+        they fall back to a game-scoped key rather than the bare selection.
+        """
+        return self.player_name or self.team or f"{self.game_id}:{self.market}"
+
+    @property
+    def label(self) -> str:
+        """Display name: the player/team, or a readable market name."""
+        return (
+            self.player_name
+            or self.team
+            or MARKET_LABELS.get(self.market, self.market)
+        )
 
     def describe(self) -> str:
+        """Bet-slip style description, e.g. ``Travis Kelce Over 5.5 (+105)``."""
+        odds = format_odds(self.american_odds)
+        if self.market == "h2h":
+            return f"{self.selection} ML ({odds})"
+        if self.market == "spreads":
+            handicap = "" if self.line is None else f" {self.line:+g}"
+            return f"{self.selection}{handicap} ({odds})"
+        if self.selection in {"Yes", "No"} and self.player_name:
+            market = MARKET_LABELS.get(self.market, self.market)
+            return f"{self.player_name} {market} {self.selection} ({odds})"
         line = "" if self.line is None else f" {self.line:g}"
-        label = f"{self.subject} {self.selection}{line}".strip()
-        return f"{label} ({format_odds(self.american_odds)})"
+        return f"{self.label} {self.selection}{line} ({odds})"
 
 
 def format_odds(american: int | float) -> str:
