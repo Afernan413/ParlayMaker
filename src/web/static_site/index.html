@@ -23,7 +23,8 @@
       <button type="button" class="seg" data-sport="nba" aria-pressed="false">NBA</button>
     </div>
     <div class="tabs" role="tablist">
-      <button type="button" class="tab" data-view="games" role="tab" aria-selected="true">Games</button>
+      <button type="button" class="tab" data-view="picks" role="tab" aria-selected="true">Picks</button>
+      <button type="button" class="tab" data-view="games" role="tab" aria-selected="false">Games</button>
       <button type="button" class="tab" data-view="bets" role="tab" aria-selected="false">Bets</button>
     </div>
     <button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Toggle dark mode">Theme</button>
@@ -35,6 +36,48 @@
 
 <main class="layout">
   <div>
+    <!-- ----------------------------------------------------- today's picks -->
+    <section class="panel view" id="view-picks" aria-labelledby="picks-heading">
+      <div class="panel-head">
+        <h2 id="picks-heading">Today's picks</h2>
+        <button type="button" id="picks-refresh" class="btn btn-ghost btn-sm">Shuffle</button>
+      </div>
+
+      <details class="explainer" id="explainer">
+        <summary>New here? How to read this</summary>
+        <div class="explainer-body">
+          <p>
+            The model projects every player and game from recent form, then
+            compares its own number with the price the book is offering. It only
+            shows you a bet when it thinks the book is wrong by enough to matter.
+          </p>
+          <ul>
+            <li><b>Model %</b> — how often the model thinks this hits.</li>
+            <li><b>Book %</b> — how often the price says it hits, with the
+              bookmaker's cut removed.</li>
+            <li><b>Edge</b> — the gap between them. Bigger is better; anything
+              here has already cleared the model's minimum.</li>
+            <li><b>Suggested stake</b> — a deliberately cautious fraction of the
+              bankroll you set, sized to the edge.</li>
+          </ul>
+          <p class="explainer-warn">
+            An edge is a long-run average across many bets, not a prediction
+            about this one. Most of these lose.
+          </p>
+        </div>
+      </details>
+
+      <div id="picks-parlays" class="picks-block">
+        <h3 class="picks-title">Ready-made parlays</h3>
+        <ul id="picks-tickets" class="picks-list"></ul>
+      </div>
+
+      <div class="picks-block">
+        <h3 class="picks-title">Best single bets</h3>
+        <ul id="picks-singles" class="picks-list"></ul>
+      </div>
+    </section>
+
     <!-- ------------------------------------------------ game predictions -->
     <section class="panel view" id="view-games" aria-labelledby="games-heading">
       <div class="panel-head">
@@ -92,8 +135,9 @@
 
       <ol id="slip-legs" class="slip-legs"></ol>
       <p id="slip-empty" class="empty">
-        Pick 2–4 bets from the Bets tab. Same-game legs are priced with the
-        model's correlations, so a parlay is not just the legs multiplied.
+        Tap any pick to build a slip, or start from a ready-made parlay on the
+        Picks tab. Legs from the same game are priced together, so a same-game
+        parlay is not just the legs multiplied.
       </p>
 
       <div id="slip-body" hidden>
@@ -220,6 +264,19 @@
     </p>
   </aside>
 </main>
+
+<!-- Phone-sized screens put the slip below the fold, so the running total
+     follows you down the page and opens the slip when tapped. -->
+<button type="button" id="mini-slip" class="mini-slip" hidden>
+  <span class="mini-slip-left">
+    <span id="mini-count" class="mini-count">0</span>
+    <span class="mini-label">in your slip</span>
+  </span>
+  <span class="mini-slip-right">
+    <span id="mini-odds" class="mini-odds"></span>
+    <span id="mini-payout" class="mini-payout"></span>
+  </span>
+</button>
 
 <script src="data.js"></script>
 <script src="engine.js"></script>

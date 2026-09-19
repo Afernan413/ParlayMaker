@@ -187,3 +187,51 @@ def test_a_sport_with_no_games_is_skipped(tmp_path, monkeypatch):
          "--db", str(tmp_path / "empty.db")]
     )
     assert code == 1
+
+
+# ------------------------------------------------------- page DOM contract
+def _source(name: str) -> str:
+    return (build_static.SOURCE_DIR / name).read_text()
+
+
+def test_every_element_the_script_looks_up_exists_in_the_page():
+    """app.js reaches for elements by id; a rename would break the page
+    silently at runtime, with nothing in the test suite to catch it."""
+    import re
+
+    html = _source("index.html")
+    script = _source("app.js")
+    wanted = set(re.findall(r'\$\("([\w-]+)"\)', script))
+    wanted |= set(re.findall(r'getElementById\("([\w-]+)"\)', script))
+    present = set(re.findall(r'id="([\w-]+)"', html))
+
+    missing = sorted(wanted - present)
+    assert not missing, f"app.js looks up ids the page does not define: {missing}"
+
+
+def test_every_tab_has_a_matching_view():
+    import re
+
+    html = _source("index.html")
+    tabs = set(re.findall(r'class="tab" data-view="(\w+)"', html))
+    views = set(re.findall(r'id="view-(\w+)"', html))
+    assert tabs, "expected tab buttons"
+    assert tabs == views, f"tabs {tabs} do not line up with views {views}"
+
+
+def test_the_landing_tab_is_the_picks_tab():
+    """Opening the page should answer 'what do I bet', not show a table."""
+    import re
+
+    html = _source("index.html")
+    selected = re.findall(r'class="tab" data-view="(\w+)" role="tab" aria-selected="true"', html)
+    assert selected == ["picks"]
+
+
+def test_picks_view_is_built_from_the_shared_engine():
+    """The landing view must price with the same engine as everything else,
+    not a second, simpler implementation of the maths."""
+    script = _source("app.js")
+    picks = script[script.index("function renderPicks"): script.index("function chip(")]
+    assert "engine.buildCard" in picks
+    assert "rules()" in picks

@@ -15,6 +15,7 @@
     view: "games",
     slip: [],
     pricing: null,
+    picksSeed: 1337,
     legsById: new Map(),
     correlations: new Map(),
   };
@@ -32,6 +33,19 @@
     `${value >= 0 ? "+" : ""}${(value * 100).toFixed(digits)}%`;
   const signed = (value, digits = 1) =>
     `${value >= 0 ? "+" : ""}${value.toFixed(digits)}`;
+
+  /** "in 3h", "Sun 5:00 PM", or "" when the kickoff is unreadable. */
+  function kickoffLabel(iso) {
+    const start = new Date(iso);
+    if (Number.isNaN(start.getTime())) return "";
+    const hours = (start.getTime() - Date.now()) / 36e5;
+    if (hours < 0) return "started";
+    if (hours < 1) return `in ${Math.max(Math.round(hours * 60), 1)} min`;
+    if (hours < 24) return `in ${Math.round(hours)}h`;
+    return start.toLocaleString(undefined, {
+      weekday: "short", hour: "numeric", minute: "2-digit",
+    });
+  }
 
   const sportData = () => data.sports[state.sport];
   const rules = () => data.settings;
@@ -103,10 +117,142 @@
     $("build-results").innerHTML = "";
 
     renderFreshness();
+    renderPicks();
     renderGames();
     renderFilters();
     renderLegs();
     renderSlip();
+  }
+
+  // --------------------------------------------------------------- picks
+  /**
+   * The landing view: what to bet, without having to go looking for it.
+   *
+   * Runs the same optimizer the Build panel uses, but on load and with
+   * defaults, so the first thing on screen is a playable card rather than a
+   * table to interpret.
+   */
+  function renderPicks() {
+    const sport = sportData();
+    const bankroll = Number($("build-bankroll").value) || rules().bankroll;
+    const gamesById = new Map(sport.games.map((game) => [game.game_id, game]));
+
+    // --- ready-made parlays ---
+    const list = $("picks-tickets");
+    list.innerHTML = "";
+    const built = engine.buildCard(sport.legs, lookup, {
+      rules: rules(),
+      maxTickets: 3,
+      bankroll,
+      kellyFraction: rules().kelly_fraction,
+      seed: state.picksSeed,
+    });
+
+    if (built.tickets.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "picks-empty";
+      empty.textContent =
+        "Nothing on this slate clears the model's bar right now. That is a " +
+        "normal result — the prices are fair more often than not.";
+      list.append(empty);
+    }
+
+    for (const ticket of built.tickets) {
+      const stake = Math.max(Math.round(ticket.kellyShare * bankroll), 1);
+      const item = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "pick";
+      button.dataset.ticket = ticket.legs.map((leg) => leg.id).join("~");
+      button.dataset.stake = String(stake);
+      button.innerHTML = `
+        <span class="pick-headline"></span>
+        <ul class="pick-legs"></ul>
+        <span class="pick-chips"></span>
+        <span class="pick-right">
+          <span class="pick-odds">${ticket.oddsDisplay}</span>
+          <span class="pick-return"></span>
+        </span>`;
+      button.querySelector(".pick-headline").textContent =
+        `${ticket.legCount}-leg ${ticket.isSameGame ? "same-game parlay" : "parlay"}`;
+      button.querySelector(".pick-return").textContent =
+        `${money(stake)} → ${money(stake * ticket.decimal)}`;
+
+      const legList = button.querySelector(".pick-legs");
+      for (const leg of ticket.legs) {
+        const legItem = document.createElement("li");
+        legItem.textContent = leg.description;
+        legList.append(legItem);
+      }
+
+      const chips = button.querySelector(".pick-chips");
+      chips.append(
+        chip(`model ${pct(ticket.probability, 0)}`),
+        chip(`book ${pct(ticket.implied, 0)}`),
+        chip(`${signedPct(ticket.edge, 0)} edge`, "pick-chip-edge"),
+      );
+      item.append(button);
+      list.append(item);
+    }
+
+    // --- best single bets ---
+    const singles = $("picks-singles");
+    singles.innerHTML = "";
+    const top = sport.legs
+      .filter(hasEdge)
+      .sort((a, b) => b.ev - a.ev)
+      .slice(0, 6);
+
+    if (top.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "picks-empty";
+      empty.textContent = "No single bet clears the model's minimum edge today.";
+      singles.append(empty);
+    }
+
+    for (const leg of top) {
+      const game = gamesById.get(leg.game_id);
+      const item = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "pick";
+      button.dataset.legId = leg.id;
+      button.setAttribute("aria-pressed", String(state.slip.includes(leg.id)));
+      const line = leg.line === null || leg.line === undefined ? "" : ` ${leg.line}`;
+      button.innerHTML = `
+        <span class="pick-headline"></span>
+        <span class="pick-sub"></span>
+        <span class="pick-chips"></span>
+        <span class="pick-right">
+          <span class="pick-odds">${engine.formatOdds(leg.odds)}</span>
+          <span class="pick-return"></span>
+        </span>`;
+      button.querySelector(".pick-headline").textContent =
+        `${leg.label} ${leg.selection}${line}`;
+      button.querySelector(".pick-sub").textContent =
+        `${leg.market_label} · ${leg.game}`;
+      button.querySelector(".pick-return").textContent =
+        `$10 → ${money(10 * leg.decimal)}`;
+
+      const chips = button.querySelector(".pick-chips");
+      chips.append(
+        chip(`model ${pct(leg.p_model, 0)}`),
+        chip(`book ${pct(leg.p_implied, 0)}`),
+        chip(`${signedPct(leg.edge, 0)} edge`, "pick-chip-edge"),
+      );
+      const when = kickoffLabel(game?.kickoff);
+      if (when) chips.append(chip(when, "pick-chip-time"));
+
+      item.append(button);
+      singles.append(item);
+    }
+  }
+
+  function chip(text, extra) {
+    const node = document.createElement("span");
+    node.className = `pick-chip${extra ? " " + extra : ""}`;
+    node.textContent = text;
+    return node;
   }
 
   // --------------------------------------------------------------- games
@@ -289,7 +435,7 @@
   }
 
   function syncLegButtons() {
-    for (const button of document.querySelectorAll(".leg")) {
+    for (const button of document.querySelectorAll(".leg, .pick[data-leg-id]")) {
       button.setAttribute("aria-pressed", String(state.slip.includes(button.dataset.legId)));
     }
   }
@@ -323,6 +469,21 @@
     }
   }
 
+  /** Running total that follows you down a phone screen. */
+  function renderMiniSlip() {
+    const bar = $("mini-slip");
+    const pricing = state.pricing;
+    if (!pricing || !pricing.priceable) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
+    $("mini-count").textContent = String(pricing.legCount);
+    $("mini-odds").textContent = pricing.oddsDisplay;
+    $("mini-payout").textContent =
+      `${money(stakeValue())} → ${money(stakeValue() * pricing.decimal)}`;
+  }
+
   function stakeValue() {
     const raw = Number($("stake").value);
     return Number.isFinite(raw) && raw > 0 ? raw : 0;
@@ -334,6 +495,7 @@
     renderSlip();
     if (legs.length === 0) {
       state.pricing = null;
+      renderMiniSlip();
       return;
     }
     state.pricing = engine.priceSlip(legs, lookup, {
@@ -405,6 +567,7 @@
     renderPayoutTable(pricing, stake);
     renderCorrelations(legs);
     renderWhy(legs);
+    renderMiniSlip();
   }
 
   function renderAdvisories(advisories) {
@@ -565,6 +728,7 @@
 
   function showView(view) {
     state.view = view;
+    $("view-picks").hidden = view !== "picks";
     $("view-games").hidden = view !== "games";
     $("view-bets").hidden = view !== "bets";
     for (const tab of document.querySelectorAll(".tab[data-view]")) {
@@ -596,6 +760,32 @@
       state.pricing = null;
       syncLegButtons();
       renderSlip();
+    });
+
+    // Picks: a ticket loads the whole slip, a single bet toggles like any leg.
+    $("view-picks").addEventListener("click", (event) => {
+      const ticket = event.target.closest("[data-ticket]");
+      if (ticket) {
+        state.slip = ticket.dataset.ticket.split("~").filter((id) => state.legsById.has(id));
+        $("stake").value = ticket.dataset.stake;
+        syncLegButtons();
+        priceSlip();
+        $("slip-heading").scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      const single = event.target.closest(".pick[data-leg-id]");
+      if (single) toggleLeg(single.dataset.legId);
+    });
+
+    $("picks-refresh").addEventListener("click", () => {
+      // A different seed reshuffles which equally-rated tickets surface.
+      state.picksSeed = Math.floor(Math.random() * 1e6) + 1;
+      renderPicks();
+      syncLegButtons();
+    });
+
+    $("mini-slip").addEventListener("click", () => {
+      $("slip-heading").scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     $("game-grid").addEventListener("click", (event) => {
@@ -651,6 +841,18 @@
     });
   }
 
+  /** Keep the explainer open until it has been read once. */
+  function restoreExplainer() {
+    const explainer = $("explainer");
+    let seen = false;
+    try { seen = localStorage.getItem("parlay-explainer-seen") === "1"; } catch (_) { /* private mode */ }
+    explainer.open = !seen;
+    explainer.addEventListener("toggle", () => {
+      if (explainer.open) return;
+      try { localStorage.setItem("parlay-explainer-seen", "1"); } catch (_) { /* private mode */ }
+    });
+  }
+
   function restoreTheme() {
     try {
       const stored = localStorage.getItem("parlay-theme");
@@ -686,7 +888,8 @@
       }
     }
     wireEvents();
-    showView("games");
+    restoreExplainer();
+    showView("picks");
     loadSport();
   }
 
