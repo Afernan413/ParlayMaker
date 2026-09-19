@@ -30,6 +30,7 @@ from src.models import baseline
 from src.models.legs import Leg
 from src.notifications.notifier import Notifier, render_console
 from src.optimizer import clv
+from src.optimizer.ev_calculator import find_edges
 from src.optimizer.leg_builder import attach_rationale, legs_from_lines, legs_from_props
 from src.optimizer.parlay_builder import BuildReport, ParlayTicket, build_parlays
 from src.reasoning.context_agent import ContextAgent, ContextResult, RuleBasedContextAgent
@@ -316,8 +317,11 @@ async def run_pipeline(
         )
         attach_rationale(candidate_legs, context_results)
         result.legs_considered = len(candidate_legs)
-        edges = [leg for leg in candidate_legs if leg.ev >= settings.min_leg_ev
-                 and settings.leg_odds_min <= leg.american_odds <= settings.leg_odds_max]
+        # Re-run the evaluator so the EV floor and price band live in one place.
+        edges, _ = find_edges(
+            candidate_legs,
+            implied={leg.leg_id: leg.p_implied for leg in candidate_legs},
+        )
         result.edges = len(edges)
 
     with clock("optimize"):
