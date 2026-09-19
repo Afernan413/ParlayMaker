@@ -1,8 +1,80 @@
 {
   "version": 1,
   "sports": {
+    "ncaaf": {
+      "fitted_at": "2026-09-19T22:37:53+00:00",
+      "seasons": [
+        2024,
+        2025
+      ],
+      "metrics": {
+        "holdout_weeks": 4,
+        "train_samples": 617538,
+        "before": {
+          "samples": 67929,
+          "brier": 0.233179,
+          "log_loss": 0.709606,
+          "hit_rate": 0.397739,
+          "claimed": 0.413723
+        },
+        "after": {
+          "samples": 67929,
+          "brier": 0.213339,
+          "log_loss": 0.615441,
+          "hit_rate": 0.397739,
+          "claimed": 0.395817
+        },
+        "brier_gain": 0.085088
+      },
+      "markets": {
+        "player_anytime_td": {
+          "samples": 8764,
+          "mean_factor": 0.754343,
+          "platt_a": 0.516664,
+          "platt_b": -0.335839
+        },
+        "player_pass_tds": {
+          "samples": 3847,
+          "mean_factor": 0.921733,
+          "platt_a": 0.836596,
+          "platt_b": 0.040344,
+          "dispersion": 1.306061,
+          "family": "negative_binomial",
+          "variance_multiple": 1.306061
+        },
+        "player_pass_yds": {
+          "samples": 4635,
+          "mean_factor": 0.998083,
+          "platt_a": 0.565055,
+          "platt_b": -0.250042,
+          "dispersion": 0.521927
+        },
+        "player_reception_yds": {
+          "samples": 24641,
+          "mean_factor": 0.980429,
+          "platt_a": 0.52101,
+          "platt_b": -0.101785,
+          "dispersion": 0.819133
+        },
+        "player_receptions": {
+          "samples": 24949,
+          "mean_factor": 0.975984,
+          "platt_a": 0.871798,
+          "platt_b": 0.18482,
+          "dispersion": 1.67119,
+          "variance_multiple": 1.67119
+        },
+        "player_rush_yds": {
+          "samples": 16940,
+          "mean_factor": 0.987682,
+          "platt_a": 0.532981,
+          "platt_b": -0.238185,
+          "dispersion": 0.74764
+        }
+      }
+    },
     "nfl": {
-      "fitted_at": "2026-09-19T16:16:32+00:00",
+      "fitted_at": "2026-09-19T22:40:15+00:00",
       "seasons": [
         2025,
         2026
