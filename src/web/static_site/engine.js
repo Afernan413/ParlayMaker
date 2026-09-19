@@ -350,6 +350,146 @@
 
   // --------------------------------------------------------- auto build
   /**
+   * Longshot mode: the most likely route to a big payout.
+   *
+   * The house rules are off here by design -- no EV floor, no price band, no
+   * correlation floor, up to eight legs. The only thing kept is coherence: the
+   * same subject and market cannot appear twice, because both sides of one
+   * market cannot win together.
+   *
+   * Tickets are ranked by model probability among those that clear the payout
+   * target, which answers "what is the likeliest way to turn this into that".
+   * Ranking that way also naturally favours correlated same-game tickets,
+   * since correlation is what lifts a parlay's true joint probability above
+   * the product of its legs -- and that gap is the one real edge a longshot
+   * bettor has, because books price same-game legs closer to independent than
+   * they actually are.
+   */
+  function buildLongshots(legs, lookup, settings) {
+    const minMultiple = settings.minMultiple || 20;
+    const minLegs = settings.minLegs || 2;
+    const maxLegs = settings.maxLegs || 8;
+    const poolSize = settings.maxPool || 18;
+    const comboBudget = settings.budget || 250000;
+    const shortlistSize = settings.shortlist || 250;
+    const maxTickets = settings.maxTickets || 3;
+
+    // Rank the pool by value, not probability. The most likely legs are all
+    // short-priced favourites that cannot multiply up to a big payout;
+    // ranking by EV keeps the legs the model thinks are underpriced, which is
+    // what you want in every leg of a longshot. There is no EV *floor* -- a
+    // negative-EV leg is allowed in, it just queues behind better ones.
+    const usable = legs.filter((leg) => leg.p_model > 0 && leg.p_model < 1);
+    const byValue = usable.slice().sort((a, b) => b.ev - a.ev || b.p_model - a.p_model);
+    // A big target is unreachable from value legs alone -- they are mostly
+    // short prices that cannot multiply far enough. Seed part of the pool with
+    // the longest prices on the board so the target is actually achievable,
+    // then let the ranking decide which of them survive.
+    const byPrice = usable.slice().sort((a, b) =>
+      americanToDecimal(b.odds) - americanToDecimal(a.odds));
+
+    const pool = [];
+    const taken = new Set();
+    const add = (leg) => {
+      if (taken.has(leg.id)) return;
+      taken.add(leg.id);
+      pool.push(leg);
+    };
+    byValue.slice(0, Math.ceil(poolSize * 0.7)).forEach(add);
+    byPrice.slice(0, Math.ceil(poolSize * 0.6)).forEach(add);
+
+    // Phase 1 -- enumerate cheaply. Running the copula on every combination is
+    // what froze the page: tens of thousands of Monte-Carlo runs on the main
+    // thread. Independent probability and a correlation nudge cost nothing and
+    // are only used to shortlist; the real pricing happens in phase 2.
+    const shortlist = [];
+    let checked = 0;
+    let bestMultiple = 0;
+
+    const screen = (chosen) => {
+      const seen = new Set();
+      for (const leg of chosen) {
+        const key = `${leg.subject}|${leg.market}`;
+        if (seen.has(key)) return;            // cannot win both sides
+        seen.add(key);
+      }
+      const decimal = parlayDecimal(chosen);
+      if (decimal > bestMultiple) bestMultiple = decimal;
+      if (decimal < minMultiple) return;
+
+      let independent = 1;
+      for (const leg of chosen) independent *= leg.p_model;
+
+      let correlation = 0;
+      let pairs = 0;
+      for (let i = 0; i < chosen.length; i += 1) {
+        for (let j = i + 1; j < chosen.length; j += 1) {
+          correlation += lookup(chosen[i], chosen[j]);
+          pairs += 1;
+        }
+      }
+      // Correlation lifts the true joint probability above the product, so
+      // nudge correlated tickets up the shortlist rather than losing them.
+      const score = independent * (1 + Math.max(pairs ? correlation / pairs : 0, 0));
+      shortlist.push({ legs: chosen.slice(), score });
+    };
+
+    const combine = (start, chosen) => {
+      if (checked > comboBudget) return;
+      if (chosen.length >= minLegs) {
+        checked += 1;
+        screen(chosen);
+      }
+      if (chosen.length >= maxLegs) return;
+      for (let index = start; index < pool.length; index += 1) {
+        chosen.push(pool[index]);
+        combine(index + 1, chosen);
+        chosen.pop();
+        if (checked > comboBudget) return;
+      }
+    };
+    combine(0, []);
+
+    // Phase 2 -- price only the best few, with the real copula.
+    shortlist.sort((a, b) => b.score - a.score);
+    const candidates = [];
+    for (const entry of shortlist.slice(0, shortlistSize)) {
+      const priced = priceSlip(entry.legs.slice(), lookup, {
+        ...settings,
+        iterations: settings.buildIterations || 4000,
+      });
+      priced.legs = entry.legs.slice();
+      priced.subjects = entry.legs.map((leg) => leg.subject);
+      candidates.push(priced);
+    }
+
+    // Likeliest first, bigger payout as the tie-break.
+    candidates.sort((a, b) =>
+      b.probability - a.probability || b.decimal - a.decimal);
+
+    // Offer genuinely different tickets without demanding they be disjoint: a
+    // longshot pool is small, and insisting on no shared players usually
+    // leaves one option. Half-overlap keeps the choices distinguishable.
+    const chosenTickets = [];
+    for (const ticket of candidates) {
+      if (chosenTickets.length >= maxTickets) break;
+      const tooSimilar = chosenTickets.some((picked) => {
+        const shared = ticket.legs.filter((leg) =>
+          picked.legs.some((other) => other.id === leg.id)).length;
+        return shared > Math.min(ticket.legCount, picked.legCount) / 2;
+      });
+      if (!tooSimilar) chosenTickets.push(ticket);
+    }
+    return {
+      tickets: chosenTickets,
+      considered: shortlist.length,
+      checked,
+      bestMultiple,
+      mode: "longshot",
+    };
+  }
+
+  /**
    * Enumerate feasible tickets and pick a diversified, EV-maximising set.
    *
    * Python solves the selection as an integer program; a greedy pick over the
@@ -358,6 +498,7 @@
    */
   function buildCard(legs, lookup, options) {
     const settings = options || {};
+    if (settings.mode === "longshot") return buildLongshots(legs, lookup, settings);
     const rules = settings.rules;
     const minLegs = settings.legs || rules.min_legs;
     const maxLegs = settings.legs || rules.max_legs;
@@ -397,7 +538,7 @@
       chosenTickets.push(ticket);
       ticket.subjects.forEach((subject) => usedSubjects.add(subject));
     }
-    return { tickets: chosenTickets, considered: candidates.length };
+    return { tickets: chosenTickets, considered: candidates.length, mode: "value" };
   }
 
   function considerTicket(legs, lookup, settings, rules) {
@@ -435,6 +576,7 @@
     correlationMatrix,
     cholesky,
     jointProbability,
+    buildLongshots,
     priceSlip,
     reviewSlip,
     buildCard,

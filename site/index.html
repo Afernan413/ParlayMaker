@@ -40,7 +40,31 @@
     <section class="panel view" id="view-picks" aria-labelledby="picks-heading">
       <div class="panel-head">
         <h2 id="picks-heading">Today's picks</h2>
-        <button type="button" id="picks-refresh" class="btn btn-ghost btn-sm">Shuffle</button>
+        <div class="mode-switch" role="group" aria-label="Pick style">
+          <button type="button" class="mode" data-mode="longshot" aria-pressed="true">Longshot</button>
+          <button type="button" class="mode" data-mode="value" aria-pressed="false">Value</button>
+        </div>
+      </div>
+
+      <div id="longshot-controls" class="longshot-controls">
+        <label class="field">
+          <span>Risk</span>
+          <div class="money-input">
+            <span class="currency">$</span>
+            <input type="number" id="ls-stake" value="5" min="1" step="1" inputmode="decimal">
+          </div>
+        </label>
+        <label class="field">
+          <span>To win about</span>
+          <select id="ls-target">
+            <option value="20">$100</option>
+            <option value="100" selected>$500</option>
+            <option value="200">$1,000</option>
+            <option value="1000">$5,000</option>
+            <option value="2000">$10,000</option>
+          </select>
+        </label>
+        <button type="button" id="ls-run" class="btn btn-primary">Find them</button>
       </div>
 
       <details class="explainer" id="explainer">
@@ -67,8 +91,15 @@
         </div>
       </details>
 
+      <p id="longshot-note" class="longshot-note">
+        Longshots pay big because they rarely hit. These are the
+        <b>likeliest</b> routes to that payout, not likely ones &mdash; and the
+        model still shows you what each is worth in the long run, which for a
+        big parlay is usually negative. Bet accordingly.
+      </p>
+
       <div id="picks-parlays" class="picks-block">
-        <h3 class="picks-title">Ready-made parlays</h3>
+        <h3 class="picks-title" id="picks-parlays-title">Ready-made parlays</h3>
         <ul id="picks-tickets" class="picks-list"></ul>
       </div>
 

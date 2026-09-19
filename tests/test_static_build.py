@@ -235,3 +235,42 @@ def test_picks_view_is_built_from_the_shared_engine():
     picks = script[script.index("function renderPicks"): script.index("function chip(")]
     assert "engine.buildCard" in picks
     assert "rules()" in picks
+
+
+# ------------------------------------------------------------- longshots
+def test_longshot_mode_is_the_default():
+    """The tool is aimed at big-payout tickets; value bets are one click away."""
+    import re
+
+    html = _source("index.html")
+    pressed = re.findall(r'class="mode" data-mode="(\w+)" aria-pressed="true"', html)
+    assert pressed == ["longshot"]
+    assert 'class="mode" data-mode="value"' in html
+    assert 'id="longshot-controls" class="longshot-controls">' in html  # not hidden
+
+
+def test_longshot_search_never_prices_every_combination():
+    """Pricing each combination with the copula froze the page. The solver has
+    to screen cheaply first and only run Monte-Carlo on a shortlist."""
+    engine = _source("engine.js")
+    body = engine[engine.index("function buildLongshots"): engine.index("function buildCard")]
+    assert "shortlist" in body
+    assert "comboBudget" in body
+    assert body.index("shortlist.sort") < body.index("priceSlip")
+
+
+def test_longshot_keeps_the_coherence_rule_only():
+    """Every house rule is off in longshot mode except the one that is not a
+    preference: you cannot win both sides of the same market."""
+    engine = _source("engine.js")
+    body = engine[engine.index("function buildLongshots"): engine.index("function buildCard")]
+    assert "cannot win both sides" in body
+    for dropped in ("min_leg_ev", "leg_odds_min", "parlay_odds_min", "min_sgp_correlation"):
+        assert dropped not in body, f"longshot mode should not enforce {dropped}"
+
+
+def test_the_long_run_cost_is_always_shown():
+    """A negative-EV ticket must still show its number, not hide it."""
+    script = _source("app.js")
+    assert "pick-chip-cost" in script
+    assert "long-run" in script

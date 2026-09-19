@@ -16,6 +16,7 @@
     slip: [],
     pricing: null,
     picksSeed: 1337,
+    mode: "longshot",   // what this tool is for; Value is a click away
     legsById: new Map(),
     correlations: new Map(),
   };
@@ -138,27 +139,53 @@
     const gamesById = new Map(sport.games.map((game) => [game.game_id, game]));
 
     // --- ready-made parlays ---
+    const longshot = state.mode === "longshot";
+    const lsStake = Math.max(Number($("ls-stake").value) || 5, 1);
     const list = $("picks-tickets");
     list.innerHTML = "";
-    const built = engine.buildCard(sport.legs, lookup, {
-      rules: rules(),
-      maxTickets: 3,
-      bankroll,
-      kellyFraction: rules().kelly_fraction,
-      seed: state.picksSeed,
-    });
+
+    $("picks-parlays-title").textContent =
+      longshot ? "Longshot tickets" : "Ready-made parlays";
+
+    let built;
+    try {
+      built = engine.buildCard(sport.legs, lookup, {
+        rules: rules(),
+        mode: state.mode,
+        maxTickets: 3,
+        minMultiple: longshot ? Number($("ls-target").value) || 100 : undefined,
+        maxLegs: longshot ? 8 : undefined,
+        stake: longshot ? lsStake : undefined,
+        bankroll,
+        kellyFraction: rules().kelly_fraction,
+        seed: state.picksSeed,
+      });
+    } catch (error) {
+      // Never fail silently: a thrown solver is a bug worth seeing.
+      const failed = document.createElement("li");
+      failed.className = "picks-empty";
+      failed.textContent = `Could not build tickets: ${error.message}`;
+      list.append(failed);
+      built = { tickets: [], considered: 0 };
+    }
 
     if (built.tickets.length === 0) {
       const empty = document.createElement("li");
       empty.className = "picks-empty";
-      empty.textContent =
-        "Nothing on this slate clears the model's bar right now. That is a " +
-        "normal result — the prices are fair more often than not.";
+      empty.textContent = longshot
+        ? `Nothing on this slate pays ${money(lsStake * (Number($("ls-target").value) || 100))} ` +
+          `from ${money(lsStake)}. The biggest payout available is about ` +
+          `${money(lsStake * (built.bestMultiple || 1))} — pick a smaller target.`
+        : `Nothing here clears the model's value bar (${built.considered} candidates). ` +
+          "That is a normal result — prices are fair more often than not. " +
+          "Switch to Longshot for big-payout tickets instead.";
       list.append(empty);
     }
 
     for (const ticket of built.tickets) {
-      const stake = Math.max(Math.round(ticket.kellyShare * bankroll), 1);
+      const stake = longshot
+        ? lsStake
+        : Math.max(Math.round(ticket.kellyShare * bankroll), 1);
       const item = document.createElement("li");
       const button = document.createElement("button");
       button.type = "button";
@@ -173,10 +200,14 @@
           <span class="pick-odds">${ticket.oddsDisplay}</span>
           <span class="pick-return"></span>
         </span>`;
-      button.querySelector(".pick-headline").textContent =
-        `${ticket.legCount}-leg ${ticket.isSameGame ? "same-game parlay" : "parlay"}`;
-      button.querySelector(".pick-return").textContent =
-        `${money(stake)} → ${money(stake * ticket.decimal)}`;
+      button.querySelector(".pick-headline").textContent = longshot
+        ? `${money(stake)} → ${money(stake * ticket.decimal)}`
+        : `${ticket.legCount}-leg ${ticket.isSameGame ? "same-game parlay" : "parlay"}`;
+      const ret = button.querySelector(".pick-return");
+      ret.textContent = longshot
+        ? (ticket.isSameGame ? "same game" : `${ticket.legCount} legs`)
+        : `${money(stake)} → ${money(stake * ticket.decimal)}`;
+      if (longshot) button.querySelector(".pick-headline").classList.add("pick-payout-headline");
 
       const legList = button.querySelector(".pick-legs");
       for (const leg of ticket.legs) {
@@ -186,10 +217,14 @@
       }
 
       const chips = button.querySelector(".pick-chips");
+      const odds = ticket.probability > 0 ? Math.round(1 / ticket.probability) : null;
+      chips.append(chip(odds ? `hits about 1 in ${odds}` : `model ${pct(ticket.probability, 1)}`));
+      chips.append(chip(`${ticket.legCount} legs`));
+      // The long-run number stays visible even when it is bad, especially then.
       chips.append(
-        chip(`model ${pct(ticket.probability, 0)}`),
-        chip(`book ${pct(ticket.implied, 0)}`),
-        chip(`${signedPct(ticket.edge, 0)} edge`, "pick-chip-edge"),
+        ticket.evPerUnit >= 0
+          ? chip(`${signedPct(ticket.evPerUnit, 0)} long-run`, "pick-chip-edge")
+          : chip(`${signedPct(ticket.evPerUnit, 0)} long-run`, "pick-chip-cost"),
       );
       item.append(button);
       list.append(item);
@@ -246,6 +281,23 @@
       item.append(button);
       singles.append(item);
     }
+  }
+
+  /**
+   * Repaint a "searching" line before a solve that blocks the main thread.
+   *
+   * A longshot search takes a second or two. Without this the page simply
+   * freezes and the control looks dead -- which is exactly how a working
+   * button gets reported as broken.
+   */
+  function renderPicksBusy(message) {
+    const list = $("picks-tickets");
+    list.innerHTML = "";
+    const busy = document.createElement("li");
+    busy.className = "picks-empty";
+    busy.textContent = message;
+    list.append(busy);
+    setTimeout(() => { renderPicks(); syncLegButtons(); }, 20);
   }
 
   function chip(text, extra) {
@@ -654,13 +706,25 @@
         const legsValue = $("build-legs").value;
         const result = engine.buildCard(sportData().legs, lookup, {
           rules: rules(),
-          legs: legsValue ? Number(legsValue) : null,
+          mode: state.mode,
+          legs: state.mode === "longshot" ? null : (legsValue ? Number(legsValue) : null),
+          minMultiple: state.mode === "longshot"
+            ? Number($("ls-target").value) || 100 : undefined,
+          maxLegs: state.mode === "longshot" ? 8 : undefined,
           maxTickets: Number($("build-tickets").value) || 3,
           bankroll: Number($("build-bankroll").value) || rules().bankroll,
           kellyFraction: rules().kelly_fraction,
           seed: 1337,
         });
         renderBuild(result);
+      } catch (error) {
+        // A silent no-op button is worse than an ugly message.
+        const list = $("build-results");
+        list.innerHTML = "";
+        const item = document.createElement("li");
+        item.className = "empty";
+        item.textContent = `Could not build a card: ${error.message}`;
+        list.append(item);
       } finally {
         button.disabled = false;
         button.textContent = "Build a card";
@@ -676,7 +740,8 @@
       item.className = "empty";
       item.textContent =
         `No ticket cleared every rule (${result.considered} candidates). ` +
-        "Try a different leg count.";
+        "Try a different leg count, or switch to Longshot at the top for " +
+        "big-payout tickets with the filters off.";
       list.append(item);
       return;
     }
@@ -777,12 +842,25 @@
       if (single) toggleLeg(single.dataset.legId);
     });
 
-    $("picks-refresh").addEventListener("click", () => {
-      // A different seed reshuffles which equally-rated tickets surface.
-      state.picksSeed = Math.floor(Math.random() * 1e6) + 1;
-      renderPicks();
-      syncLegButtons();
-    });
+    for (const button of document.querySelectorAll(".mode[data-mode]")) {
+      button.addEventListener("click", () => {
+        if (state.mode === button.dataset.mode) return;
+        state.mode = button.dataset.mode;
+        for (const other of document.querySelectorAll(".mode[data-mode]")) {
+          other.setAttribute("aria-pressed", String(other === button));
+        }
+        const longshot = state.mode === "longshot";
+        $("longshot-controls").hidden = !longshot;
+        $("longshot-note").hidden = !longshot;
+        if (longshot) renderPicksBusy("Searching for the likeliest big payouts…");
+        else { renderPicks(); syncLegButtons(); }
+      });
+    }
+
+    const research = () => renderPicksBusy("Searching for the likeliest big payouts…");
+    $("ls-run").addEventListener("click", research);
+    $("ls-target").addEventListener("change", research);
+    $("ls-stake").addEventListener("change", research);
 
     $("mini-slip").addEventListener("click", () => {
       $("slip-heading").scrollIntoView({ behavior: "smooth", block: "start" });

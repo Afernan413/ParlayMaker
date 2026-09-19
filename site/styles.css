@@ -447,3 +447,28 @@ h3 { font-size: .85rem; }
   /* keep the last card clear of the floating bar */
   .slip-column { padding-bottom: 68px; }
 }
+
+
+/* --------------------------------------------------- value vs longshot */
+.mode-switch { display: inline-flex; background: var(--surface-2); border-radius: 999px; padding: 2px; }
+.mode {
+  border: 0; background: transparent; color: var(--text-secondary);
+  font: inherit; font-size: .78rem; font-weight: 600;
+  padding: 5px 13px; border-radius: 999px; cursor: pointer;
+}
+.mode[aria-pressed="true"] { background: var(--surface-1); color: var(--text-primary); box-shadow: var(--shadow); }
+
+.longshot-controls {
+  display: flex; gap: 10px; align-items: end; flex-wrap: wrap;
+  padding: 0 16px 12px;
+}
+.longshot-controls .field { flex: 0 0 auto; }
+.longshot-controls .money-input input { width: 78px; }
+.longshot-note {
+  margin: 0 16px 14px; padding: 10px 12px;
+  font-size: .78rem; line-height: 1.5; color: var(--text-primary);
+  background: var(--warning-soft); border: 1px solid var(--warning);
+  border-radius: var(--radius-sm);
+}
+.pick-chip-cost { color: var(--critical); border-color: var(--critical); background: var(--critical-soft); }
+.pick-payout { font-size: .8rem; font-weight: 600; color: var(--good); white-space: nowrap; }
