@@ -56,6 +56,10 @@ class Leg:
     line: float | None = None
     player_name: str | None = None
     team: str | None = None
+    #: Which week's slate this settles on (see src/models/schedule.py). Legs
+    #: from different weeks must never share a ticket: it would not resolve
+    #: together, and the later half is priced off a week-old projection.
+    slate_week: str | None = None
     p_model: float = 0.0  # model ("true") probability
     p_implied: float = 0.0  # de-vigged market probability
     ev: float = 0.0  # expected value per 1 unit staked

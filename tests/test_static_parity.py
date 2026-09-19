@@ -233,3 +233,96 @@ def test_marginals_are_reproduced():
 def test_pricing_is_deterministic():
     legs = [leg(player_name="A", team="KC"), leg(player_name="B", team="KC")]
     assert joint_in_js(legs, iterations=5_000) == joint_in_js(legs, iterations=5_000)
+
+
+# ----------------------------------------------------------------------
+# one week per slip
+# ----------------------------------------------------------------------
+def js_legs(week: str, game_id: str, prefix: str) -> list[dict]:
+    """Two priced legs on one game, tagged with a week."""
+    return [
+        {
+            "id": f"{prefix}-a", "game_id": game_id, "week": week, "odds": 250,
+            "p_model": 0.32, "p_implied": 0.286, "ev": 0.12, "subject": f"{prefix} A",
+            "market": "player_rush_yds", "market_label": "Rush Yds",
+            "description": f"{prefix} A Over", "i": 0,
+        },
+        {
+            "id": f"{prefix}-b", "game_id": game_id, "week": week, "odds": 300,
+            "p_model": 0.28, "p_implied": 0.25, "ev": 0.12, "subject": f"{prefix} B",
+            "market": "player_reception_yds", "market_label": "Rec Yds",
+            "description": f"{prefix} B Over", "i": 1,
+        },
+    ]
+
+
+def test_the_browser_engine_reports_a_slips_weeks():
+    payload = {"legs": js_legs("2026-09-15", "g1", "this") + js_legs("2026-09-22", "g2", "next")}
+    result = run_node(
+        """
+        const mixed = engine.priceSlip(input.legs, () => 0, { stake: 10 });
+        const clean = engine.priceSlip(input.legs.slice(0, 2), () => 0, { stake: 10 });
+        console.log(JSON.stringify({
+          mixedWeeks: mixed.weeks, mixedSingle: mixed.singleWeek,
+          cleanWeeks: clean.weeks, cleanSingle: clean.singleWeek,
+        }));
+        """,
+        payload,
+    )
+    assert result["mixedWeeks"] == ["2026-09-15", "2026-09-22"]
+    assert result["mixedSingle"] is False
+    assert result["cleanWeeks"] == ["2026-09-15"]
+    assert result["cleanSingle"] is True
+
+
+def test_the_browser_engine_blocks_a_mixed_week_slip():
+    payload = {
+        "legs": js_legs("2026-09-15", "g1", "this") + js_legs("2026-09-22", "g2", "next"),
+        "rules": {
+            "min_legs": 2, "max_legs": 8, "leg_odds_min": -400, "leg_odds_max": 400,
+            "min_leg_ev": -1, "min_sgp_correlation": -1,
+        },
+    }
+    result = run_node(
+        """
+        const advisories = engine.reviewSlip(input.legs, () => 0, input.rules);
+        console.log(JSON.stringify({ codes: advisories.map((a) => [a.code, a.level]) }));
+        """,
+        payload,
+    )
+    assert ["mixed_weeks", "block"] in [list(row) for row in result["codes"]]
+
+
+def test_the_browser_builder_never_crosses_weeks():
+    """The reported bug, on the page's own solver rather than the ILP."""
+    payload = {
+        "legs": js_legs("2026-09-15", "g1", "this") + js_legs("2026-09-22", "g2", "next"),
+    }
+    result = run_node(
+        """
+        const built = engine.buildLongshots(input.legs, () => 0.3, {
+          minMultiple: 2, minLegs: 2, maxLegs: 4, week: "2026-09-15", stake: 5,
+        });
+        console.log(JSON.stringify({
+          weeks: built.tickets.map((t) => [...new Set(t.legs.map((l) => l.week))]),
+          tickets: built.tickets.length,
+        }));
+        """,
+        payload,
+    )
+    assert result["tickets"] > 0
+    assert all(weeks == ["2026-09-15"] for weeks in result["weeks"])
+
+
+def test_the_browser_builder_filters_nothing_when_no_week_is_chosen():
+    """A slate with no kickoff times must still build."""
+    payload = {"legs": [dict(leg, week=None) for leg in js_legs("x", "g1", "this")]}
+    result = run_node(
+        """
+        const kept = engine.inWeek(input.legs, "2026-09-15");
+        console.log(JSON.stringify({ kept: kept.length, all: engine.inWeek(input.legs, null).length }));
+        """,
+        payload,
+    )
+    assert result["kept"] == 2   # an unknown week is never filtered out
+    assert result["all"] == 2

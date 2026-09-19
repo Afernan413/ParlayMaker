@@ -31,6 +31,7 @@ from src.models.legs import Leg
 from src.notifications.notifier import Notifier, render_console
 from src.optimizer import clv
 from src.optimizer.ev_calculator import find_edges
+from src.learning import journal
 from src.optimizer.leg_builder import attach_rationale, legs_from_lines, legs_from_props
 from src.optimizer.parlay_builder import BuildReport, ParlayTicket, build_parlays
 from src.reasoning.context_agent import ContextAgent, ContextResult, RuleBasedContextAgent
@@ -56,6 +57,7 @@ class PipelineResult:
     timings: dict[str, float] = field(default_factory=dict)
     dispatch: str = ""
     run_id: str = ""
+    journalled: int = 0
 
     @property
     def duration(self) -> float:
@@ -79,6 +81,7 @@ class PipelineResult:
             "tickets": len(self.tickets),
             "solver_status": self.build_report.solver_status,
             "run_id": self.run_id,
+            "journalled": self.journalled,
             "rejections": self.build_report.rejected,
             "seconds": round(self.duration, 2),
         }
@@ -246,6 +249,7 @@ def leg_stage(
                 props,
                 [p for p in projections if p.game_id == game_id],
                 sport=sport,
+                commence_time=game.get("commence_time"),
             )
         )
         if include_game_markets:
@@ -254,6 +258,7 @@ def leg_stage(
                     db.latest_lines(game_id, db_path=db_path),
                     game_projections.get(game_id),
                     sport=sport,
+                    commence_time=game.get("commence_time"),
                 )
             )
     return legs
@@ -415,6 +420,23 @@ async def run_pipeline(
     if not slate.games:
         return result
 
+    # Every priced leg is journalled, not just the ones that made the card, so
+    # the learning loop trains on the model's whole opinion rather than on the
+    # slice the optimizer happened to like. Mock runs are not journalled:
+    # fictional players never appear in a box score, so they would sit in the
+    # queue unresolved forever.
+    if log_bets:
+        result.run_id = clv.new_run_id()
+        if not use_mock:
+            with clock("journal"):
+                result.journalled = journal.record(
+                    slate.legs,
+                    run_id=result.run_id,
+                    sport=sport,
+                    games=slate.games_by_id,
+                    db_path=db_path,
+                )
+
     with clock("optimize"):
         tickets, build_report = build_parlays(
             slate.edges,
@@ -428,8 +450,8 @@ async def run_pipeline(
         result.tickets = tickets
         result.build_report = build_report
         if tickets and log_bets:
-            result.run_id = clv.log_recommendations(
-                tickets, sport=sport, db_path=db_path
+            clv.log_recommendations(
+                tickets, sport=sport, run_id=result.run_id or None, db_path=db_path
             )
 
     if notify:

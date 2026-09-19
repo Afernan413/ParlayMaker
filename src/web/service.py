@@ -18,6 +18,7 @@ from typing import Any, Iterable, Sequence
 from config.settings import SPORT_KEYS, market_meta, settings
 from src.models.correlation import pairwise_correlation
 from src.models.legs import MARKET_LABELS, Leg, format_odds
+from src.models.schedule import one_week, week_key, week_label, weeks_on
 from src.optimizer.ev_calculator import (
     american_to_decimal,
     breakeven_probability,
@@ -185,6 +186,7 @@ def leg_payload(leg: Leg, game: dict[str, Any] | None = None) -> dict[str, Any]:
         "game_id": leg.game_id,
         "game": game_label(game),
         "kickoff": (game or {}).get("commence_time"),
+        "week": leg.slate_week,
         "sport": leg.sport,
         "market": leg.market,
         "market_label": market_display(leg.market),
@@ -241,17 +243,38 @@ def slate_payload(slate: Slate) -> dict[str, Any]:
                 "home_team": game["home_team"],
                 "away_team": game["away_team"],
                 "kickoff": game["commence_time"],
+                "week": week_key(game["commence_time"]),
                 "game_script": scripts.get(game["game_id"], ""),
             }
             for game in slate.games
         ],
+        "weeks": week_payload(slate),
         "legs": [leg_payload(leg, games.get(leg.game_id)) for leg in slate.legs],
     }
+
+
+def week_payload(slate: Slate) -> list[dict[str, Any]]:
+    """The weeks this slate spans, earliest first.
+
+    The odds feed returns every upcoming event, so a slate routinely holds two
+    weeks. A parlay must settle together, so each slip belongs to one of them.
+    """
+    counts: dict[str, int] = {}
+    for game in slate.games:
+        key = week_key(game["commence_time"])
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+    return [
+        {"key": key, "label": week_label(key), "games": counts[key]}
+        for key in weeks_on(slate.games)
+    ]
 
 
 def ticket_payload(ticket: ParlayTicket, games: dict[str, Any]) -> dict[str, Any]:
     return {
         "ticket_type": ticket.ticket_type,
+        "week": ticket.slate_week,
+        "week_label": ticket.week_display,
         "american_odds": ticket.american_odds,
         "odds_display": format_odds(ticket.american_odds),
         "decimal_odds": round(ticket.decimal_odds, 4),
@@ -300,6 +323,11 @@ def correlation_pairs(legs: Sequence[Leg]) -> list[dict[str, Any]]:
     return pairs
 
 
+def weeks_of(legs: Sequence[Leg]) -> set[str]:
+    """Every week the given legs settle on."""
+    return {leg.slate_week for leg in legs if leg.slate_week}
+
+
 def review_slip(legs: Sequence[Leg], pairs: Sequence[dict[str, Any]]) -> list[Advisory]:
     """House rules, reported rather than enforced.
 
@@ -307,6 +335,18 @@ def review_slip(legs: Sequence[Leg], pairs: Sequence[dict[str, Any]]) -> list[Ad
     about which of the engine's guardrails that slip is outside.
     """
     advisories: list[Advisory] = []
+    if not one_week([leg.slate_week for leg in legs]):
+        # Not a preference: a slip spanning two weeks cannot settle together,
+        # and its later half is priced off a week-old projection.
+        spans = ", ".join(week_label(week) for week in sorted(weeks_of(legs)))
+        advisories.append(
+            Advisory(
+                "block",
+                "mixed_weeks",
+                f"These legs are from different weeks ({spans}), so they cannot "
+                "settle together. Keep one slip to one week.",
+            )
+        )
     if len(legs) < settings.min_legs:
         advisories.append(
             Advisory("info", "too_few_legs", f"Add at least {settings.min_legs} legs to price a parlay.")

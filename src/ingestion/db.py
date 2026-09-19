@@ -126,6 +126,34 @@ SCHEMA: tuple[str, ...] = (
     # Recommendations are logged so their prices can later be benchmarked
     # against the closing line (see src/optimizer/clv.py).
     BET_LOG_SCHEMA,
+    # Every leg the model priced, graded once the game is played. This is what
+    # the learning loop trains on going forward: history from nflverse only
+    # covers what the model *would* have said, this covers what it did say.
+    """
+    CREATE TABLE IF NOT EXISTS projection_log (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id        TEXT NOT NULL,
+        sport         TEXT NOT NULL,
+        game_id       TEXT NOT NULL,
+        commence_time TEXT,
+        season        INTEGER,
+        week          INTEGER,
+        player_name   TEXT,
+        team          TEXT,
+        market        TEXT NOT NULL,
+        selection     TEXT NOT NULL,
+        line          REAL,
+        projected     REAL,
+        p_model       REAL,
+        p_implied     REAL,
+        american_odds INTEGER,
+        actual        REAL,
+        hit           INTEGER,
+        graded_at     TEXT,
+        captured_at   TEXT NOT NULL,
+        UNIQUE (run_id, game_id, market, player_name, selection, line)
+    )
+    """,
 )
 
 INDEXES: tuple[str, ...] = (
@@ -139,6 +167,8 @@ INDEXES: tuple[str, ...] = (
     "CREATE INDEX IF NOT EXISTS idx_quota_api_time ON api_quota_log(api, captured_at)",
     "CREATE INDEX IF NOT EXISTS idx_betlog_run ON bet_log(run_id)",
     "CREATE INDEX IF NOT EXISTS idx_betlog_market ON bet_log(sport, market, player_name)",
+    "CREATE INDEX IF NOT EXISTS idx_projlog_pending ON projection_log(sport, graded_at)",
+    "CREATE INDEX IF NOT EXISTS idx_projlog_market ON projection_log(sport, market, player_name)",
 )
 
 #: Additive, idempotent schema patches applied after :data:`SCHEMA`.
@@ -242,6 +272,53 @@ def insert_weather(rows: Iterable[dict[str, Any]], db_path=None) -> int:
 
 def insert_injuries(rows: Iterable[dict[str, Any]], db_path=None) -> int:
     return _bulk("injury_reports", rows, db_path)
+
+
+def insert_projections(rows: Iterable[dict[str, Any]], db_path=None) -> int:
+    """Record priced legs for later grading. Re-running a run is a no-op."""
+    return _bulk("projection_log", rows, db_path)
+
+
+def ungraded_projections(
+    sport: str | None = None, before: str | None = None, db_path=None
+) -> list[dict[str, Any]]:
+    """Logged legs that have no result yet.
+
+    ``before`` limits it to games that have already kicked off, so a slate
+    still hours away is not reported as missing its grades.
+    """
+    clauses = ["graded_at IS NULL"]
+    params: list[Any] = []
+    if sport:
+        clauses.append("sport = ?")
+        params.append(sport)
+    if before:
+        clauses.append("(commence_time IS NULL OR commence_time < ?)")
+        params.append(before)
+    sql = f"SELECT * FROM projection_log WHERE {' AND '.join(clauses)} ORDER BY id"
+    return fetch_all(sql, params, db_path=db_path)
+
+
+def grade_projections(grades: Iterable[tuple[int, float, int]], db_path=None) -> int:
+    """Attach ``(row id, actual, hit)`` results to logged legs."""
+    rows = [(float(actual), int(hit), utcnow(), int(row_id)) for row_id, actual, hit in grades]
+    if not rows:
+        return 0
+    with connect(db_path) as conn:
+        cur = conn.executemany(
+            "UPDATE projection_log SET actual = ?, hit = ?, graded_at = ? WHERE id = ?", rows
+        )
+        return cur.rowcount or 0
+
+
+def graded_projections(sport: str | None = None, db_path=None) -> list[dict[str, Any]]:
+    """Every logged leg that has a result, oldest first."""
+    sql = "SELECT * FROM projection_log WHERE graded_at IS NOT NULL"
+    params: list[Any] = []
+    if sport:
+        sql += " AND sport = ?"
+        params.append(sport)
+    return fetch_all(sql + " ORDER BY id", params, db_path=db_path)
 
 
 def insert_bets(rows: Iterable[dict[str, Any]], db_path=None) -> int:

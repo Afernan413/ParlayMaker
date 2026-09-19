@@ -12,6 +12,7 @@ const state = {
   legsById: new Map(),
   slip: [],          // leg_id order
   pricing: null,     // last /api/price response
+  week: null,        // which week's slate the slip belongs to
   requestToken: 0,
 };
 
@@ -73,6 +74,7 @@ async function loadSlate({ refresh = false } = {}) {
     state.slate = payload;
     state.legsById = new Map(payload.legs.map((leg) => [leg.leg_id, leg]));
     state.slip = state.slip.filter((id) => state.legsById.has(id));
+    renderWeekPicker();
     renderFilters();
     renderLegs();
     renderSlip();
@@ -90,18 +92,69 @@ async function loadSlate({ refresh = false } = {}) {
   }
 }
 
+/* ---------------------------------------------------------------- weeks */
+/**
+ * A parlay has to settle together, so everything is scoped to one week.
+ *
+ * The odds feed returns every upcoming event, so a slate routinely holds this
+ * Sunday's games and next Thursday's. Mixing them produced tickets that could
+ * not resolve for nine days, half of them priced off a week-old projection.
+ * The week key is computed server-side (src/models/schedule.py) and travels on
+ * every game and leg, so the browser never re-derives it.
+ */
+function weeksAvailable() {
+  return (state.slate && state.slate.weeks) || [];
+}
+
+function renderWeekPicker() {
+  const weeks = weeksAvailable();
+  if (!weeks.some((week) => week.key === state.week)) {
+    state.week = weeks.length ? weeks[0].key : null;
+  }
+  const select = $("week-select");
+  $("week-picker").hidden = weeks.length < 2;
+  select.innerHTML = "";
+  for (const week of weeks) {
+    const option = document.createElement("option");
+    option.value = week.key;
+    option.textContent = `${week.label} (${week.games} game${week.games === 1 ? "" : "s"})`;
+    option.selected = week.key === state.week;
+    select.append(option);
+  }
+}
+
+/** A leg or game with no week is never hidden -- unknown is not a mismatch. */
+function inWeek(rows) {
+  if (!state.week) return rows;
+  return rows.filter((row) => !row.week || row.week === state.week);
+}
+
+function weekLabelOf(key) {
+  const found = weeksAvailable().find((week) => week.key === key);
+  return found ? found.label : key;
+}
+
+/** The week the slip is already committed to, if any. */
+function slipWeek() {
+  for (const id of state.slip) {
+    const leg = state.legsById.get(id);
+    if (leg && leg.week) return leg.week;
+  }
+  return null;
+}
+
 /* ------------------------------------------------------------ rendering */
 function renderFilters() {
   const gameSelect = $("filter-game");
   gameSelect.innerHTML = '<option value="">All games</option>';
-  for (const game of state.slate.games) {
+  for (const game of inWeek(state.slate.games)) {
     const option = document.createElement("option");
     option.value = game.game_id;
     option.textContent = game.label;
     gameSelect.append(option);
   }
 
-  const markets = [...new Set(state.slate.legs.map((leg) => leg.market_label))].sort();
+  const markets = [...new Set(inWeek(state.slate.legs).map((leg) => leg.market_label))].sort();
   const marketSelect = $("filter-market");
   marketSelect.innerHTML = '<option value="">All markets</option>';
   for (const market of markets) {
@@ -119,7 +172,7 @@ function visibleLegs() {
   const edgesOnly = $("filter-edges").checked;
   const sort = $("filter-sort").value;
 
-  const legs = state.slate.legs.filter((leg) => {
+  const legs = inWeek(state.slate.legs).filter((leg) => {
     if (edgesOnly && !leg.has_edge) return false;
     if (game && leg.game_id !== game) return false;
     if (market && leg.market_label !== market) return false;
@@ -148,7 +201,7 @@ function renderLegs() {
   const list = $("leg-list");
   const legs = visibleLegs();
   list.innerHTML = "";
-  $("legs-count").textContent = `${legs.length} of ${state.slate.legs.length}`;
+  $("legs-count").textContent = `${legs.length} of ${inWeek(state.slate.legs).length}`;
   $("legs-empty").hidden = legs.length > 0;
 
   const fragment = document.createDocumentFragment();
@@ -468,8 +521,23 @@ function syncLegButtons() {
 
 function toggleLeg(legId) {
   const index = state.slip.indexOf(legId);
-  if (index >= 0) state.slip.splice(index, 1);
-  else state.slip.push(legId);
+  if (index >= 0) {
+    state.slip.splice(index, 1);
+  } else {
+    const leg = state.legsById.get(legId);
+    const committed = slipWeek();
+    if (leg && leg.week && committed && leg.week !== committed) {
+      // Refused rather than warned: a slip spanning two weeks cannot settle
+      // together, so there is no version of it worth pricing.
+      setStatus(
+        `That bet is from ${weekLabelOf(leg.week)}; your slip is ` +
+        `${weekLabelOf(committed)}. Clear the slip to switch weeks.`,
+        "error",
+      );
+      return;
+    }
+    state.slip.push(legId);
+  }
   syncLegButtons();
   priceSlip();
 }
@@ -529,6 +597,15 @@ function wireEvents() {
       await loadSlate();
     });
   }
+
+  $("week-select").addEventListener("change", (event) => {
+    state.week = event.target.value || null;
+    state.slip = [];        // it belonged to the other week
+    state.pricing = null;
+    renderFilters();
+    renderLegs();
+    renderSlip();
+  });
 
   $("refresh").addEventListener("click", () => loadSlate({ refresh: true }));
   $("build-run").addEventListener("click", runBuild);

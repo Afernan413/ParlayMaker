@@ -18,6 +18,7 @@ from typing import Any, Iterable, Mapping, Sequence
 from src.models.baseline import GameProjection
 from src.models.distributions import DistributionSpec
 from src.models.legs import Leg, Projection
+from src.models.schedule import week_key
 from src.optimizer.ev_calculator import devig_selection, evaluate_leg
 
 logger = logging.getLogger(__name__)
@@ -52,8 +53,14 @@ def legs_from_props(
     *,
     sport: str,
     devig_method: str = "power",
+    commence_time: Any = None,
 ) -> list[Leg]:
-    """Build one leg per priced side that we have a projection for."""
+    """Build one leg per priced side that we have a projection for.
+
+    ``commence_time`` stamps each leg with the week it settles on, so the
+    optimizer cannot put two different weeks on one ticket.
+    """
+    slate_week = week_key(commence_time)
     index = projection_index(projections)
     legs: list[Leg] = []
 
@@ -65,7 +72,9 @@ def legs_from_props(
         if projection is None:
             continue
 
-        spec = DistributionSpec.for_market(market, projection.mean, projection.dispersion)
+        spec = DistributionSpec.for_market(
+            market, projection.mean, projection.dispersion, sport=sport
+        )
         probability = spec.probability(line)
 
         for row in rows:
@@ -86,6 +95,7 @@ def legs_from_props(
                 line=line,
                 player_name=player,
                 team=projection.team,
+                slate_week=slate_week,
                 p_model=p_model,
                 projection_mean=projection.mean,
                 baseline_mean=projection.mean,
@@ -102,10 +112,13 @@ def legs_from_lines(
     *,
     sport: str,
     devig_method: str = "power",
+    commence_time: Any = None,
 ) -> list[Leg]:
     """Build game-market legs (total, spread, moneyline) from a game projection."""
     if game_projection is None:
         return []
+
+    slate_week = week_key(commence_time)
 
     grouped: dict[tuple, list[Mapping[str, Any]]] = defaultdict(list)
     for row in line_rows:
@@ -138,6 +151,7 @@ def legs_from_lines(
                 american_odds=int(row["american_odds"]),
                 line=line,
                 team=_team_for_selection(selection, game_projection, sport),
+                slate_week=slate_week,
                 p_model=p_model,
                 projection_mean=(
                     game_projection.total_mean if market == "totals"

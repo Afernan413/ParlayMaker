@@ -24,6 +24,7 @@ import pandas as pd
 
 from config.settings import settings
 from src.ingestion.injuries import status_multiplier
+from src.models.calibration import calibration_for
 from src.models.legs import Projection
 
 logger = logging.getLogger(__name__)
@@ -130,6 +131,20 @@ COLLEGE_SCORE_SD = 16.5
 LEAGUE_AVG_PPG_NCAAF = 27.5
 OPPONENT_BETA = 0.35  # how strongly a 1-sd defence moves a projection
 OPPONENT_CLIP = 0.15  # +/- ceiling on the opponent factor
+
+
+def score_spread(sport: str, market: str) -> float:
+    """How far a final score lands from its projection, in points.
+
+    The constants above are priors. Once ``src.learning.train`` has measured
+    the real residual around a closing line, that measurement is used instead
+    -- separately for the total and the margin, which are not equally noisy.
+    """
+    fallback = COLLEGE_SCORE_SD if sport == "ncaaf" else NFL_SCORE_SD
+    fitted = calibration_for(sport, market)
+    if fitted is not None and fitted.dispersion:
+        return float(fitted.dispersion)
+    return fallback
 
 
 # ----------------------------------------------------------------------
@@ -395,16 +410,15 @@ def project_nfl_game(
     away_points = points(away, home)
     # College games swing far wider than the NFL: bigger talent gaps, more
     # possessions, less roster parity.
-    spread = COLLEGE_SCORE_SD if sport == "ncaaf" else NFL_SCORE_SD
     return GameProjection(
         game_id=str(game["game_id"]),
         sport=sport,
         home_team=home,
         away_team=away,
         total_mean=home_points + away_points,
-        total_sd=spread,
+        total_sd=score_spread(sport, "totals"),
         home_margin_mean=home_points - away_points + 1.4,  # home-field advantage
-        margin_sd=spread,
+        margin_sd=score_spread(sport, "spreads"),
     )
 
 

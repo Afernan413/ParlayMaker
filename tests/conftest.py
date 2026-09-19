@@ -22,6 +22,25 @@ def db_path(tmp_path: Path) -> str:
     return str(path)
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _blank_calibration():
+    """Price with the shipped priors, not with whatever was last fitted.
+
+    ``data/calibration.json`` is a committed artifact that changes whenever the
+    model is retrained. Tests assert on the model's behaviour, so they pin the
+    priors and let the calibration tests install their own fits explicitly.
+
+    Session-scoped on purpose: module-scoped fixtures (the web app's slate, for
+    one) are built before any function-scoped fixture runs, so blanking per
+    test would leave those built against whatever happened to be on disk.
+    """
+    from src.models import calibration
+
+    calibration.set_active_calibration(calibration.Calibration.blank())
+    yield
+    calibration.set_active_calibration(None)
+
+
 @pytest.fixture(autouse=True)
 def _no_backoff_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep retry/backoff paths instant in unit tests."""

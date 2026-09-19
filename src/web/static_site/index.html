@@ -23,6 +23,10 @@
       <button type="button" class="seg" data-sport="ncaaf" aria-pressed="false">CFB</button>
       <button type="button" class="seg" data-sport="nba" aria-pressed="false">NBA</button>
     </div>
+    <label class="week-picker" id="week-picker" hidden>
+      <span class="week-picker-label">Week</span>
+      <select id="week-select" aria-label="Which week to build for"></select>
+    </label>
     <div class="tabs" role="tablist">
       <button type="button" class="tab" data-view="picks" role="tab" aria-selected="true">Picks</button>
       <button type="button" class="tab" data-view="games" role="tab" aria-selected="false">Games</button>
@@ -33,6 +37,7 @@
 </header>
 
 <p id="stale-note" class="stale-note" hidden></p>
+<p id="slip-note" class="stale-note" hidden role="status" aria-live="polite"></p>
 <p id="status" class="status-line" role="status" aria-live="polite">Loading…</p>
 
 <main class="layout">

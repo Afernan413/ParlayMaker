@@ -72,6 +72,43 @@ async def test_dry_run_produces_a_valid_card(sport, db_path):
         seen_subjects |= ticket.subjects
 
 
+async def test_a_mock_run_journals_nothing(db_path):
+    """Fictional players never appear in a box score, so they must not queue."""
+    from src.ingestion import db as store
+
+    result = await run_pipeline.run_pipeline(
+        sport="nfl", mode="dry-run", use_mock=True, db_path=db_path,
+        iterations=500, seed=3, notify=False,
+    )
+    assert result.journalled == 0
+    assert store.ungraded_projections("nfl", db_path=db_path) == []
+
+
+async def test_a_live_shaped_run_journals_every_priced_leg(db_path, monkeypatch):
+    """The journal records the model's whole opinion, not just the card."""
+    from src.ingestion import db as store
+
+    # The slate is still the fixture -- only the mock flag is dropped, which is
+    # what decides whether the run is journalled.
+    real_build = run_pipeline.build_slate
+
+    async def fixture_slate(**kwargs):
+        kwargs["use_mock"] = True
+        return await real_build(**kwargs)
+
+    monkeypatch.setattr(run_pipeline, "build_slate", fixture_slate)
+    result = await run_pipeline.run_pipeline(
+        sport="nfl", mode="dry-run", use_mock=False, db_path=db_path,
+        iterations=500, seed=3, notify=False,
+    )
+    assert result.journalled > 0
+    pending = store.ungraded_projections("nfl", db_path=db_path)
+    assert len(pending) == result.journalled
+    assert all(row["market"].startswith("player_") for row in pending)
+    assert all(row["p_model"] is not None and row["projected"] is not None for row in pending)
+    assert all(row["run_id"] == result.run_id for row in pending)
+
+
 async def test_same_game_tickets_only_pair_correlated_legs(db_path):
     result = await run_pipeline.run_pipeline(
         sport="nfl", use_mock=True, db_path=db_path, iterations=2_000,

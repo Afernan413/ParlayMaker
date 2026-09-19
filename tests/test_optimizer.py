@@ -26,12 +26,14 @@ from src.optimizer.ev_calculator import (
     remove_vig,
 )
 from src.optimizer.parlay_builder import (
+    BuildReport,
     build_parlays,
     describe_ticket_type,
     enumerate_tickets,
     price_ticket,
     same_game_pairs_are_correlated,
     select_portfolio,
+    settles_in_one_week,
     summarise,
 )
 
@@ -271,6 +273,49 @@ def test_legs_outside_the_price_band_never_reach_a_ticket(pool):
                     american_odds=400, p_model=0.40)
     tickets = enumerate_tickets(pool + [junk], iterations=1_000, seed=5)
     assert all("Longshot L" not in ticket.subjects for ticket in tickets)
+
+
+# ------------------------------------------------------------------ one week
+def test_a_ticket_never_spans_two_weeks():
+    """The reported bug: the feed returns two weeks, the ILP combined them."""
+    this_week = [
+        make_leg(player_name="QB One", team="KC", p_model=0.60, slate_week="2026-09-15"),
+        make_leg(player_name="WR One", team="KC", market="player_reception_yds",
+                 line=64.5, american_odds=-105, p_model=0.60, slate_week="2026-09-15"),
+    ]
+    next_week = [
+        make_leg(game_id="g9", player_name="QB Two", team="SF", p_model=0.60,
+                 slate_week="2026-09-22"),
+        make_leg(game_id="g9", player_name="WR Two", team="SF",
+                 market="player_reception_yds", line=64.5, american_odds=-105,
+                 p_model=0.60, slate_week="2026-09-22"),
+    ]
+    report = BuildReport()
+    tickets = enumerate_tickets(
+        this_week + next_week, iterations=1_000, seed=5, report=report
+    )
+    assert tickets, "each week on its own should still produce tickets"
+    for ticket in tickets:
+        assert len({leg.slate_week for leg in ticket.legs}) == 1
+    assert report.rejected["legs from different weeks"] > 0
+
+
+def test_a_ticket_reports_the_week_it_settles_on():
+    legs = [
+        make_leg(player_name="QB One", team="KC", p_model=0.60, slate_week="2026-09-15"),
+        make_leg(player_name="WR One", team="KC", market="player_reception_yds",
+                 line=64.5, american_odds=-105, p_model=0.60, slate_week="2026-09-15"),
+    ]
+    ticket = enumerate_tickets(legs, iterations=1_000, seed=5)[0]
+    assert ticket.slate_week == "2026-09-15"
+    assert ticket.week_display == "Sep 15 - Sep 21"
+    assert ticket.as_dict()["week"] == "Sep 15 - Sep 21"
+
+
+def test_a_slate_with_no_kickoff_times_still_builds(pool):
+    """Unknown weeks are unknown, not a mismatch -- fixtures must still price."""
+    assert all(leg.slate_week is None for leg in pool)
+    assert enumerate_tickets(pool, iterations=1_000, seed=5)
 
 
 def test_portfolio_never_repeats_a_subject(pool):

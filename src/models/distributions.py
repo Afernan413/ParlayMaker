@@ -20,6 +20,7 @@ import numpy as np
 from scipy import stats
 
 from config.settings import bookmaker_config, market_meta
+from src.models.calibration import MarketCalibration, calibration_for
 
 CONTINUOUS_FAMILIES = frozenset({"lognormal", "normal"})
 DISCRETE_FAMILIES = frozenset({"poisson", "negative_binomial", "poisson_binary"})
@@ -77,22 +78,56 @@ class DistributionSpec:
     * ``normal``    -- standard deviation in points
     * ``negative_binomial`` -- variance multiple (var = mean * dispersion)
     * ``poisson`` / ``poisson_binary`` -- unused
+
+    ``calibration`` is the market's learned correction, when one has been
+    fitted. It has already been folded into ``mean``, ``dispersion`` and
+    ``family``; the spec keeps it so that :meth:`probability` can also apply
+    the recalibration that lives on the probability scale.
     """
 
     family: str
     mean: float
     dispersion: float | None = None
+    calibration: MarketCalibration | None = None
 
     # -- construction -------------------------------------------------
     @classmethod
     def for_market(
-        cls, market: str, mean: float, dispersion: float | None = None
+        cls,
+        market: str,
+        mean: float,
+        dispersion: float | None = None,
+        *,
+        sport: str | None = None,
     ) -> "DistributionSpec":
-        """Build the spec a market's family calls for."""
+        """Build the spec a market's family calls for.
+
+        Pass ``sport`` to apply the corrections learned for that sport's
+        market (see :mod:`src.models.calibration`). Without it the raw priors
+        from ``config/bookmaker_keys.json`` are used, which is what the
+        training code wants when it is measuring the uncorrected model.
+
+        An explicitly supplied ``dispersion`` always wins: the caller has
+        measured this particular player, the calibration only replaces the
+        market-wide prior.
+        """
+        fitted = calibration_for(sport, market)
+        family = family_for(market)
+        centre = float(mean)
+        spread = dispersion
+
+        if fitted is not None:
+            centre = fitted.adjust_mean(centre)
+            if fitted.family:
+                family = fitted.family
+            if spread is None and fitted.dispersion is not None:
+                spread = fitted.dispersion
+
         return cls(
-            family=family_for(market),
-            mean=float(mean),
-            dispersion=dispersion if dispersion is not None else default_dispersion(market),
+            family=family,
+            mean=centre,
+            dispersion=spread if spread is not None else default_dispersion(market),
+            calibration=fitted,
         )
 
     # -- helpers ------------------------------------------------------
@@ -144,7 +179,30 @@ class DistributionSpec:
 
     # -- probabilities ------------------------------------------------
     def probability(self, line: float | None) -> MarketProbability:
-        """Over / under / push split against ``line``."""
+        """Over / under / push split against ``line``, recalibrated."""
+        return self._recalibrated(self._raw_probability(line))
+
+    def _recalibrated(self, raw: MarketProbability) -> MarketProbability:
+        """Apply the learned probability correction, holding the push fixed.
+
+        A push is refunded, so only the two bettable outcomes are rescaled;
+        their share of the total is what the correction was fitted on.
+        """
+        fitted = self.calibration
+        if fitted is None or not fitted.shifts_probability:
+            return raw
+        live = raw.prob_over + raw.prob_under
+        if live <= 0:
+            return raw
+        corrected = fitted.adjust_probability(raw.prob_over / live)
+        return MarketProbability(
+            prob_over=corrected * live,
+            prob_under=(1.0 - corrected) * live,
+            prob_push=raw.prob_push,
+        )
+
+    def _raw_probability(self, line: float | None) -> MarketProbability:
+        """The family's own split, before any learned correction."""
         if line is None:
             # Binary market (e.g. anytime TD) -- "over" is "at least one".
             p_yes = self.prob_at_least(1)
@@ -210,7 +268,7 @@ class DistributionSpec:
 def spec_from_projection(projection) -> DistributionSpec:
     """Build a spec from a :class:`~src.models.legs.Projection`."""
     return DistributionSpec.for_market(
-        projection.market, projection.mean, projection.dispersion
+        projection.market, projection.mean, projection.dispersion, sport=projection.sport
     )
 
 
@@ -220,9 +278,11 @@ def baseline_probability(
     line: float | None,
     selection: str,
     dispersion: float | None = None,
+    *,
+    sport: str | None = None,
 ) -> float:
     """P_base: unadjusted fair probability of a selection against a line."""
-    spec = DistributionSpec.for_market(market, mean, dispersion)
+    spec = DistributionSpec.for_market(market, mean, dispersion, sport=sport)
     return spec.prob_over(line, selection)
 
 

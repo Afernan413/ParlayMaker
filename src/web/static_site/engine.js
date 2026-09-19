@@ -239,6 +239,27 @@
     };
   }
 
+  // ------------------------------------------------------------ weeks
+  /**
+   * Which weeks a set of legs settles on.
+   *
+   * A parlay has to resolve together. The odds feed returns every upcoming
+   * event, so one slate routinely holds this Sunday's games and next
+   * Thursday's; a ticket built across both would sit unresolved for nine days
+   * with half of it priced off a week-old projection. The week key is computed
+   * in Python (src/models/schedule.py) and travels on every leg, so the
+   * browser never has to re-derive it.
+   */
+  function weeksOf(legs) {
+    return [...new Set(legs.map((leg) => leg.week).filter(Boolean))].sort();
+  }
+
+  /** Legs belonging to one week; a blank week means "no filter". */
+  function inWeek(legs, week) {
+    if (!week) return legs.slice();
+    return legs.filter((leg) => !leg.week || leg.week === week);
+  }
+
   // ---------------------------------------------------------- slip price
   /** Price a slip: odds, probability, edge, payout and staking advice. */
   function priceSlip(legs, lookup, options) {
@@ -279,6 +300,8 @@
       kellyShare: share,
       recommendedStake: share * bankroll,
       isSameGame: new Set(legs.map((leg) => leg.game_id)).size === 1,
+      weeks: weeksOf(legs),
+      singleWeek: weeksOf(legs).length <= 1,
     };
   }
 
@@ -301,6 +324,14 @@
         code: "too_many_legs",
         message: `${legs.length} legs is past the ${rules.max_legs}-leg ceiling; ` +
           "the house edge compounds faster than the payout.",
+      });
+    }
+    if (weeksOf(legs).length > 1) {
+      advisories.push({
+        level: "block",
+        code: "mixed_weeks",
+        message: "These bets are from different weeks, so they cannot settle " +
+          "together. Keep one slip to one week.",
       });
     }
     for (const leg of legs) {
@@ -379,7 +410,8 @@
     // ranking by EV keeps the legs the model thinks are underpriced, which is
     // what you want in every leg of a longshot. There is no EV *floor* -- a
     // negative-EV leg is allowed in, it just queues behind better ones.
-    const usable = legs.filter((leg) => leg.p_model > 0 && leg.p_model < 1);
+    const usable = inWeek(legs, settings.week)
+      .filter((leg) => leg.p_model > 0 && leg.p_model < 1);
     const byValue = usable.slice().sort((a, b) => b.ev - a.ev || b.p_model - a.p_model);
     // A big target is unreachable from value legs alone -- they are mostly
     // short prices that cannot multiply far enough. Seed part of the pool with
@@ -505,7 +537,9 @@
     const maxTickets = settings.maxTickets || 3;
     const maxPool = settings.maxPool || 26;
 
-    const pool = legs
+    // One week per ticket: a parlay that cannot settle together is not a
+    // parlay, whatever its expected value says.
+    const pool = inWeek(legs, settings.week)
       .filter((leg) =>
         leg.ev >= rules.min_leg_ev &&
         leg.odds >= rules.leg_odds_min &&
@@ -576,6 +610,8 @@
     correlationMatrix,
     cholesky,
     jointProbability,
+    weeksOf,
+    inWeek,
     buildLongshots,
     priceSlip,
     reviewSlip,

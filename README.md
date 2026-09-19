@@ -27,6 +27,7 @@ ingest -> project -> reason -> price -> optimise -> notify
 | Optimise | `src/optimizer/parlay_builder.py` | Integer program that maximises portfolio EV under leg-count, price, correlation and diversification constraints |
 | Notify | `src/notifications/notifier.py` | Discord embeds / Telegram markdown / console cards |
 | Benchmark | `src/optimizer/clv.py` | Logs every recommendation, then scores its price against the closing line |
+| Learn | `src/learning/` | Replays past weeks, measures how far the model was off, and refits the mean bias, spread and probability calibration per market |
 | Craft | `src/web/` | Browser UI: pick legs, see the price, the edge and the payout update live |
 
 ### The guardrails that matter
@@ -244,6 +245,41 @@ A bet with no capture later than its own is not scored -- comparing a price with
 itself would measure nothing. Mean CLV is the honest test of whether the
 de-vigged probabilities carry signal; if it sits below zero, the projections are
 losing to the market regardless of what the model's EV column claims.
+
+## Learning from results
+
+The projection recipe's priors -- a four-week weighted average for the mean, a
+dispersion per market picked by eye -- are replaced with measurements taken from
+what actually happened:
+
+```bash
+uv run python -m src.learning.train --sport nfl            # dry run, report only
+uv run python -m src.learning.train --sport nfl --write    # keep it
+```
+
+Every past player-week is projected from the weeks before it only, probed at
+seven lines from 55% to 170% of the projection, and compared with the box score.
+Three corrections are fitted per market -- mean bias, dispersion, and a Platt
+recalibration of the probability -- and written to `data/calibration.json`,
+which every price in the engine and on the page then flows through. Nothing is
+written unless the weeks held back from the fit score better.
+
+The first real run found the model's tails too thin: it claimed 7% on bets that
+hit 21% of the time, and 84% on bets that hit 61%. That underprices exactly the
+longshot legs a big-payout parlay is made of. Fitting cut the claimed-versus-
+observed gap from +0.14 / -0.23 to inside ±0.05 and improved the out-of-sample
+Brier score by about 5%.
+
+Going forward, every leg the pipeline prices is journalled to `projection_log`
+and graded once the games are played, so the next refit measures the whole
+pipeline rather than the projection recipe alone:
+
+```bash
+uv run python -m src.learning.journal --sport nfl
+```
+
+`docs/LEARNING.md` has the details, and `.github/workflows/train.yml` does it
+every Tuesday.
 
 ## Tests
 

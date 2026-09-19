@@ -1,0 +1,88 @@
+# Refit the model from the results that have come in since the last run.
+#
+# The fit is only kept when the weeks it was not shown score better than the
+# current model does, so a bad week of data cannot quietly make the page worse.
+# Nothing here spends Odds API credits: the training data is nflverse box
+# scores, which are free.
+name: Retrain the model
+
+on:
+  schedule:
+    # 09:00 UTC Tuesday: after Monday night's box scores have landed, and
+    # before the week's slate is worth pricing.
+    - cron: "0 9 * * 2"
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: "Sport to retrain"
+        required: false
+        default: "nfl"
+      seasons:
+        description: "Seasons to learn from (space separated, blank = default)"
+        required: false
+        default: ""
+      force:
+        description: "Write even if the holdout got worse"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "train"
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install the engine
+        run: pip install -e '.[stats]'
+
+      - name: Fit the corrections
+        id: fit
+        env:
+          SPORT: ${{ github.event.inputs.sport || 'nfl' }}
+          SEASONS: ${{ github.event.inputs.seasons || '' }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '--force' || '' }}
+        run: |
+          set -o pipefail
+          # A holdout that says the fit is no better exits 1 without writing.
+          # That is a valid outcome, not a broken build.
+          python -m src.learning.train \
+            --sport "$SPORT" \
+            ${SEASONS:+--seasons $SEASONS} \
+            --write $FORCE 2>&1 | tee training.log || true
+          if git diff --quiet -- data/calibration.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish the training report
+        run: |
+          {
+            echo '## Training run'
+            echo
+            echo '```'
+            cat training.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the new corrections
+        if: steps.fit.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/calibration.json
+          git commit -m "Retrain the model on the latest results"
+          git push origin HEAD:${{ github.ref_name }}

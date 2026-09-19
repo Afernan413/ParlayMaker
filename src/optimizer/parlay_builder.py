@@ -3,8 +3,9 @@
 Two stages:
 
 1. **Enumerate** every feasible 2-4 leg combination. Feasibility is where the
-   house edge is fought: single-leg price band, ticket price band, and the SGP
-   rule that same-game legs must be positively correlated (``r >= 0.25``).
+   house edge is fought: one week per ticket, single-leg price band, ticket
+   price band, and the SGP rule that same-game legs must be positively
+   correlated (``r >= 0.25``).
    Joint probabilities come from the Gaussian copula, so correlation is priced
    rather than assumed away.
 2. **Select** a portfolio of tickets with PuLP: maximise total expected value
@@ -32,6 +33,7 @@ from src.models.correlation import (
 )
 from src.models.correlation import GaussianCopulaSimulator
 from src.models.legs import Leg, format_odds
+from src.models.schedule import one_week, week_label
 from src.optimizer.ev_calculator import (
     american_to_decimal,
     decimal_to_american,
@@ -77,6 +79,16 @@ class ParlayTicket:
         return {leg.subject for leg in self.legs}
 
     @property
+    def slate_week(self) -> str | None:
+        """The one week this ticket settles on, or ``None`` if unknown."""
+        weeks = {leg.slate_week for leg in self.legs if leg.slate_week}
+        return next(iter(weeks)) if len(weeks) == 1 else None
+
+    @property
+    def week_display(self) -> str:
+        return week_label(self.slate_week)
+
+    @property
     def implied_probability(self) -> float:
         return 1.0 / self.decimal_odds
 
@@ -118,6 +130,8 @@ class ParlayTicket:
             "average_correlation": round(self.average_correlation, 4),
             "stake": round(self.stake, 2),
             "to_win": round(self.to_win, 2),
+            "slate_week": self.slate_week,
+            "week": self.week_display,
         }
 
 
@@ -159,6 +173,17 @@ def same_game_pairs_are_correlated(
         if pairwise_correlation(leg_a, leg_b) < floor:
             return False
     return True
+
+
+def settles_in_one_week(legs: Sequence[Leg]) -> bool:
+    """Every leg on a ticket has to settle on the same week's slate.
+
+    The odds feed returns every upcoming event, so a Friday pull holds this
+    Sunday's games and next Thursday's. A ticket spanning both would not
+    resolve for nine days, and its later half is priced off a projection made
+    a week before the game -- stale by the time it is graded.
+    """
+    return one_week([leg.slate_week for leg in legs])
 
 
 def _has_duplicate_selection(legs: Sequence[Leg]) -> bool:
@@ -245,6 +270,9 @@ def enumerate_tickets(
     for size in range(low, high + 1):
         for combination in combinations(eligible, size):
             report.considered += 1
+            if not settles_in_one_week(combination):
+                report.reject("legs from different weeks")
+                continue
             if _has_duplicate_selection(combination):
                 report.reject("duplicate subject/market on ticket")
                 continue

@@ -105,7 +105,9 @@ def test_payout_scales_linearly_with_the_stake(client: TestClient, edge_legs):
     ids = [leg["leg_id"] for leg in edge_legs[:2]]
     small = price(client, ids, stake=10.0)
     large = price(client, ids, stake=100.0)
-    assert large["profit"] == pytest.approx(small["profit"] * 10, rel=1e-6)
+    # Payouts are rounded to the cent, so ten times a rounded profit can miss
+    # the exact product by up to a few cents.
+    assert large["profit"] == pytest.approx(small["profit"] * 10, abs=0.05)
     assert large["decimal_odds"] == small["decimal_odds"]
 
 
@@ -241,3 +243,54 @@ def test_health_reports_cached_slates(client: TestClient, slate: dict):
     body = client.get("/api/health").json()
     assert body["status"] == "ok"
     assert body["slates"]["nfl"]["games"] == 3
+
+
+# ----------------------------------------------------------------------
+# one week per slip
+# ----------------------------------------------------------------------
+def test_the_slate_reports_the_weeks_it_spans(client: TestClient):
+    body = client.get("/api/slate/nfl").json()
+    assert body["weeks"], "a slate with games always spans at least one week"
+    keys = [week["key"] for week in body["weeks"]]
+    assert keys == sorted(keys)
+    assert {game["week"] for game in body["games"]} <= set(keys)
+    assert {leg["week"] for leg in body["legs"]} <= set(keys)
+
+
+def test_a_one_week_slip_is_not_flagged(client: TestClient, edge_legs):
+    ids = [leg["leg_id"] for leg in edge_legs[:2]]
+    body = price(client, ids)
+    codes = {advisory["code"] for advisory in body["advisories"]}
+    assert "mixed_weeks" not in codes, "the fixture slate is one week"
+
+
+def test_review_flags_two_weeks_on_one_slip():
+    from src.models.legs import Leg
+    from src.web.service import review_slip
+
+    def leg(week: str, name: str) -> Leg:
+        return Leg(
+            game_id=f"g-{week}", sport="nfl", market="player_rush_yds", selection="Over",
+            american_odds=-110, line=60.5, player_name=name, team="KC",
+            slate_week=week, p_model=0.55, p_implied=0.52, ev=0.05,
+        )
+
+    advisories = review_slip([leg("2026-09-15", "A"), leg("2026-09-22", "B")], [])
+    mixed = [a for a in advisories if a.code == "mixed_weeks"]
+    assert mixed and mixed[0].level == "block"
+    assert "Sep 15" in mixed[0].message and "Sep 22" in mixed[0].message
+
+
+def test_review_accepts_one_week():
+    from src.models.legs import Leg
+    from src.web.service import review_slip
+
+    legs = [
+        Leg(game_id="g1", sport="nfl", market="player_rush_yds", selection="Over",
+            american_odds=-110, line=60.5, player_name="A", team="KC",
+            slate_week="2026-09-15", p_model=0.55, p_implied=0.52, ev=0.05),
+        Leg(game_id="g2", sport="nfl", market="player_reception_yds", selection="Over",
+            american_odds=-110, line=64.5, player_name="B", team="BUF",
+            slate_week="2026-09-15", p_model=0.55, p_implied=0.52, ev=0.05),
+    ]
+    assert not [a for a in review_slip(legs, []) if a.code == "mixed_weeks"]

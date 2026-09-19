@@ -72,6 +72,89 @@ def test_settings_travel_with_the_bundle(built):
     assert rules["min_legs"] == settings.min_legs and rules["max_legs"] == settings.max_legs
 
 
+def test_weeks_travel_with_the_bundle(built):
+    """The page picks one week to build within, so it needs the list."""
+    _, bundle = built
+    for sport in bundle["sports"].values():
+        assert sport["weeks"], "a slate with games always spans at least one week"
+        for week in sport["weeks"]:
+            assert week["key"] and week["label"] and week["games"] > 0
+        keys = [week["key"] for week in sport["weeks"]]
+        assert keys == sorted(keys)
+
+
+def test_every_game_and_leg_names_its_week(built):
+    _, bundle = built
+    for sport in bundle["sports"].values():
+        keys = {week["key"] for week in sport["weeks"]}
+        assert {game["week"] for game in sport["games"]} <= keys
+        assert {leg["week"] for leg in sport["legs"]} <= keys
+
+
+def test_a_legs_week_matches_its_games(built):
+    _, bundle = built
+    for sport in bundle["sports"].values():
+        weeks = {game["game_id"]: game["week"] for game in sport["games"]}
+        for leg in sport["legs"]:
+            assert leg["week"] == weeks[leg["game_id"]]
+
+
+def test_the_page_offers_a_week_picker():
+    html = _source("index.html")
+    assert 'id="week-select"' in html
+    # Hidden by default: it only earns its space when there are two weeks.
+    assert 'id="week-picker" hidden' in html
+
+
+def test_the_page_scopes_everything_to_the_chosen_week():
+    script = _source("app.js")
+    assert "state.week" in script
+    assert "week: state.week" in script     # passed into the solver
+    assert "weekLegs()" in script and "weekGames()" in script
+
+
+def test_training_provenance_travels_with_the_bundle(built):
+    """The page can say when the model last learned; blank when it never has."""
+    _, bundle = built
+    assert "training" in bundle
+    for sport, trained in bundle["training"].items():
+        assert trained["observations"] > 0
+        assert trained["markets"] > 0
+        assert trained["fitted_at"]
+
+
+def test_training_summary_reports_what_was_fitted():
+    from src.models.calibration import Calibration, MarketCalibration, SportCalibration, using_calibration
+
+    fitted = SportCalibration(
+        sport="nfl",
+        fitted_at="2026-09-19T00:00:00+00:00",
+        seasons=(2025, 2026),
+        metrics={"brier_gain": 0.05},
+        markets={
+            "player_rush_yds": MarketCalibration(
+                sport="nfl", market="player_rush_yds", samples=2607, dispersion=0.68
+            ),
+            "player_pass_yds": MarketCalibration(
+                sport="nfl", market="player_pass_yds", samples=598
+            ),
+        },
+    )
+    with using_calibration(Calibration(sports={"nfl": fitted})):
+        summary = build_static.training_summary()
+    assert summary["nfl"]["observations"] == 2607 + 598
+    assert summary["nfl"]["markets"] == 2
+    assert summary["nfl"]["seasons"] == [2025, 2026]
+    assert summary["nfl"]["brier_gain"] == pytest.approx(0.05)
+
+
+def test_training_summary_is_empty_before_anything_is_fitted():
+    from src.models.calibration import Calibration, using_calibration
+
+    with using_calibration(Calibration.blank()):
+        assert build_static.training_summary() == {}
+
+
 def test_every_leg_has_what_the_page_renders(built):
     _, bundle = built
     for sport in bundle["sports"].values():

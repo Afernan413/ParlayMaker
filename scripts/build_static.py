@@ -34,8 +34,10 @@ sys.path.insert(0, str(ROOT))
 
 from config.settings import SPORT_KEYS, settings  # noqa: E402
 from run_pipeline import Slate, build_slate  # noqa: E402
+from src.models.calibration import active_calibration  # noqa: E402
 from src.models.correlation import pairwise_correlation  # noqa: E402
 from src.models.legs import Leg  # noqa: E402
+from src.models.schedule import week_key, week_label, weeks_on  # noqa: E402
 from src.optimizer.ev_calculator import american_to_decimal  # noqa: E402
 from src.web.service import game_label, market_display  # noqa: E402
 
@@ -63,6 +65,7 @@ def leg_row(leg: Leg, game: dict[str, Any] | None, index: int) -> dict[str, Any]
         "team": leg.team,
         "selection": leg.selection,
         "line": leg.line,
+        "week": leg.slate_week,
         "odds": leg.american_odds,
         "decimal": round(american_to_decimal(leg.american_odds), 6),
         "p_model": round(leg.p_model, 6),
@@ -111,6 +114,7 @@ def game_rows(slate: Slate) -> list[dict[str, Any]]:
             "home_team": game["home_team"],
             "away_team": game["away_team"],
             "kickoff": game["commence_time"],
+            "week": week_key(game["commence_time"]),
             "game_script": scripts.get(game["game_id"], ""),
             **market.get(game["game_id"], {}),
         }
@@ -150,6 +154,24 @@ def _market_lines(slate: Slate) -> dict[str, dict[str, Any]]:
     return lines
 
 
+def week_rows(slate: Slate) -> list[dict[str, Any]]:
+    """The weeks this slate spans, earliest first.
+
+    The odds feed returns every upcoming event, so a slate routinely holds two
+    weeks. A parlay must settle together, so the page picks one week and builds
+    within it -- this is the list it picks from.
+    """
+    counts: dict[str, int] = {}
+    for game in slate.games:
+        key = week_key(game["commence_time"])
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+    return [
+        {"key": key, "label": week_label(key), "games": counts[key]}
+        for key in weeks_on(slate.games)
+    ]
+
+
 def sport_bundle(slate: Slate) -> dict[str, Any]:
     """Everything the browser needs for one sport."""
     games = {game["game_id"]: game for game in slate.games}
@@ -158,6 +180,7 @@ def sport_bundle(slate: Slate) -> dict[str, Any]:
         "mock": slate.mock,
         "built_at": slate.built_at,
         "games": game_rows(slate),
+        "weeks": week_rows(slate),
         "legs": [
             leg_row(leg, games.get(leg.game_id), index)
             for index, leg in enumerate(slate.legs)
@@ -185,6 +208,28 @@ def engine_settings() -> dict[str, Any]:
     }
 
 
+def training_summary() -> dict[str, Any]:
+    """What the model has learned, so the page can say when it last trained.
+
+    The corrections themselves are already baked into every ``p_model`` in the
+    bundle; this is only the provenance.
+    """
+    calibration = active_calibration()
+    summary: dict[str, Any] = {}
+    for sport, fitted in sorted(calibration.sports.items()):
+        if not fitted.markets:
+            continue
+        metrics = fitted.metrics or {}
+        summary[sport] = {
+            "fitted_at": fitted.fitted_at,
+            "seasons": list(fitted.seasons),
+            "markets": len(fitted.markets),
+            "observations": sum(fit.samples for fit in fitted.markets.values()),
+            "brier_gain": metrics.get("brier_gain"),
+        }
+    return summary
+
+
 async def build_bundle(
     sports: Sequence[str],
     *,
@@ -202,6 +247,7 @@ async def build_bundle(
     bundle: dict[str, Any] = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "settings": engine_settings(),
+        "training": training_summary(),
         "sports": {},
         "skipped": {},
     }

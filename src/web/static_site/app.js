@@ -16,6 +16,8 @@
     slip: [],
     pricing: null,
     picksSeed: 1337,
+    week: null,          // which week's slate we are building for
+    noteTimer: null,
     mode: "longshot",   // what this tool is for; Value is a click away
     legsById: new Map(),
     correlations: new Map(),
@@ -98,10 +100,93 @@
       note.hidden = true;
     }
 
-    $("status").textContent =
-      `${sport.games.length} games · ${sport.legs.length} priced bets · ` +
-      `${sport.legs.filter(hasEdge).length} rated +EV · ` +
-      `${sport.adjustments} context adjustments · built ${age.text}`;
+    const games = weekGames();
+    const legs = weekLegs();
+    const span = weeksAvailable().length > 1 ? `${weekLabelOf(state.week)} · ` : "";
+    $("status").textContent = span +
+      `${games.length} games · ${legs.length} priced bets · ` +
+      `${legs.filter(hasEdge).length} rated +EV · ` +
+      `${sport.adjustments} context adjustments · built ${age.text}` +
+      describeTraining();
+  }
+
+  /**
+   * What the model learned from past results, if anything.
+   *
+   * The corrections are already inside every price on this page; this only
+   * says where they came from, so a stale model is visible rather than
+   * implied.
+   */
+  function describeTraining() {
+    const trained = (data.training || {})[state.sport];
+    if (!trained || !trained.observations) return "";
+    const seasons = (trained.seasons || []).join("/");
+    const gain = trained.brier_gain
+      ? ` (${(trained.brier_gain * 100).toFixed(1)}% sharper out of sample)`
+      : "";
+    return ` · trained on ${trained.observations.toLocaleString()} graded results` +
+      `${seasons ? ` from ${seasons}` : ""}${gain}`;
+  }
+
+  // ---------------------------------------------------------------- weeks
+  /**
+   * A parlay has to settle together, so everything is scoped to one week.
+   *
+   * The feed hands back every upcoming event, so a slate routinely holds this
+   * Sunday's games and next Thursday's. Mixing them was producing tickets that
+   * could not resolve for nine days, half of them priced off a week-old
+   * projection. The picker only appears when there is more than one week to
+   * choose between.
+   */
+  function weeksAvailable() {
+    return sportData().weeks || [];
+  }
+
+  function renderWeekPicker() {
+    const weeks = weeksAvailable();
+    const picker = $("week-picker");
+    const select = $("week-select");
+
+    if (!weeks.some((week) => week.key === state.week)) {
+      state.week = weeks.length ? weeks[0].key : null;
+    }
+
+    picker.hidden = weeks.length < 2;
+    select.innerHTML = "";
+    for (const week of weeks) {
+      const option = document.createElement("option");
+      option.value = week.key;
+      option.textContent = `${week.label} (${week.games} game${week.games === 1 ? "" : "s"})`;
+      option.selected = week.key === state.week;
+      select.append(option);
+    }
+  }
+
+  /** Legs on the selected week. A leg with no week is never hidden. */
+  function weekLegs() {
+    return engine.inWeek(sportData().legs, state.week);
+  }
+
+  function weekGames() {
+    const games = sportData().games;
+    if (!state.week) return games;
+    return games.filter((game) => !game.week || game.week === state.week);
+  }
+
+  function weekLabelOf(key) {
+    const found = weeksAvailable().find((week) => week.key === key);
+    return found ? found.label : key;
+  }
+
+  /** Say something once, briefly. Used when an action is refused. */
+  function flashNote(message) {
+    const note = $("slip-note");
+    note.textContent = message;
+    note.hidden = false;
+    clearTimeout(state.noteTimer);
+    state.noteTimer = setTimeout(() => {
+      note.hidden = true;
+    }, 6000);
   }
 
   // ---------------------------------------------------------------- load
@@ -117,6 +202,7 @@
     state.pricing = null;
     $("build-results").innerHTML = "";
 
+    renderWeekPicker();
     renderFreshness();
     renderPicks();
     renderGames();
@@ -152,6 +238,7 @@
       built = engine.buildCard(sport.legs, lookup, {
         rules: rules(),
         mode: state.mode,
+        week: state.week,
         maxTickets: 3,
         minMultiple: longshot ? Number($("ls-target").value) || 100 : undefined,
         maxLegs: longshot ? 8 : undefined,
@@ -233,7 +320,7 @@
     // --- best single bets ---
     const singles = $("picks-singles");
     singles.innerHTML = "";
-    const top = sport.legs
+    const top = weekLegs()
       .filter(hasEdge)
       .sort((a, b) => b.ev - a.ev)
       .slice(0, 6);
@@ -309,12 +396,12 @@
 
   // --------------------------------------------------------------- games
   function renderGames() {
-    const sport = sportData();
     const grid = $("game-grid");
+    const games = weekGames();
     grid.innerHTML = "";
-    $("games-count").textContent = `${sport.games.length} games`;
+    $("games-count").textContent = `${games.length} games`;
 
-    for (const game of sport.games) {
+    for (const game of games) {
       const card = document.createElement("article");
       card.className = "game-card";
 
@@ -400,14 +487,14 @@
     const sport = sportData();
     const gameSelect = $("filter-game");
     gameSelect.innerHTML = '<option value="">All games</option>';
-    for (const game of sport.games) {
+    for (const game of weekGames()) {
       const option = document.createElement("option");
       option.value = game.game_id;
       option.textContent = game.label;
       gameSelect.append(option);
     }
 
-    const markets = [...new Set(sport.legs.map((leg) => leg.market_label))].sort();
+    const markets = [...new Set(weekLegs().map((leg) => leg.market_label))].sort();
     const marketSelect = $("filter-market");
     marketSelect.innerHTML = '<option value="">All markets</option>';
     for (const market of markets) {
@@ -425,7 +512,7 @@
     const edgesOnly = $("filter-edges").checked;
     const sort = $("filter-sort").value;
 
-    const legs = sportData().legs.filter((leg) => {
+    const legs = weekLegs().filter((leg) => {
       if (edgesOnly && !hasEdge(leg)) return false;
       if (game && leg.game_id !== game) return false;
       if (market && leg.market_label !== market) return false;
@@ -450,7 +537,7 @@
     const list = $("leg-list");
     const legs = visibleLegs();
     list.innerHTML = "";
-    $("legs-count").textContent = `${legs.length} of ${sportData().legs.length}`;
+    $("legs-count").textContent = `${legs.length} of ${weekLegs().length}`;
     $("legs-empty").hidden = legs.length > 0;
 
     const fragment = document.createDocumentFragment();
@@ -707,6 +794,7 @@
         const result = engine.buildCard(sportData().legs, lookup, {
           rules: rules(),
           mode: state.mode,
+          week: state.week,
           legs: state.mode === "longshot" ? null : (legsValue ? Number(legsValue) : null),
           minMultiple: state.mode === "longshot"
             ? Number($("ls-target").value) || 100 : undefined,
@@ -785,10 +873,33 @@
   // -------------------------------------------------------------- events
   function toggleLeg(legId) {
     const index = state.slip.indexOf(legId);
-    if (index >= 0) state.slip.splice(index, 1);
-    else state.slip.push(legId);
+    if (index >= 0) {
+      state.slip.splice(index, 1);
+    } else {
+      const leg = state.legsById.get(legId);
+      const clash = slipWeek();
+      if (leg && leg.week && clash && leg.week !== clash) {
+        // Refused rather than warned: a slip spanning two weeks cannot settle
+        // together, so there is no version of it worth pricing.
+        flashNote(
+          `That bet is from ${weekLabelOf(leg.week)}; your slip is ` +
+          `${weekLabelOf(clash)}. Clear the slip to switch weeks.`
+        );
+        return;
+      }
+      state.slip.push(legId);
+    }
     syncLegButtons();
     priceSlip();
+  }
+
+  /** The week the slip is already committed to, if any. */
+  function slipWeek() {
+    for (const id of state.slip) {
+      const leg = state.legsById.get(id);
+      if (leg && leg.week) return leg.week;
+    }
+    return null;
   }
 
   function showView(view) {
@@ -907,6 +1018,11 @@
     for (const tab of document.querySelectorAll(".tab[data-view]")) {
       tab.addEventListener("click", () => showView(tab.dataset.view));
     }
+
+    $("week-select").addEventListener("change", (event) => {
+      state.week = event.target.value || null;
+      loadSport();   // clears the slip: it belonged to the other week
+    });
 
     $("build-run").addEventListener("click", runBuild);
 

@@ -219,6 +219,28 @@ FROM api_quota_log ORDER BY id DESC LIMIT 20;
 
 ---
 
+## Step 5b — Keep the model learning
+
+The prices the app serves flow through `data/calibration.json`, the corrections
+fitted from past results. It is committed, so a deploy already has one; it goes
+stale as the season moves on.
+
+```bash
+# grade the legs the pipeline has priced since the last run
+uv run python -m src.learning.journal --sport nfl
+
+# refit; nothing is written unless the weeks held back score better
+uv run python -m src.learning.train --sport nfl --write
+```
+
+Weekly is enough — box scores only arrive once a week. This spends no Odds API
+credits: the training data is nflverse, which is free.
+`.github/workflows/train.yml` already does it every Tuesday for anything hosted
+on Pages, and the Pages build republishes when the file changes.
+`docs/LEARNING.md` explains what is being fitted and how to read the report.
+
+---
+
 ## Step 6 — Verify the deployment
 
 ```bash

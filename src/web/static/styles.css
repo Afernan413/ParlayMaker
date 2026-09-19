@@ -323,3 +323,20 @@ h3 { font-size: .85rem; }
   .hero-figure { font-size: 2.4rem; }
   .tiles { grid-template-columns: 1fr; }
 }
+
+/* Week picker: only shown when the slate actually spans more than one week. */
+.week-picker { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; }
+.week-picker-label {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.week-picker select {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.8rem;
+}
