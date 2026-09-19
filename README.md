@@ -318,7 +318,30 @@ FROM api_quota_log ORDER BY id DESC LIMIT 10;
 
 Trust that table over the estimate above — it is what the API charged.
 
-### 3. Check the path before spending anything
+### 3. Where the key goes
+
+| How you run it | Where the key goes |
+| --- | --- |
+| Anything local (CLI, static build, local server) | `.env` in the repo root |
+| GitHub Actions / Pages | repo **Settings → Secrets and variables → Actions → New repository secret**, named `ODDS_API_KEY` |
+| Fly.io | `fly secrets set ODDS_API_KEY=...` |
+| Render / Railway | the service's Environment tab |
+| Docker Compose | `.env` in the repo root (`env_file: .env` picks it up) |
+
+Locally:
+
+```bash
+cp .env.example .env
+# then edit the one line:
+ODDS_API_KEY=your_key_here
+```
+
+`.env` is gitignored, is read from the project root no matter which directory
+you run from, and is overridden by a real environment variable if you set one.
+Settings are read once at import, so restart anything already running after you
+edit it.
+
+### 4. Check the path before spending anything
 
 ```bash
 python scripts/check_live_access.py
@@ -330,14 +353,9 @@ reports the credits left on your account. It costs nothing: The Odds API's
 pass is an egress/network policy, not a bad key — a sandboxed or corporate
 network will block the data providers no matter what the key says.
 
-### 4. Put the key in `.env` and run
+### 5. Run it
 
 ```bash
-cp .env.example .env
-# ODDS_API_KEY=...        (required)
-# ANTHROPIC_API_KEY=...   (optional: the reasoning layer, skipped without it)
-# OPENWEATHER_API_KEY=... (optional: NFL stadium forecasts)
-
 uv pip install -e '.[stats]'                        # live stat feeds
 python run_pipeline.py --sport nfl --max-events 4   # CLI
 python -m src.web.app --live --max-events 4         # UI on live data

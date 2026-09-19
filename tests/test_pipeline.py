@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
 import pytest
 
@@ -208,3 +209,30 @@ def test_live_mode_without_a_key_exits_with_a_hint(monkeypatch, capsys):
     code = run_pipeline.main(["--sport", "nfl", "--mode", "live"])
     assert code == 2
     assert "ODDS_API_KEY is not set" in capsys.readouterr().err
+
+
+# ------------------------------------------------------------ credentials
+def test_env_file_loads_regardless_of_working_directory(tmp_path, monkeypatch):
+    """Regression: `.env` resolved against the cwd, so running a script from
+    anywhere but the repo root silently read an empty key and fell back to
+    mock data instead of failing."""
+    from config.settings import PROJECT_ROOT, Settings
+
+    env_file = PROJECT_ROOT / ".env"
+    if not env_file.exists():
+        pytest.skip("no .env in this checkout")
+
+    monkeypatch.delenv("ODDS_API_KEY", raising=False)
+    monkeypatch.chdir(tmp_path)
+    assert Settings().odds_api_key == Settings().odds_api_key  # same from anywhere
+    assert (PROJECT_ROOT / ".env") in [
+        path if isinstance(path, Path) else Path(path)
+        for path in Settings.model_config["env_file"]
+    ]
+
+
+def test_environment_variable_overrides_the_env_file(monkeypatch):
+    from config.settings import Settings
+
+    monkeypatch.setenv("ODDS_API_KEY", "from-the-environment")
+    assert Settings().odds_api_key == "from-the-environment"

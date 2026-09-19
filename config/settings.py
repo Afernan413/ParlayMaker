@@ -35,8 +35,13 @@ INACTIVE_LEAD_MINUTES: dict[str, int] = {"nfl": 90, "nba": 30}
 class Settings(BaseSettings):
     """Runtime settings. Secrets stay in the environment, never in code."""
 
+    # The env file is resolved against the project root, not the working
+    # directory: running a script from elsewhere would otherwise read an empty
+    # key and silently fall back to mock data.
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=(PROJECT_ROOT / ".env", ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # --- credentials -------------------------------------------------
