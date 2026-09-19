@@ -113,14 +113,28 @@ the workflow run summary.
 
 ## College football
 
-College borrows the NFL fit for player markets: the market keys are the same
-and there is far less college history to learn from. It never borrows the NFL
-*score spread* -- a college final score swings far wider, so 13 points would be
-worse than the prior. To fit college on its own data:
+College is fitted on its own data, and it is worth it. Every market came out
+wider than the NFL's:
+
+| market | NFL | college |
+| --- | --- | --- |
+| passing yards (CV) | 0.40 | 0.52 |
+| rushing yards (CV) | 0.68 | 0.75 |
+| receiving yards (CV) | 0.75 | 0.82 |
+| receptions (variance multiple) | 1.44 | 1.67 |
+| passing TDs (variance multiple) | 1.16 | 1.31 |
+
+Which is what you would expect -- bigger talent gaps, more blowouts, less
+stable usage -- and it means borrowing the NFL's numbers would systematically
+understate a college longshot's chances.
 
 ```bash
 uv run python -m src.learning.train --sport ncaaf --seasons 2024 2025 --write
 ```
+
+Where college has no fit of its own it falls back to the NFL's, since the
+market keys are the same. It never borrows the NFL *score spread*: a college
+final score swings far wider, so 13 points would be worse than the prior.
 
 NBA cannot be trained from a hosted runner: `stats.nba.com` refuses datacenter
 IPs. Run it from a machine on a residential connection.

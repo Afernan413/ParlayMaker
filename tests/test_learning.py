@@ -89,6 +89,30 @@ def test_anytime_td_is_derived_and_asked_once():
     assert {row.line for row in td_rows} == {0.5}
 
 
+def test_the_batched_price_is_the_price_the_engine_would_give():
+    """Observations are priced a market at a time, so pin it to the per-row path."""
+    from src.models.distributions import DistributionSpec
+
+    rows = observations(weekly_frame(players=10, weeks=10), min_history=2)
+    assert rows
+    for row in rows:
+        expected = DistributionSpec.for_market(row.market, row.projected).prob_over(row.line)
+        assert row.p_over == pytest.approx(expected, abs=1e-12)
+
+
+def test_observations_come_back_in_the_order_the_weeks_were_played():
+    """Pricing groups by market, which scrambles the order; it is put back."""
+    rows = observations(weekly_frame(players=6, weeks=8), min_history=2)
+    stamps = [(row.season, row.week) for row in rows]
+    assert stamps == sorted(stamps)
+
+
+def test_a_certainty_is_dropped_rather_than_recorded():
+    """A probability of exactly 0 or 1 measures floating point, not the model."""
+    rows = observations(weekly_frame(players=8, weeks=10), min_history=2)
+    assert all(0.0 < row.p_over < 1.0 for row in rows)
+
+
 def test_hit_matches_the_line():
     rows = observations(weekly_frame(players=3, weeks=6), min_history=2)
     assert all(row.hit == int(row.actual > row.line) for row in rows)

@@ -8,6 +8,7 @@ import pytest
 from src.models.distributions import (
     DistributionSpec,
     baseline_probability,
+    over_probabilities,
     scale_to_team_total,
     team_td_consistency,
 )
@@ -103,3 +104,109 @@ def test_td_rates_are_reconciled_with_the_team_total():
     scaled = scale_to_team_total(rich, 24.5)
     assert team_td_consistency(scaled, 24.5) == pytest.approx(1.0)
     assert sum(scaled) == pytest.approx(24.5 / 7.0)
+
+
+# ----------------------------------------------------------------------
+# the batch path must agree with the per-row one
+# ----------------------------------------------------------------------
+ALL_MARKETS = (
+    "player_rush_yds", "player_pass_yds", "player_reception_yds",
+    "player_receptions", "player_pass_tds", "player_anytime_td",
+    "totals", "spreads", "player_points", "player_rebounds", "player_threes",
+)
+
+
+def per_row(market, means, lines, *, sport=None):
+    return np.array([
+        DistributionSpec.for_market(market, mean, sport=sport).prob_over(line)
+        for mean, line in zip(means, lines)
+    ])
+
+
+@pytest.mark.parametrize("market", ALL_MARKETS)
+def test_the_batch_path_matches_the_per_row_path(market):
+    """A second implementation of money maths, pinned rather than trusted."""
+    rng = np.random.default_rng(4)
+    means = rng.uniform(0.2, 300.0, 300)
+    # Lines all over the distribution, snapped to halves as a book posts them.
+    lines = np.round(rng.uniform(0.05, 4.0, means.size) * means * 2) / 2
+    batch = over_probabilities(market, means, lines)
+    assert batch == pytest.approx(per_row(market, means, lines), abs=1e-12)
+
+
+@pytest.mark.parametrize("market", ("player_receptions", "player_pass_tds", "player_points"))
+def test_the_batch_path_handles_a_push_line(market):
+    """A whole-number line refunds a push, which the two paths must split alike."""
+    means = np.array([1.0, 2.5, 5.0, 8.0, 12.0])
+    lines = np.array([1.0, 2.0, 5.0, 8.0, 12.0])
+    assert over_probabilities(market, means, lines) == pytest.approx(
+        per_row(market, means, lines), abs=1e-12
+    )
+
+
+def test_the_batch_path_agrees_under_a_learned_correction():
+    from src.models.calibration import (
+        Calibration, MarketCalibration, SportCalibration, using_calibration,
+    )
+
+    fit = MarketCalibration(
+        sport="nfl", market="player_rush_yds", mean_factor=0.94,
+        dispersion=0.68, platt_a=0.47, platt_b=-0.32,
+    )
+    calibration = Calibration(
+        sports={"nfl": SportCalibration(sport="nfl", markets={"player_rush_yds": fit})}
+    )
+    rng = np.random.default_rng(5)
+    means = rng.uniform(5.0, 150.0, 200)
+    lines = np.round(rng.uniform(0.2, 3.0, means.size) * means * 2) / 2
+    with using_calibration(calibration):
+        batch = over_probabilities("player_rush_yds", means, lines, sport="nfl")
+        rows = per_row("player_rush_yds", means, lines, sport="nfl")
+    assert batch == pytest.approx(rows, abs=1e-12)
+
+
+def test_a_zero_projection_is_zero_either_way():
+    """No projection is not the same as an impossible outcome, and a logistic
+    correction of a hard zero would invent a probability out of nothing."""
+    from src.models.calibration import (
+        Calibration, MarketCalibration, SportCalibration, using_calibration,
+    )
+
+    fit = MarketCalibration(
+        sport="nfl", market="player_rush_yds", platt_a=0.47, platt_b=-0.32
+    )
+    calibration = Calibration(
+        sports={"nfl": SportCalibration(sport="nfl", markets={"player_rush_yds": fit})}
+    )
+    with using_calibration(calibration):
+        spec = DistributionSpec.for_market("player_rush_yds", 0.0, sport="nfl")
+        assert spec.prob_over(10.5) == 0.0
+        assert over_probabilities("player_rush_yds", [0.0], [10.5], sport="nfl")[0] == 0.0
+
+
+def test_the_batch_path_rejects_mismatched_inputs():
+    with pytest.raises(ValueError):
+        over_probabilities("player_rush_yds", [1.0, 2.0], [1.0])
+
+
+def test_the_batch_path_handles_an_empty_slate():
+    assert over_probabilities("player_rush_yds", [], []).size == 0
+
+
+def test_the_batch_path_is_much_faster():
+    """The reason it exists: training re-prices hundreds of thousands of rows."""
+    import time
+
+    rng = np.random.default_rng(6)
+    means = rng.uniform(5.0, 120.0, 4_000)
+    lines = np.round(means * 1.15 * 2) / 2
+
+    start = time.perf_counter()
+    over_probabilities("player_rush_yds", means, lines)
+    batched = time.perf_counter() - start
+
+    start = time.perf_counter()
+    per_row("player_rush_yds", means[:400], lines[:400])
+    one_at_a_time = (time.perf_counter() - start) * 10   # scaled to the same count
+
+    assert batched * 10 < one_at_a_time, f"{batched:.3f}s batched vs {one_at_a_time:.3f}s"

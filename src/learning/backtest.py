@@ -21,7 +21,7 @@ import pandas as pd
 
 from config.settings import settings
 from src.models.baseline import NFL_STAT_MARKETS, rolling_weighted_mean
-from src.models.distributions import DistributionSpec
+from src.models.distributions import DistributionSpec, over_probabilities
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +101,20 @@ def observations(
     frame["season"] = frame["season"].astype(int)
     frame["week"] = frame["week"].astype(int)
 
-    results: list[Observation] = []
+    # The family and whether it is discrete are properties of the market, not
+    # of the row, so resolve them once rather than per projection. Deliberately
+    # without a sport: the point of a backtest is to measure the model before
+    # any correction, whatever happens to be installed.
+    shapes = {
+        market: DistributionSpec.for_market(market, 1.0)
+        for stat, market in stat_markets.items()
+        if stat in frame.columns
+    }
+
+    # Phase one: walk the weeks forward and record the projections. No
+    # probabilities yet -- pricing a row at a time means building a scipy
+    # distribution 685,000 times over on a college season.
+    rows: list[dict[str, Any]] = []
     for player, played in frame.groupby(name_col, sort=False):
         played = played.sort_values(["season", "week"])
         for position in range(len(played)):
@@ -113,34 +126,60 @@ def observations(
             recent = history.iloc[::-1].head(settings.rolling_weeks)
 
             for stat, market in stat_markets.items():
-                if stat not in played.columns:
+                if market not in shapes:
                     continue
                 projected = rolling_weighted_mean(recent[stat].tolist())
                 actual = float(row[stat]) if pd.notna(row[stat]) else 0.0
                 if projected <= 0:
                     continue
 
-                spec = DistributionSpec.for_market(market, projected)
-                for line in _lines_for(spec, projected):
-                    probability = spec.prob_over(line)
-                    if not 0.0 < probability < 1.0:
-                        continue
-                    results.append(
-                        Observation(
-                            sport=sport,
-                            season=int(row["season"]),
-                            week=int(row["week"]),
-                            player=str(player),
-                            team=str(row.get(team_col, "")),
-                            market=market,
-                            projected=float(projected),
-                            actual=actual,
-                            line=float(line),
-                            p_over=float(probability),
-                            hit=int(actual > line),
-                            games_of_history=int(len(recent)),
-                        )
+                for line in _lines_for(shapes[market], projected):
+                    rows.append(
+                        {
+                            "sport": sport,
+                            "season": int(row["season"]),
+                            "week": int(row["week"]),
+                            "player": str(player),
+                            "team": str(row.get(team_col, "")),
+                            "market": market,
+                            "projected": float(projected),
+                            "actual": actual,
+                            "line": float(line),
+                            "hit": int(actual > line),
+                            "games_of_history": int(len(recent)),
+                        }
                     )
+
+    # Phase two: price them, one market at a time.
+    return _priced(rows)
+
+
+def _priced(rows: Sequence[dict[str, Any]]) -> list[Observation]:
+    """Attach the model's probability to each recorded projection.
+
+    Batched by market, because within a market only the mean and the line
+    differ. A probability of exactly 0 or 1 is dropped: it says the line is
+    beyond what the distribution can represent, which measures floating point
+    rather than the model.
+    """
+    if not rows:
+        return []
+    by_market: dict[str, list[int]] = {}
+    for index, row in enumerate(rows):
+        by_market.setdefault(row["market"], []).append(index)
+
+    results: list[Observation] = []
+    for market, indices in by_market.items():
+        means = np.fromiter((rows[i]["projected"] for i in indices), float, len(indices))
+        lines = np.fromiter((rows[i]["line"] for i in indices), float, len(indices))
+        probabilities = over_probabilities(market, means, lines)
+        for index, probability in zip(indices, probabilities):
+            if not 0.0 < probability < 1.0:
+                continue
+            results.append(Observation(p_over=float(probability), **rows[index]))
+    # Grouping by market scrambled the order; put it back so the caller sees
+    # the weeks in the order they were played.
+    results.sort(key=lambda row: (row.season, row.week, row.player, row.market, row.line))
     return results
 
 

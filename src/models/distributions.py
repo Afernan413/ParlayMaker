@@ -20,7 +20,7 @@ import numpy as np
 from scipy import stats
 
 from config.settings import bookmaker_config, market_meta
-from src.models.calibration import MarketCalibration, calibration_for
+from src.models.calibration import MarketCalibration, calibration_for, expit, logit
 
 CONTINUOUS_FAMILIES = frozenset({"lognormal", "normal"})
 DISCRETE_FAMILIES = frozenset({"poisson", "negative_binomial", "poisson_binary"})
@@ -180,6 +180,12 @@ class DistributionSpec:
     # -- probabilities ------------------------------------------------
     def probability(self, line: float | None) -> MarketProbability:
         """Over / under / push split against ``line``, recalibrated."""
+        if self.mean <= 0:
+            # A zero mean is "we have no projection for this player", not "the
+            # outcome is impossible". There is nothing for the correction to
+            # act on, and a logistic recalibration of a hard zero would invent
+            # a small probability out of nothing.
+            return self._raw_probability(line)
         return self._recalibrated(self._raw_probability(line))
 
     def _recalibrated(self, raw: MarketProbability) -> MarketProbability:
@@ -310,3 +316,93 @@ def scale_to_team_total(
     if ratio <= 0:
         return list(td_means)
     return [value / ratio for value in td_means]
+
+
+# ----------------------------------------------------------------------
+# the batch path
+# ----------------------------------------------------------------------
+def over_probabilities(
+    market: str,
+    means: Sequence[float] | np.ndarray,
+    lines: Sequence[float] | np.ndarray,
+    *,
+    sport: str | None = None,
+) -> np.ndarray:
+    """``prob_over`` for many projections of one market, in one pass.
+
+    Building a ``DistributionSpec`` per row costs about half a millisecond, and
+    training re-prices hundreds of thousands of rows several times over, which
+    turns a fit into an hour. Within one market the family, the dispersion and
+    the learned correction are all fixed and only the mean and the line vary,
+    so scipy can be handed arrays instead.
+
+    This is a second implementation of money maths, so it is pinned to the
+    first one by :func:`tests.test_distributions` rather than trusted: it must
+    agree with :meth:`DistributionSpec.prob_over` row for row.
+    """
+    mean_array = np.asarray(means, dtype=float)
+    line_array = np.asarray(lines, dtype=float)
+    if mean_array.shape != line_array.shape:
+        raise ValueError("means and lines must have the same shape")
+    if mean_array.size == 0:
+        return np.zeros(0, dtype=float)
+
+    # One spec resolves the family, dispersion and correction for the market.
+    reference = DistributionSpec.for_market(market, 1.0, sport=sport)
+    fitted = reference.calibration
+    family = reference.family
+    dispersion = reference.dispersion
+    centres = mean_array * (fitted.mean_factor if fitted else 1.0)
+
+    live = centres > 0
+    out = np.zeros(mean_array.shape, dtype=float)
+    if not live.any():
+        return out
+
+    mu = np.clip(centres[live], 1e-9, None)
+    line = line_array[live]
+
+    if family == "lognormal":
+        cv = max(float(dispersion or 0.5), 1e-6)
+        sigma = math.sqrt(math.log(1.0 + cv**2))
+        over = stats.lognorm.sf(line, s=sigma, scale=mu / math.exp(sigma**2 / 2.0))
+    elif family == "normal":
+        scale = max(float(dispersion or 1.0), 1e-9)
+        over = stats.norm.sf(line, loc=mu, scale=scale)
+    elif family == "poisson_binary":
+        threshold = np.where(line % 1, np.ceil(line + 1e-9), np.floor(line) + 1)
+        over = stats.poisson.sf(np.maximum(threshold, 1.0) - 1, mu=mu)
+    elif family in {"poisson", "negative_binomial"}:
+        if family == "poisson":
+            sf = lambda k: stats.poisson.sf(k, mu=mu)  # noqa: E731
+            pmf = lambda k: stats.poisson.pmf(k, mu=mu)  # noqa: E731
+        else:
+            variance = np.maximum(
+                mu * max(float(dispersion or 1.0), 1.0 + 1e-9), mu * (1 + 1e-6)
+            )
+            p = mu / variance
+            n = mu * p / (1.0 - p)
+            sf = lambda k: stats.nbinom.sf(k, n=n, p=p)  # noqa: E731
+            pmf = lambda k: stats.nbinom.pmf(k, n=n, p=p)  # noqa: E731
+
+        integer = np.abs(line - np.round(line)) < 1e-9
+        over = np.empty_like(mu)
+        # A whole-number line can push, and a push is refunded, so the bettable
+        # probability is renormalised over the two live outcomes.
+        if integer.any():
+            k = np.round(line)
+            raw_over = sf(k)
+            push = pmf(k)
+            under = np.maximum(1.0 - raw_over - push, 0.0)
+            total = raw_over + under
+            over[integer] = np.where(total > 0, raw_over / np.where(total > 0, total, 1.0), 0.0)[integer]
+        if (~integer).any():
+            over[~integer] = sf(np.ceil(line) - 1)[~integer]
+    else:
+        raise ValueError(f"unknown family: {family}")
+
+    if fitted is not None and fitted.shifts_probability:
+        over = expit(fitted.platt_a * logit(over) + fitted.platt_b)
+
+    out[live] = np.clip(over, 0.0, 1.0)
+    return out

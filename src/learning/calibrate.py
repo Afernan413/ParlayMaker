@@ -21,10 +21,12 @@ one changes what the next has left to explain:
    the zero mass in a receiving-yards line, the fact that projections are
    shrunk estimates rather than true means).
 
-Candidates are scored through the production code path -- the same
-``DistributionSpec`` the engine prices with, under
-:func:`~src.models.calibration.using_calibration` -- so there is no second
-implementation to drift.
+Candidates are scored through the production arithmetic, under
+:func:`~src.models.calibration.using_calibration`, one market at a time via
+:func:`~src.models.distributions.over_probabilities` -- which is pinned to
+``DistributionSpec.prob_over`` row for row by the parity tests, because
+building a spec per row turns a fit on college football's 685,000 observations
+into an hour of work.
 """
 
 from __future__ import annotations
@@ -48,7 +50,7 @@ from src.models.calibration import (
     utcnow,
     using_calibration,
 )
-from src.models.distributions import DistributionSpec, family_for
+from src.models.distributions import family_for, over_probabilities
 
 logger = logging.getLogger(__name__)
 
@@ -272,15 +274,22 @@ def probabilities_under(
 ) -> np.ndarray:
     """Re-price every observation with ``calibration`` in force.
 
-    Goes through ``DistributionSpec`` exactly as the engine does, so a fit is
-    scored on the code that will actually use it.
+    One market at a time, because that is the unit the batch path works in --
+    within a market the family, dispersion and correction are fixed. It is the
+    same arithmetic the engine prices with, pinned to the per-row path by the
+    parity tests in ``tests/test_distributions.py``.
     """
-    out = np.empty(len(frame), dtype=float)
+    out = np.zeros(len(frame), dtype=float)
+    markets = frame["market"].to_numpy()
+    projected = frame["projected"].to_numpy(dtype=float)
+    lines = frame["line"].to_numpy(dtype=float)
+
     with using_calibration(calibration):
-        columns = frame[["market", "projected", "line"]].itertuples(index=False, name=None)
-        for position, (market, projected, line) in enumerate(columns):
-            spec = DistributionSpec.for_market(market, float(projected), sport=sport)
-            out[position] = spec.prob_over(float(line))
+        for market in pd.unique(markets):
+            mask = markets == market
+            out[mask] = over_probabilities(
+                market, projected[mask], lines[mask], sport=sport
+            )
     return np.clip(out, 1e-9, 1 - 1e-9)
 
 
