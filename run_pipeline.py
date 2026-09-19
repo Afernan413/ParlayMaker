@@ -111,7 +111,12 @@ class _StageTimer:
 # stages
 # ----------------------------------------------------------------------
 async def ingest_stage(
-    sport: str, *, use_mock: bool, db_path: str | None, include_props: bool
+    sport: str,
+    *,
+    use_mock: bool,
+    db_path: str | None,
+    include_props: bool,
+    max_events: int | None = None,
 ) -> dict[str, Any]:
     """Load the slate, weather and injuries into SQLite."""
     if use_mock:
@@ -119,7 +124,9 @@ async def ingest_stage(
 
     async with OddsAPIClient(db_path=db_path) as client:
         try:
-            summary = await client.ingest_slate(sport, include_props=include_props)
+            summary = await client.ingest_slate(
+                sport, include_props=include_props, max_events=max_events
+            )
         except QuotaExhaustedError as exc:
             logger.error("aborting ingestion: %s", exc)
             raise
@@ -282,6 +289,7 @@ async def build_slate(
     db_path: str | None = None,
     include_props: bool = True,
     include_game_markets: bool = True,
+    max_events: int | None = None,
     agent: ContextAgent | None = None,
     timings: dict[str, float] | None = None,
 ) -> Slate:
@@ -299,7 +307,11 @@ async def build_slate(
 
     with clock("ingest"):
         slate.ingest = await ingest_stage(
-            sport, use_mock=use_mock, db_path=db_path, include_props=include_props
+            sport,
+            use_mock=use_mock,
+            db_path=db_path,
+            include_props=include_props,
+            max_events=max_events,
         )
 
     slate.games = db.fetch_all(
@@ -362,6 +374,7 @@ async def run_pipeline(
     seed: int | None = None,
     include_props: bool = True,
     include_game_markets: bool = True,
+    max_events: int | None = None,
     agent: ContextAgent | None = None,
     notifier: Notifier | None = None,
     notify: bool = True,
@@ -378,6 +391,7 @@ async def run_pipeline(
         db_path=db_path,
         include_props=include_props,
         include_game_markets=include_game_markets,
+        max_events=max_events,
         agent=agent,
         timings=result.timings,
     )
@@ -458,6 +472,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="skip per-event prop requests (saves Odds API credits)",
     )
     parser.add_argument(
+        "--max-events", type=int, default=None,
+        help="only request player props for the first N games (saves API credits)",
+    )
+    parser.add_argument(
         "--no-game-markets", dest="include_game_markets", action="store_false",
         help="player props only; skip moneyline/spread/total legs",
     )
@@ -512,6 +530,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 seed=args.seed,
                 include_props=args.include_props,
                 include_game_markets=args.include_game_markets,
+                max_events=args.max_events,
                 log_bets=args.log_bets,
             )
         )

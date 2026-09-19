@@ -238,6 +238,60 @@ holds the `Projection`/`Leg` vocabulary shared by every layer (which keeps the
 imports acyclic), and `src/optimizer/leg_builder.py` joins stored prices to
 projections, so `run_pipeline.py` stays orchestration only.
 
+## Going live
+
+### 1. Get an Odds API key
+
+Sign up at **[the-odds-api.com](https://the-odds-api.com)** — the "Get API Key"
+form takes an email address and sends the key back. The free tier is 500 credits
+a month, which is enough to work with if you spend them deliberately.
+
+### 2. Understand what a run costs
+
+The Odds API bills **one credit per market per region**, so with the default
+config:
+
+| Call | Markets | Credits |
+| --- | --- | --- |
+| Game lines for the whole slate | h2h, spreads, totals | 3 |
+| Player props, **per game** (NFL) | 6 markets | 6 |
+| Player props, **per game** (NBA) | 4 markets | 4 |
+
+A 13-game NFL Sunday with props is therefore about `3 + 13 × 6 = 81` credits —
+roughly six full slates a month on the free tier. Controls:
+
+```bash
+python run_pipeline.py --sport nfl --max-events 4   # props for 4 games only
+python run_pipeline.py --sport nfl --no-props       # game lines only: 3 credits
+```
+
+The engine logs the estimate before it spends anything, refuses to start a
+request once fewer than 50 credits remain, and records what each call actually
+cost (`x-requests-last`) in `api_quota_log`:
+
+```sql
+SELECT endpoint, last_cost, requests_remaining, captured_at
+FROM api_quota_log ORDER BY id DESC LIMIT 10;
+```
+
+Trust that table over the estimate above — it is what the API charged.
+
+### 3. Put the key in `.env` and run
+
+```bash
+cp .env.example .env
+# ODDS_API_KEY=...        (required)
+# ANTHROPIC_API_KEY=...   (optional: the reasoning layer, skipped without it)
+# OPENWEATHER_API_KEY=... (optional: NFL stadium forecasts)
+
+uv pip install -e '.[stats]'                        # live stat feeds
+python run_pipeline.py --sport nfl --max-events 4   # CLI
+python -m src.web.app --live --max-events 4         # UI on live data
+```
+
+`--live` falls back to mock mode if `ODDS_API_KEY` is missing, so it never fails
+halfway through a run for a missing key.
+
 ## Live runs need
 
 * `ODDS_API_KEY` — FanDuel lines and props

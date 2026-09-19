@@ -319,3 +319,46 @@ def test_inactives_window_matches_league_lead_times():
     assert injuries.inactives_window(kickoff, "nfl").minute == 30
     assert injuries.inactives_window(kickoff, "nba").minute == 30
     assert injuries.inactives_window(kickoff, "nba").hour == 16
+
+
+# ------------------------------------------------------------ credit cost
+def test_credit_estimate_matches_markets_times_regions(db_path):
+    client = OddsAPIClient("key", base_url=BASE, db_path=db_path)
+    # 3 game markets, 6 NFL prop markets, 1 region
+    assert client.estimated_credits("nfl", events=0) == 3
+    assert client.estimated_credits("nfl", events=1) == 3 + 6
+    assert client.estimated_credits("nfl", events=13) == 3 + 13 * 6
+    assert client.estimated_credits("nba", events=10) == 3 + 10 * 4
+    assert client.estimated_credits("nfl", events=13, include_props=False) == 3
+    assert client.estimated_credits(
+        "nfl", events=13, prop_markets=["player_pass_yds"]
+    ) == 3 + 13
+
+
+@respx.mock
+async def test_max_events_caps_the_expensive_prop_calls(db_path, odds_event, props_payload):
+    events = [{**odds_event, "id": f"evt-{index}"} for index in range(1, 4)]
+    respx.get(f"{BASE}/v4/sports/americanfootball_nfl/odds").mock(
+        return_value=httpx.Response(
+            200, json=events, headers={"x-requests-remaining": "400"}
+        )
+    )
+    routes = {
+        event["id"]: respx.get(
+            f"{BASE}/v4/sports/americanfootball_nfl/events/{event['id']}/odds"
+        ).mock(
+            return_value=httpx.Response(
+                200, json={**props_payload, "id": event["id"]},
+                headers={"x-requests-remaining": "394"},
+            )
+        )
+        for event in events
+    }
+
+    async with OddsAPIClient("key", base_url=BASE, db_path=db_path) as client:
+        summary = await client.ingest_slate("nfl", max_events=1)
+
+    assert summary.games == 3
+    assert summary.events_polled == 1
+    assert routes["evt-1"].called
+    assert not routes["evt-2"].called and not routes["evt-3"].called

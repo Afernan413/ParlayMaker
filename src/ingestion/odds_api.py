@@ -257,6 +257,29 @@ class OddsAPIClient:
     # ------------------------------------------------------------------
     # orchestration
     # ------------------------------------------------------------------
+    def estimated_credits(
+        self,
+        sport: str,
+        *,
+        events: int,
+        include_props: bool = True,
+        prop_markets: Sequence[str] | None = None,
+    ) -> int:
+        """Credits a slate ingestion will cost.
+
+        The Odds API bills one credit per market per region, so the game-lines
+        call costs ``len(game_markets)`` and each event's props cost
+        ``len(prop_markets)``. The exact figure the API charged for the last
+        call comes back in the ``x-requests-last`` header and is logged to
+        ``api_quota_log``, so this is a forecast, not the source of truth.
+        """
+        regions = len(self.config["regions"].split(","))
+        cost = len(self.config["game_markets"]) * regions
+        if include_props:
+            markets = prop_markets or self.config["prop_markets"].get(sport.lower(), [])
+            cost += events * len(markets) * regions
+        return cost
+
     async def ingest_slate(
         self,
         sport: str,
@@ -268,7 +291,8 @@ class OddsAPIClient:
         """Pull lines (and optionally props) for a slate straight into SQLite.
 
         Stops cleanly -- rather than raising -- once the quota floor is hit
-        mid-slate, so whatever was already written stays usable.
+        mid-slate, so whatever was already written stays usable. ``max_events``
+        caps how many events get prop requests, which is the expensive part.
         """
         db.init_db(self.db_path)
         summary = IngestSummary(sport=sport.lower())
@@ -281,6 +305,16 @@ class OddsAPIClient:
 
         if include_props:
             event_ids = [ev["id"] for ev in events][: max_events or len(events)]
+            logger.info(
+                "props for %s/%s events will cost about %s credits (%s remaining)",
+                len(event_ids),
+                len(events),
+                self.estimated_credits(
+                    sport, events=len(event_ids), prop_markets=prop_markets
+                )
+                - len(self.config["game_markets"]),
+                self.quota.remaining if self.quota.remaining is not None else "unknown",
+            )
             for event_id in event_ids:
                 try:
                     self.assert_quota()

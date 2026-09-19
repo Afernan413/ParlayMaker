@@ -89,10 +89,12 @@ class SlateStore:
         db_path: str | None = None,
         use_mock: bool = True,
         iterations: int = INTERACTIVE_ITERATIONS,
+        max_events: int | None = None,
     ) -> None:
         self.db_path = db_path
         self.use_mock = use_mock
         self.iterations = iterations
+        self.max_events = max_events
         self._slates: dict[str, Slate] = {}
         self._locks: dict[str, asyncio.Lock] = {}
 
@@ -115,6 +117,7 @@ class SlateStore:
                     sport=sport,
                     use_mock=self.use_mock if use_mock is None else use_mock,
                     db_path=self.db_path,
+                    max_events=self.max_events,
                 )
             return self._slates[sport]
 

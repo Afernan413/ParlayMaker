@@ -52,7 +52,11 @@ class BuildRequest(BaseModel):
 
 
 def create_app(
-    *, db_path: str | None = None, use_mock: bool = True, store: SlateStore | None = None
+    *,
+    db_path: str | None = None,
+    use_mock: bool = True,
+    max_events: int | None = None,
+    store: SlateStore | None = None,
 ) -> FastAPI:
     """Build the ASGI app. ``use_mock`` decides live vs cached data sources."""
     app = FastAPI(
@@ -60,7 +64,9 @@ def create_app(
         description="Assemble parlays and see the model's price, edge and payout.",
         version="0.1.0",
     )
-    app.state.store = store or SlateStore(db_path=db_path, use_mock=use_mock)
+    app.state.store = store or SlateStore(
+        db_path=db_path, use_mock=use_mock, max_events=max_events
+    )
 
     @app.exception_handler(SlateNotFound)
     async def _slate_missing(_request: Request, exc: SlateNotFound) -> JSONResponse:
@@ -162,6 +168,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="pull live odds, weather, injuries and stats",
     )
     parser.add_argument("--db", dest="db_path", default=None)
+    parser.add_argument(
+        "--max-events", type=int, default=None,
+        help="only request player props for the first N games (saves API credits)",
+    )
     parser.add_argument("--reload", action="store_true", help="uvicorn autoreload")
     return parser.parse_args(argv)
 
@@ -175,7 +185,9 @@ def main(argv: list[str] | None = None) -> int:
         print("ODDS_API_KEY is not set; starting in mock mode instead.")
         args.use_mock = True
 
-    app = create_app(db_path=args.db_path, use_mock=args.use_mock)
+    app = create_app(
+        db_path=args.db_path, use_mock=args.use_mock, max_events=args.max_events
+    )
     mode = "mock fixtures" if args.use_mock else "live data"
     print(f"Parlay crafter on http://{args.host}:{args.port} ({mode})")
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
