@@ -26,6 +26,7 @@ ingest -> project -> reason -> price -> optimise -> notify
 | Price | `src/optimizer/ev_calculator.py` | De-vig FanDuel's two-way markets, compute EV, size stakes at quarter Kelly |
 | Optimise | `src/optimizer/parlay_builder.py` | Integer program that maximises portfolio EV under leg-count, price, correlation and diversification constraints |
 | Notify | `src/notifications/notifier.py` | Discord embeds / Telegram markdown / console cards |
+| Benchmark | `src/optimizer/clv.py` | Logs every recommendation, then scores its price against the closing line |
 
 ### The guardrails that matter
 
@@ -69,6 +70,8 @@ python run_pipeline.py --sport nba --mode live --legs 3
 --no-props               game lines only (saves Odds API credits)
 --no-game-markets        player props only
 --json                   print the run summary as JSON
+--clv-report             score logged recommendations against closing lines
+--no-bet-log             do not record recommended legs
 --db PATH                use a different SQLite file
 ```
 
@@ -107,6 +110,7 @@ SQLite (WAL mode) at `data/sports_data.db`, created on demand:
 | `weather_snapshots` | temperature, wind, precipitation, dome/wind/freeze flags |
 | `injury_reports` | normalised availability (OUT → ACTIVE) with practice notes |
 | `api_quota_log` | requests used/remaining per endpoint call |
+| `bet_log` | every recommended leg with the price it was taken at |
 
 Every DDL statement is `CREATE TABLE IF NOT EXISTS`; schema changes belong in
 `MIGRATIONS` in `src/ingestion/db.py` as further idempotent statements.
@@ -124,10 +128,33 @@ python scripts/generate_mock_data.py
 
 Player and team names in the fixtures are fictional.
 
+## Closing line value
+
+Each card's legs are written to `bet_log` with the price they were recommended
+at. Re-run ingestion closer to kickoff and the same markets get a later capture;
+`--clv-report` then de-vigs both ends and reports the fair-probability gain:
+
+```bash
+python run_pipeline.py --sport nfl                 # logs the card
+python run_pipeline.py --sport nfl --clv-report    # after a later ingestion
+```
+
+```
+  WR One Over 64.5     took  +120 (44.5%) -> close  -115 (51.8%)  CLV +7.30%
+  mean CLV:         +7.30%
+  beat the close:   100%
+  non-negative drift: PASS
+```
+
+A bet with no capture later than its own is not scored -- comparing a price with
+itself would measure nothing. Mean CLV is the honest test of whether the
+de-vigged probabilities carry signal; if it sits below zero, the projections are
+losing to the market regardless of what the model's EV column claims.
+
 ## Tests
 
 ```bash
-python -m pytest            # 155 tests, no network access
+python -m pytest            # 162 tests, no network access
 ```
 
 No test makes an unmocked HTTP call: The Odds API, OpenWeather and the injury
@@ -135,6 +162,16 @@ feeds are mocked with `respx`, and the Anthropic client is always a stub. The
 suite covers the quota floor, the ±20% clamp (including an adversarial agent
 that asks for 5×), the correlation rejection rules, the de-vig maths, the ILP
 constraints and two end-to-end mock runs.
+
+| Verification criterion | Proven by |
+| --- | --- |
+| Ingestion is fully mocked | `tests/test_ingestion.py` (21 tests, `respx`) |
+| Quota use is tracked and halts a slate | `test_quota_floor_blocks_further_requests`, `test_ingest_slate_halts_props_when_quota_drops` |
+| TD props reconcile to team totals; no negative yardage | `test_td_rates_are_reconciled_with_the_team_total`, `test_continuous_samples_are_never_negative` |
+| Claude cannot move a projection by more than ±20% | `test_extreme_agent_output_cannot_move_a_projection_more_than_20_percent` |
+| Negatively correlated legs are rejected | `test_negatively_correlated_same_game_pair_is_rejected` |
+| De-vigged probabilities are benchmarked against CLV | `tests/test_clv.py` plus `--clv-report` |
+| Dry run completes well under 45s and renders a card | `test_dry_run_produces_a_valid_card` (~1-2s per sport) |
 
 ## Layout
 
@@ -144,7 +181,7 @@ config/bookmaker_keys.json    FanDuel market id -> stat/family/dispersion
 src/ingestion/                db, odds_api, weather, injuries, mock
 src/models/                   legs, baseline, distributions, correlation
 src/reasoning/                prompts, context_agent
-src/optimizer/                ev_calculator, leg_builder, parlay_builder
+src/optimizer/                ev_calculator, leg_builder, parlay_builder, clv
 src/notifications/notifier.py Discord / Telegram / console cards
 scripts/generate_mock_data.py fixture generator
 run_pipeline.py               orchestration CLI

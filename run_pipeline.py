@@ -29,6 +29,7 @@ from src.ingestion.weather import WeatherClient
 from src.models import baseline
 from src.models.legs import Leg
 from src.notifications.notifier import Notifier, render_console
+from src.optimizer import clv
 from src.optimizer.leg_builder import attach_rationale, legs_from_lines, legs_from_props
 from src.optimizer.parlay_builder import BuildReport, ParlayTicket, build_parlays
 from src.reasoning.context_agent import ContextAgent, ContextResult, RuleBasedContextAgent
@@ -53,6 +54,7 @@ class PipelineResult:
     ingest: dict[str, Any] = field(default_factory=dict)
     timings: dict[str, float] = field(default_factory=dict)
     dispatch: str = ""
+    run_id: str = ""
 
     @property
     def duration(self) -> float:
@@ -75,6 +77,7 @@ class PipelineResult:
             "ticket_candidates": self.build_report.candidates,
             "tickets": len(self.tickets),
             "solver_status": self.build_report.solver_status,
+            "run_id": self.run_id,
             "rejections": self.build_report.rejected,
             "seconds": round(self.duration, 2),
         }
@@ -258,6 +261,7 @@ async def run_pipeline(
     agent: ContextAgent | None = None,
     notifier: Notifier | None = None,
     notify: bool = True,
+    log_bets: bool = True,
 ) -> PipelineResult:
     """Run every stage and return the resulting card plus diagnostics."""
     sport = sport.lower()
@@ -328,6 +332,10 @@ async def run_pipeline(
         )
         result.tickets = tickets
         result.build_report = build_report
+        if tickets and log_bets:
+            result.run_id = clv.log_recommendations(
+                tickets, sport=sport, db_path=db_path
+            )
 
     if notify:
         with clock("notify"):
@@ -384,6 +392,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="player props only; skip moneyline/spread/total legs",
     )
     parser.add_argument(
+        "--clv-report", dest="clv_report", action="store_true",
+        help="print a closing line value report from the logged bets and exit",
+    )
+    parser.add_argument(
+        "--no-bet-log", dest="log_bets", action="store_false",
+        help="do not record the recommended legs (skips CLV benchmarking)",
+    )
+    parser.add_argument(
         "--json", dest="as_json", action="store_true",
         help="print the run summary as JSON (in addition to the card)",
     )
@@ -397,6 +413,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(levelname)s %(name)s: %(message)s",
     )
+
+    if args.clv_report:
+        db.init_db(args.db_path)
+        entries, summary = clv.report(sport=args.sport, db_path=args.db_path)
+        print(clv.render(entries, summary))
+        return 0
 
     if args.mode == "live" and not args.mock and not settings.odds_api_key:
         print(
@@ -420,6 +442,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 seed=args.seed,
                 include_props=args.include_props,
                 include_game_markets=args.include_game_markets,
+                log_bets=args.log_bets,
             )
         )
     except QuotaExhaustedError as exc:

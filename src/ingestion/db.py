@@ -16,6 +16,29 @@ from typing import Any
 
 from config.settings import settings
 
+BET_LOG_SCHEMA = """
+    CREATE TABLE IF NOT EXISTS bet_log (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id        TEXT NOT NULL,
+        sport         TEXT NOT NULL,
+        ticket_index  INTEGER NOT NULL,
+        ticket_type   TEXT,
+        ticket_odds   INTEGER,
+        game_id       TEXT NOT NULL,
+        market        TEXT NOT NULL,
+        player_name   TEXT,
+        selection     TEXT NOT NULL,
+        line          REAL,
+        taken_odds    INTEGER NOT NULL,
+        p_model       REAL,
+        p_implied     REAL,
+        ev            REAL,
+        stake         REAL,
+        captured_at   TEXT NOT NULL,
+        UNIQUE (run_id, ticket_index, market, player_name, selection, line)
+    )
+"""
+
 SCHEMA: tuple[str, ...] = (
     """
     CREATE TABLE IF NOT EXISTS games (
@@ -100,6 +123,9 @@ SCHEMA: tuple[str, ...] = (
         captured_at   TEXT NOT NULL
     )
     """,
+    # Recommendations are logged so their prices can later be benchmarked
+    # against the closing line (see src/optimizer/clv.py).
+    BET_LOG_SCHEMA,
 )
 
 INDEXES: tuple[str, ...] = (
@@ -111,6 +137,8 @@ INDEXES: tuple[str, ...] = (
     "CREATE INDEX IF NOT EXISTS idx_weather_game ON weather_snapshots(game_id)",
     "CREATE INDEX IF NOT EXISTS idx_injury_player ON injury_reports(sport, player_name)",
     "CREATE INDEX IF NOT EXISTS idx_quota_api_time ON api_quota_log(api, captured_at)",
+    "CREATE INDEX IF NOT EXISTS idx_betlog_run ON bet_log(run_id)",
+    "CREATE INDEX IF NOT EXISTS idx_betlog_market ON bet_log(sport, market, player_name)",
 )
 
 #: Additive, idempotent schema patches applied after :data:`SCHEMA`.
@@ -214,6 +242,10 @@ def insert_weather(rows: Iterable[dict[str, Any]], db_path=None) -> int:
 
 def insert_injuries(rows: Iterable[dict[str, Any]], db_path=None) -> int:
     return _bulk("injury_reports", rows, db_path)
+
+
+def insert_bets(rows: Iterable[dict[str, Any]], db_path=None) -> int:
+    return _bulk("bet_log", rows, db_path)
 
 
 def log_quota(
