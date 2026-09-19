@@ -13,7 +13,7 @@ Everything is renamed into the nflverse column names on the way out
 from __future__ import annotations
 
 import logging
-from typing import Iterable
+from typing import BinaryIO, Iterable
 
 import pandas as pd
 
@@ -24,31 +24,86 @@ PBP_RELEASE = (
     "/espn_cfb_pbp/play_by_play_{season}.parquet"
 )
 
-#: Only the columns the model needs; the release carries 500+.
-PBP_COLUMNS = [
-    "season", "week", "game_id", "pos_team", "def_pos_team", "EPA", "EPA_success",
+#: The columns the projection model cannot do without. A season's file missing
+#: one of these is unusable.
+PBP_REQUIRED_COLUMNS = [
+    "season", "week", "game_id", "pos_team", "def_pos_team", "EPA",
     "pass", "rush", "pass_attempt", "completion", "pass_td", "rush_td",
     "passer_player_name", "rusher_player_name", "receiver_player_name",
     "yds_receiving", "yds_rushed",
-    "homeTeamName", "awayTeamName", "homeFinalScore", "awayFinalScore",
 ]
+
+#: Columns worth having when they are there. The release's schema is not stable
+#: across seasons -- the final-score columns only appear from 2026, and earlier
+#: files carry the running score per play instead -- so asking for these
+#: unconditionally silently drops every earlier season.
+PBP_OPTIONAL_COLUMNS = [
+    "EPA_success",
+    "homeTeamName", "awayTeamName",
+    "homeFinalScore", "awayFinalScore",
+    "end.homeScore", "end.awayScore", "homeScore", "awayScore",
+]
+
+PBP_COLUMNS = PBP_REQUIRED_COLUMNS + PBP_OPTIONAL_COLUMNS
+
+
+def fetch_season(url: str) -> tuple[set[str], "BinaryIO"]:
+    """One season's parquet: the columns it carries, and its bytes.
+
+    Both come from one download. The schema has to be read before the frame,
+    because it differs between seasons and ``read_parquet(columns=...)`` fails
+    the whole read on the first name it cannot find -- but downloading a
+    several-hundred-megabyte file twice to learn that is not worth it.
+    """
+    import io
+
+    import pyarrow.parquet as pq
+    import requests
+
+    response = requests.get(url, timeout=300)
+    response.raise_for_status()
+    body = io.BytesIO(response.content)
+    return set(pq.read_schema(body).names), body
 
 
 def load_cfb_pbp(seasons: Iterable[int]) -> pd.DataFrame:
-    """Raw ESPN college play-by-play for the given seasons."""
-    frames = []
+    """Raw ESPN college play-by-play for the given seasons.
+
+    Each season is read with whichever of :data:`PBP_COLUMNS` it has. A season
+    missing something in :data:`PBP_REQUIRED_COLUMNS` is skipped and said so;
+    one merely missing an optional column is used as-is.
+    """
+    frames: list[pd.DataFrame] = []
+    problems: list[str] = []
     for season in sorted(set(seasons)):
         url = PBP_RELEASE.format(season=season)
         try:
-            frame = pd.read_parquet(url, columns=PBP_COLUMNS)
-        except Exception as exc:  # a season that has not been published yet
-            logger.warning("college play-by-play unavailable for %s: %s", season, exc)
+            available, body = fetch_season(url)
+        except Exception as exc:  # not published yet, or no route to github.com
+            problems.append(f"{season}: could not be read ({type(exc).__name__}: {exc})")
+            logger.warning("college play-by-play unreadable for %s: %s", season, exc)
             continue
+
+        missing = [name for name in PBP_REQUIRED_COLUMNS if name not in available]
+        if missing:
+            problems.append(f"{season}: missing {', '.join(missing)}")
+            logger.warning(
+                "college play-by-play for %s is missing %s; skipping that season",
+                season, ", ".join(missing),
+            )
+            continue
+
+        wanted = [name for name in PBP_COLUMNS if name in available]
+        absent = [name for name in PBP_OPTIONAL_COLUMNS if name not in available]
+        if absent:
+            logger.info("%s has no %s; working without them", season, ", ".join(absent))
+        frame = pd.read_parquet(body, columns=wanted)
         frames.append(frame)
+
     if not frames:
         raise RuntimeError(
-            "no college play-by-play could be loaded; the release may be "
-            "rebuilding, or this machine cannot reach github.com"
+            "no college play-by-play could be loaded -- "
+            + "; ".join(problems or ["no seasons were requested"])
         )
     return pd.concat(frames, ignore_index=True)
 
@@ -131,8 +186,13 @@ def cfb_pbp_normalised(pbp: pd.DataFrame) -> pd.DataFrame:
     frame["play_type"] = "other"
     frame.loc[pbp["pass"].fillna(False).astype(bool), "play_type"] = "pass"
     frame.loc[pbp["rush"].fillna(False).astype(bool), "play_type"] = "run"
-    success = pd.to_numeric(pbp.get("EPA_success"), errors="coerce")
-    frame["success"] = success.fillna((frame["epa"] > 0).astype(float))
+    # EPA_success is one of the optional columns; without it, a play succeeded
+    # if it gained expected points.
+    from_epa = (frame["epa"] > 0).astype(float)
+    if "EPA_success" in pbp.columns:
+        frame["success"] = pd.to_numeric(pbp["EPA_success"], errors="coerce").fillna(from_epa)
+    else:
+        frame["success"] = from_epa
     return frame.dropna(subset=["posteam", "defteam", "epa"])
 
 
@@ -142,8 +202,40 @@ def load_cfb_frames(seasons: Iterable[int]) -> tuple[pd.DataFrame, pd.DataFrame]
     return cfb_player_weekly(raw), cfb_pbp_normalised(raw)
 
 
+#: Where a final score can be found, best first. Only the 2026 release carries
+#: an explicit final; earlier files carry the running score, whose maximum over
+#: a game is the same number.
+SCORE_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("homeFinalScore", "awayFinalScore"),
+    ("end.homeScore", "end.awayScore"),
+    ("homeScore", "awayScore"),
+)
+
+
+def score_columns(frame: pd.DataFrame) -> tuple[str, str] | None:
+    """The best pair of score columns this frame has, or ``None``."""
+    for home, away in SCORE_COLUMNS:
+        if home in frame.columns and away in frame.columns:
+            return home, away
+    return None
+
+
 def cfb_results(pbp: pd.DataFrame) -> pd.DataFrame:
-    """Final scores per game, for grading past predictions."""
+    """Final scores per game, for grading past predictions.
+
+    Returns an empty frame rather than raising when the release carries no
+    score columns at all: grading is a nice-to-have, and the projection model
+    does not depend on it.
+    """
+    columns = score_columns(pbp)
+    if columns is None or "homeTeamName" not in pbp.columns:
+        logger.warning("college play-by-play carries no final scores; cannot grade games")
+        return pd.DataFrame(
+            columns=["game_id", "season", "week", "home_team", "away_team",
+                     "home_score", "away_score"]
+        )
+    home_column, away_column = columns
+
     games = (
         pbp.dropna(subset=["game_id"])
         .groupby("game_id")
@@ -152,8 +244,8 @@ def cfb_results(pbp: pd.DataFrame) -> pd.DataFrame:
             week=("week", "first"),
             home_team=("homeTeamName", "first"),
             away_team=("awayTeamName", "first"),
-            home_score=("homeFinalScore", "max"),
-            away_score=("awayFinalScore", "max"),
+            home_score=(home_column, "max"),
+            away_score=(away_column, "max"),
         )
         .reset_index()
     )
@@ -172,6 +264,10 @@ def normalise_team(name: str | None) -> str:
     if not name:
         return ""
     text = str(name).lower()
-    for noise in (" state", "&", ".", "'", "-"):
-        text = text.replace(noise, " state " if noise == " state" else " ")
+    # Dropped outright: "St. John's" and "St Johns" have to agree.
+    for gone in (".", "'", "\u2019"):
+        text = text.replace(gone, "")
+    # Turned into a boundary: "Texas A&M" and "Texas A M" have to agree.
+    for spacer in ("&", "-", "(", ")", "/"):
+        text = text.replace(spacer, " ")
     return " ".join(text.split())
