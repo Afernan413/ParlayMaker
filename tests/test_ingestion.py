@@ -384,3 +384,24 @@ async def test_empty_feed_map_does_not_fall_back_to_the_live_feed(db_path):
 async def test_default_feed_map_is_used_when_none_is_given(db_path):
     client = injuries.InjuryClient(db_path=db_path)
     assert set(client.feed_urls) == {"nfl", "nba"}
+
+
+@respx.mock
+async def test_client_works_against_a_database_that_does_not_exist_yet(tmp_path, odds_event):
+    """Regression: the client primed its quota from the database on connect,
+    before any table existed. Local runs always had a database left over from
+    an earlier mock run; a fresh machine crashed on the first live call."""
+    fresh = tmp_path / "nested" / "brand-new.db"
+    assert not fresh.exists()
+
+    respx.get(f"{BASE}/v4/sports/americanfootball_nfl/odds").mock(
+        return_value=httpx.Response(
+            200, json=[odds_event], headers={"x-requests-remaining": "480"}
+        )
+    )
+    async with OddsAPIClient("key", base_url=BASE, db_path=str(fresh)) as client:
+        events = await client.fetch_game_odds("nfl")
+
+    assert events[0]["id"] == "evt-1"
+    assert fresh.exists()
+    assert db.latest_quota("odds_api", db_path=str(fresh))["requests_remaining"] == 480

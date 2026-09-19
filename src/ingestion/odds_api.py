@@ -131,6 +131,10 @@ class OddsAPIClient:
             self._client = httpx.AsyncClient(
                 base_url=self.base_url, timeout=settings.http_timeout_seconds
             )
+        # The schema has to exist before the quota log can be read or written,
+        # and on a fresh machine this client is the first thing to touch the
+        # database. init_db is idempotent, so this is safe to repeat.
+        db.init_db(self.db_path)
         self._prime_quota_from_db()
         return self
 
