@@ -59,6 +59,25 @@ any passer-by trigger `?refresh=true`, which spends your credits.
 
 ## Step 2 — Pick a hosting path
 
+### Path 0 — GitHub Pages (no server at all)
+
+If you only need the model and the parlay calculator, and not live `?refresh=`
+inside the page, this is the least machinery by a wide margin:
+
+1. `Settings -> Pages -> Source: GitHub Actions`
+2. optional: add an `ODDS_API_KEY` repository secret (without it the site
+   publishes the bundled sample slate)
+3. push, or run the **Publish parlay model** workflow by hand
+
+`scripts/build_static.py` runs the whole Python engine in the Action and writes
+a self-contained page; the browser does only the arithmetic and the copula draw.
+There is no server to secure, so steps 1 and 3-5 below do not apply — but note
+that a Pages site is **public**, so publish the sample slate rather than live
+odds if you would rather not redistribute a provider's prices.
+
+The paths below are for the interactive server app, which can refresh odds on
+demand and keeps the bet log for CLV.
+
 | | Path A — Tunnel to your own machine | Path B — Fly.io / Render | Path C — VPS + Docker |
 |---|---|---|---|
 | Cost | free | ~$0–5/mo | ~$5/mo |

@@ -1,0 +1,31 @@
+# Run the test suite on every push and pull request.
+name: Tests
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # The browser engine is parity-tested against the Python one, so the
+      # suite needs node as well as python.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install
+        run: pip install -e '.[dev,web]'
+
+      - name: Test
+        run: python -m pytest -q

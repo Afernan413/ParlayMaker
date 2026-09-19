@@ -266,6 +266,7 @@ class Slate:
     mock: bool
     built_at: str
     games: list[dict[str, Any]] = field(default_factory=list)
+    game_projections: dict[str, Any] = field(default_factory=dict)
     legs: list[Leg] = field(default_factory=list)
     edges: list[Leg] = field(default_factory=list)
     context_results: list[ContextResult] = field(default_factory=list)
@@ -339,6 +340,7 @@ async def build_slate(
             sport, slate.games, use_mock=use_mock, injuries=index
         )
         slate.projections = len(projections)
+        slate.game_projections = game_projections
 
     with clock("reasoning"):
         agent = agent or (RuleBasedContextAgent() if use_mock else ContextAgent())
@@ -349,7 +351,7 @@ async def build_slate(
 
     with clock("legs"):
         slate.legs = leg_stage(
-            sport, slate.games, projections, game_projections,
+            sport, slate.games, projections, slate.game_projections,
             db_path=db_path, include_game_markets=include_game_markets,
         )
         attach_rationale(slate.legs, slate.context_results)

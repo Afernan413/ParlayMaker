@@ -1,0 +1,75 @@
+# Build the standalone parlay model and publish it to GitHub Pages.
+#
+# One-time setup: Settings -> Pages -> Source: "GitHub Actions".
+# Optional: add an ODDS_API_KEY repository secret for real odds. Without it the
+# build uses the bundled sample slate, so the site still works.
+name: Publish parlay model
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "config/**"
+      - "scripts/build_static.py"
+      - "data/mock/**"
+      - ".github/workflows/pages.yml"
+  schedule:
+    # 13:00 and 21:00 UTC. Each live run spends Odds API credits, so keep the
+    # cadence low unless you are on a paid tier -- see docs/DEPLOYMENT.md.
+    - cron: "0 13,21 * * *"
+  workflow_dispatch:
+    inputs:
+      max_events:
+        description: "Games to pull player props for (blank = all)"
+        required: false
+        default: "4"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two publishes race; let a newer one win.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install the engine
+        run: pip install -e '.[stats]'
+
+      - name: Build the site
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          MAX_EVENTS: ${{ github.event.inputs.max_events || '4' }}
+        run: |
+          # --live falls back to the cached fixtures when no key is set, so this
+          # one command works with or without the secret.
+          python scripts/build_static.py --live --max-events "$MAX_EVENTS"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

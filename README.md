@@ -45,6 +45,31 @@ ingest -> project -> reason -> price -> optimise -> notify
   +130, tickets between +200 and +650, minimum 4% EV per leg, and a player or
   team may appear on only one ticket in a card.
 
+## The fastest way to use it
+
+A standalone build that needs no server, no keys and no Python at run time:
+
+```bash
+python scripts/build_static.py     # writes site/
+open site/index.html               # or: xdg-open / just double-click it
+```
+
+That page carries a whole slate — game predictions, every priced bet, and the
+correlations between them — and does the parlay maths in the browser, so it
+works offline and on a phone. `site/` is committed with a sample slate, so a
+fresh clone opens and works immediately.
+
+To put it on the web, enable **Settings → Pages → Source: GitHub Actions**. The
+committed workflow rebuilds and publishes it on a schedule; add an `ODDS_API_KEY`
+repository secret and it switches from the sample slate to real odds by itself.
+
+| | Static build (`site/`) | Server app (`src/web/`) |
+| --- | --- | --- |
+| Needs a running process | no | yes |
+| Refresh odds | rebuild (CLI or Action) | `?refresh=true` in the app |
+| Runs on GitHub Pages | yes | no (Pages is static-only) |
+| Pricing runs | in your browser | in Python |
+
 ## Quick start
 
 ```bash

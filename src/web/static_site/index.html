@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parlay Model — NFL &amp; NBA</title>
+<meta name="description" content="Model projections and parlay pricing for NFL and NBA slates.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%97%86%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">◆</span>
+    <div>
+      <h1>Parlay Model</h1>
+      <p class="brand-sub">NFL &amp; NBA projections, priced with correlation</p>
+    </div>
+  </div>
+  <div class="topbar-controls">
+    <div class="segmented" role="group" aria-label="Sport">
+      <button type="button" class="seg" data-sport="nfl" aria-pressed="true">NFL</button>
+      <button type="button" class="seg" data-sport="nba" aria-pressed="false">NBA</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab" data-view="games" role="tab" aria-selected="true">Games</button>
+      <button type="button" class="tab" data-view="bets" role="tab" aria-selected="false">Bets</button>
+    </div>
+    <button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Toggle dark mode">Theme</button>
+  </div>
+</header>
+
+<p id="stale-note" class="stale-note" hidden></p>
+<p id="status" class="status-line" role="status" aria-live="polite">Loading…</p>
+
+<main class="layout">
+  <div>
+    <!-- ------------------------------------------------ game predictions -->
+    <section class="panel view" id="view-games" aria-labelledby="games-heading">
+      <div class="panel-head">
+        <h2 id="games-heading">Model predictions</h2>
+        <span id="games-count" class="count"></span>
+      </div>
+      <div id="game-grid" class="game-grid"></div>
+    </section>
+
+    <!-- ------------------------------------------------------ bet browser -->
+    <section class="panel view" id="view-bets" hidden aria-labelledby="bets-heading">
+      <div class="panel-head">
+        <h2 id="bets-heading">Available bets</h2>
+        <span id="legs-count" class="count"></span>
+      </div>
+      <div class="filters">
+        <label class="field">
+          <span>Search</span>
+          <input type="search" id="filter-search" placeholder="Player, team, market…" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>Game</span>
+          <select id="filter-game"><option value="">All games</option></select>
+        </label>
+        <label class="field">
+          <span>Market</span>
+          <select id="filter-market"><option value="">All markets</option></select>
+        </label>
+        <label class="field">
+          <span>Sort by</span>
+          <select id="filter-sort">
+            <option value="ev">Best EV</option>
+            <option value="edge">Biggest edge</option>
+            <option value="prob">Most likely</option>
+            <option value="odds">Longest odds</option>
+          </select>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="filter-edges" checked>
+          <span>Only bets the model rates as +EV</span>
+        </label>
+      </div>
+      <ul id="leg-list" class="leg-list"></ul>
+      <p id="legs-empty" class="empty" hidden>No bets match these filters.</p>
+    </section>
+  </div>
+
+  <!-- ------------------------------------------------------------- slip -->
+  <aside class="slip-column">
+    <section class="panel slip-panel" aria-labelledby="slip-heading">
+      <div class="panel-head">
+        <h2 id="slip-heading">Your slip</h2>
+        <button type="button" id="clear-slip" class="btn btn-ghost btn-sm" hidden>Clear</button>
+      </div>
+
+      <ol id="slip-legs" class="slip-legs"></ol>
+      <p id="slip-empty" class="empty">
+        Pick 2–4 bets from the Bets tab. Same-game legs are priced with the
+        model's correlations, so a parlay is not just the legs multiplied.
+      </p>
+
+      <div id="slip-body" hidden>
+        <div class="stake-row">
+          <label class="field stake-field">
+            <span>If you put in</span>
+            <div class="money-input">
+              <span class="currency">$</span>
+              <input type="number" id="stake" value="25" min="0" step="1" inputmode="decimal">
+            </div>
+          </label>
+          <div class="stake-presets" role="group" aria-label="Quick stakes">
+            <button type="button" class="chip" data-stake="5">$5</button>
+            <button type="button" class="chip" data-stake="10">$10</button>
+            <button type="button" class="chip" data-stake="25">$25</button>
+            <button type="button" class="chip" data-stake="50">$50</button>
+            <button type="button" class="chip" data-stake="100">$100</button>
+          </div>
+        </div>
+
+        <div class="hero">
+          <p class="hero-label">You'd collect</p>
+          <p id="hero-payout" class="hero-figure">$0</p>
+          <p id="hero-detail" class="hero-detail"></p>
+        </div>
+
+        <div class="tiles">
+          <div class="tile">
+            <p class="tile-label">Parlay price</p>
+            <p id="tile-odds" class="tile-value">—</p>
+            <p id="tile-odds-sub" class="tile-sub"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Profit if it wins</p>
+            <p id="tile-profit" class="tile-value">—</p>
+            <p id="tile-profit-sub" class="tile-sub"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Expected value</p>
+            <p id="tile-ev" class="tile-value">—</p>
+            <p id="tile-ev-sub" class="tile-sub"></p>
+          </div>
+          <div class="tile">
+            <p class="tile-label">Suggested stake</p>
+            <p id="tile-kelly" class="tile-value">—</p>
+            <p id="tile-kelly-sub" class="tile-sub"></p>
+          </div>
+        </div>
+
+        <div class="prob-block">
+          <div class="prob-head">
+            <h3>Chance it cashes</h3>
+            <span id="prob-edge" class="badge"></span>
+          </div>
+          <div class="prob-row">
+            <span class="prob-name"><i class="swatch swatch-model" aria-hidden="true"></i>Model</span>
+            <div class="track"><div id="bar-model" class="fill fill-model"></div></div>
+            <span id="prob-model" class="prob-value">—</span>
+          </div>
+          <div class="prob-row">
+            <span class="prob-name"><i class="swatch swatch-market" aria-hidden="true"></i>Market</span>
+            <div class="track"><div id="bar-market" class="fill fill-market"></div></div>
+            <span id="prob-market" class="prob-value">—</span>
+          </div>
+          <p id="prob-note" class="prob-note"></p>
+        </div>
+
+        <ul id="advisories" class="advisories"></ul>
+
+        <details class="detail-block" id="payout-block">
+          <summary>What other stakes pay</summary>
+          <table class="payout-table">
+            <thead>
+              <tr><th scope="col">Stake</th><th scope="col">Profit</th><th scope="col">Collect</th><th scope="col">EV</th></tr>
+            </thead>
+            <tbody id="payout-rows"></tbody>
+          </table>
+        </details>
+
+        <details class="detail-block" id="corr-block">
+          <summary>How the legs interact</summary>
+          <ul id="corr-list" class="corr-list"></ul>
+        </details>
+
+        <details class="detail-block" id="why-block">
+          <summary>Why the model disagrees with the line</summary>
+          <ul id="why-list" class="why-list"></ul>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel build-panel" aria-labelledby="build-heading">
+      <div class="panel-head"><h2 id="build-heading">Build one for me</h2></div>
+      <div class="build-controls">
+        <label class="field">
+          <span>Legs</span>
+          <select id="build-legs">
+            <option value="">2–4</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Tickets</span>
+          <input type="number" id="build-tickets" value="3" min="1" max="10">
+        </label>
+        <label class="field">
+          <span>Bankroll</span>
+          <div class="money-input">
+            <span class="currency">$</span>
+            <input type="number" id="build-bankroll" value="1000" min="1" step="50">
+          </div>
+        </label>
+        <button type="button" id="build-run" class="btn btn-primary">Build a card</button>
+      </div>
+      <ul id="build-results" class="build-results"></ul>
+    </section>
+
+    <p class="disclaimer">
+      Model output on public odds and public stats, for research. It does not
+      place bets and cannot promise profit — every price here is an estimate,
+      and the suggested stake is quarter Kelly on the bankroll you enter.
+    </p>
+  </aside>
+</main>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

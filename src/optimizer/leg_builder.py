@@ -125,7 +125,8 @@ def legs_from_lines(
         for row in rows:
             selection = str(row.get("selection") or "")
             p_model = _game_market_probability(
-                market, selection, line, game_projection, total_spec, margin_spec
+                market, selection, line, game_projection, total_spec, margin_spec,
+                sport=sport,
             )
             if p_model is None:
                 continue
@@ -136,7 +137,7 @@ def legs_from_lines(
                 selection=selection,
                 american_odds=int(row["american_odds"]),
                 line=line,
-                team=_team_for_selection(selection, game_projection),
+                team=_team_for_selection(selection, game_projection, sport),
                 p_model=p_model,
                 projection_mean=(
                     game_projection.total_mean if market == "totals"
@@ -159,34 +160,61 @@ def _game_market_probability(
     projection: GameProjection,
     total_spec: DistributionSpec,
     margin_spec: DistributionSpec,
+    *,
+    sport: str,
 ) -> float | None:
-    """Model probability for a total / spread / moneyline selection."""
+    """Model probability for a total / spread / moneyline selection.
+
+    The odds feed names teams in full ("Kansas City Chiefs") while a game
+    projection carries the stat feed's abbreviation ("KC"), so every comparison
+    goes through :func:`~src.models.baseline.same_team`.
+    """
     if market == "totals" and line is not None:
         probability = total_spec.probability(line)
         try:
             return probability.for_selection(selection)
         except ValueError:
             return None
+
+    side = _side_for_selection(selection, projection, sport)
+    if side is None:
+        return None
+
     if market == "spreads" and line is not None:
         # A spread is stated from the selected team's perspective: they cover
         # when their margin beats -line.
-        if selection == projection.home_team:
+        if side == "home":
             return float(margin_spec.probability(-line).prob_over)
-        if selection == projection.away_team:
-            return float(margin_spec.probability(line).prob_under)
-        return None
+        return float(margin_spec.probability(line).prob_under)
     if market == "h2h":
-        if selection == projection.home_team:
+        if side == "home":
             return float(margin_spec.probability(0.0).prob_over)
-        if selection == projection.away_team:
-            return float(margin_spec.probability(0.0).prob_under)
-        return None
+        return float(margin_spec.probability(0.0).prob_under)
     return None
 
 
-def _team_for_selection(selection: str, projection: GameProjection) -> str | None:
-    if selection in (projection.home_team, projection.away_team):
-        return selection
+def _side_for_selection(
+    selection: str, projection: GameProjection, sport: str
+) -> str | None:
+    """``"home"``, ``"away"``, or ``None`` when the selection is neither."""
+    from src.models.baseline import same_team
+
+    if same_team(selection, projection.home_team, sport):
+        return "home"
+    if same_team(selection, projection.away_team, sport):
+        return "away"
+    return None
+
+
+def _team_for_selection(
+    selection: str, projection: GameProjection, sport: str
+) -> str | None:
+    """The projection's team code for a selection, for correlation lookups."""
+    side = _side_for_selection(selection, projection, sport)
+    if side == "home":
+        return projection.home_team
+    if side == "away":
+        return projection.away_team
     return None
 
 
