@@ -140,6 +140,17 @@ def build_context_payload(
         },
         "weather": summarise_weather(weather),
         "injuries": summarise_injuries(injuries),
+        # Structured mirror of the line above, so downstream consumers do not
+        # have to parse prose to know who is out.
+        "injury_records": [
+            {
+                "player_name": row.get("player_name"),
+                "team": row.get("team"),
+                "position": row.get("position"),
+                "status": row.get("status"),
+            }
+            for row in (injuries or [])
+        ],
         "market_lines": [
             {
                 "market": row.get("market"),

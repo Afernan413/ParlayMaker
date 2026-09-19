@@ -36,6 +36,15 @@ from src.reasoning.prompts import (
 logger = logging.getLogger(__name__)
 
 
+def _matches_any(team: str | None, candidates: set[str], sport: str) -> bool:
+    """Does ``team`` appear in ``candidates`` once names are normalised?"""
+    from src.models.baseline import same_team
+
+    if not team:
+        return False
+    return any(same_team(team, other, sport) for other in candidates)
+
+
 def clamp_factor(factor: float, max_adjustment: float | None = None) -> float:
     """Clamp an adjustment factor into the permitted band."""
     ceiling = settings.max_context_adjustment if max_adjustment is None else max_adjustment
@@ -248,6 +257,101 @@ class ContextAgent:
             report,
             max_adjustment=self.max_adjustment,
             min_confidence=self.min_confidence,
+        )
+
+
+class RuleBasedContextAgent(ContextAgent):
+    """Deterministic stand-in for Claude, used by ``--mock`` runs.
+
+    It applies the same kind of bounded shifts a real call would (wind
+    suppresses passing volume and helps rushing; a ruled-out pass catcher
+    reallocates targets to teammates) so offline runs exercise the whole
+    reasoning path -- payload assembly, clamping and rationale capture --
+    without an API key.
+    """
+
+    # Residual-sized: the book has already moved its own lines for weather and
+    # inactives, so the shifts here represent what is left over, not the whole
+    # weather effect. Oversized factors here would manufacture fake edges.
+    WIND_PASSING_FACTOR = 0.95
+    WIND_RUSHING_FACTOR = 1.03
+    FREEZING_PASSING_FACTOR = 0.98
+    REALLOCATION_FACTOR = 1.05
+
+    PASSING_MARKETS = frozenset(
+        {"player_pass_yds", "player_pass_tds", "player_reception_yds", "player_receptions"}
+    )
+    RUSHING_MARKETS = frozenset({"player_rush_yds"})
+    RECEIVING_MARKETS = frozenset({"player_reception_yds", "player_receptions"})
+    #: NBA markets that absorb a ruled-out teammate's usage.
+    USAGE_MARKETS = frozenset({"player_points", "player_assists", "player_threes"})
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    async def request_report(self, payload: Mapping[str, Any]) -> GameContextReport | None:
+        sport = str(payload.get("game", {}).get("sport") or "nfl")
+        weather = str(payload.get("weather", ""))
+        windy = "HIGH WIND" in weather
+        freezing = "FREEZING" in weather
+        out_teams = {
+            str(record.get("team") or "")
+            for record in payload.get("injury_records", [])
+            if str(record.get("status", "")).upper() == "OUT" and record.get("team")
+        }
+        projections = payload.get("baseline_projections", [])
+
+        adjustments: list[PropAdjustment] = []
+        for row in projections:
+            market = row.get("market")
+            factor = 1.0
+            reasons: list[str] = []
+            if windy and market in self.PASSING_MARKETS:
+                factor *= self.WIND_PASSING_FACTOR
+                reasons.append(f"sustained wind in forecast ({weather})")
+            if freezing and market in self.PASSING_MARKETS:
+                factor *= self.FREEZING_PASSING_FACTOR
+                reasons.append("freezing temperatures suppress passing efficiency")
+            if windy and market in self.RUSHING_MARKETS:
+                factor *= self.WIND_RUSHING_FACTOR
+                reasons.append("wind pushes game script toward the run")
+            teammate_out = _matches_any(row.get("team"), out_teams, sport)
+            if teammate_out and market in self.RECEIVING_MARKETS:
+                factor *= self.REALLOCATION_FACTOR
+                reasons.append("target share reallocated from a ruled-out teammate")
+            if teammate_out and market in self.USAGE_MARKETS:
+                factor *= self.REALLOCATION_FACTOR
+                reasons.append("usage reallocated from a ruled-out teammate")
+
+            if abs(factor - 1.0) < 1e-9:
+                continue
+            mean = float(row.get("projected_mean", 0.0))
+            adjustments.append(
+                PropAdjustment(
+                    player_name=row["player_name"],
+                    market=market,
+                    original_projection=mean,
+                    adjusted_projection=mean * factor,
+                    adjustment_factor=factor,
+                    confidence_score=0.72,
+                    primary_reasoning="; ".join(reasons),
+                )
+            )
+
+        game = payload.get("game", {})
+        script = (
+            "Wind and cold favour a run-leaning, lower-variance script."
+            if windy
+            else "Neutral script; no material weather or availability edge."
+        )
+        return GameContextReport(
+            game_id=str(game.get("game_id", "")),
+            projected_game_script=script,
+            adjustments=adjustments,
         )
 
 

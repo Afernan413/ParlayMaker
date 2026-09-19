@@ -1,0 +1,38 @@
+{
+ "injuries": [
+  {
+   "displayName": "BUF",
+   "abbreviation": "BUF",
+   "injuries": [
+    {
+     "status": "OUT",
+     "date": "2026-09-19",
+     "shortComment": "hamstring",
+     "athlete": {
+      "displayName": "Reece Colton",
+      "position": {
+       "abbreviation": "WR"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "displayName": "GB",
+   "abbreviation": "GB",
+   "injuries": [
+    {
+     "status": "QUESTIONABLE",
+     "date": "2026-09-19",
+     "shortComment": "ankle",
+     "athlete": {
+      "displayName": "Dorian Slate",
+      "position": {
+       "abbreviation": "WR"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,176 @@
+[
+ {
+  "id": "nfl-mock-1",
+  "sport_key": "americanfootball_nfl",
+  "commence_time": "2026-09-20T17:00:00Z",
+  "home_team": "Kansas City Chiefs",
+  "away_team": "Buffalo Bills",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "h2h",
+      "outcomes": [
+       {
+        "name": "Kansas City Chiefs",
+        "price": -206
+       },
+       {
+        "name": "Buffalo Bills",
+        "price": 169
+       }
+      ]
+     },
+     {
+      "key": "spreads",
+      "outcomes": [
+       {
+        "name": "Kansas City Chiefs",
+        "price": -112,
+        "point": -6.5
+       },
+       {
+        "name": "Buffalo Bills",
+        "price": -107,
+        "point": 6.5
+       }
+      ]
+     },
+     {
+      "key": "totals",
+      "outcomes": [
+       {
+        "name": "Over",
+        "price": 118,
+        "point": 49.5
+       },
+       {
+        "name": "Under",
+        "price": -142,
+        "point": 49.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "nfl-mock-2",
+  "sport_key": "americanfootball_nfl",
+  "commence_time": "2026-09-20T20:05:00Z",
+  "home_team": "Detroit Lions",
+  "away_team": "Green Bay Packers",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "h2h",
+      "outcomes": [
+       {
+        "name": "Detroit Lions",
+        "price": -250
+       },
+       {
+        "name": "Green Bay Packers",
+        "price": 202
+       }
+      ]
+     },
+     {
+      "key": "spreads",
+      "outcomes": [
+       {
+        "name": "Detroit Lions",
+        "price": -107,
+        "point": -6.5
+       },
+       {
+        "name": "Green Bay Packers",
+        "price": -112,
+        "point": 6.5
+       }
+      ]
+     },
+     {
+      "key": "totals",
+      "outcomes": [
+       {
+        "name": "Over",
+        "price": -106,
+        "point": 39.5
+       },
+       {
+        "name": "Under",
+        "price": -113,
+        "point": 39.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "nfl-mock-3",
+  "sport_key": "americanfootball_nfl",
+  "commence_time": "2026-09-21T00:20:00Z",
+  "home_team": "San Francisco 49ers",
+  "away_team": "Seattle Seahawks",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "h2h",
+      "outcomes": [
+       {
+        "name": "San Francisco 49ers",
+        "price": -303
+       },
+       {
+        "name": "Seattle Seahawks",
+        "price": 241
+       }
+      ]
+     },
+     {
+      "key": "spreads",
+      "outcomes": [
+       {
+        "name": "San Francisco 49ers",
+        "price": -106,
+        "point": -6.0
+       },
+       {
+        "name": "Seattle Seahawks",
+        "price": -113,
+        "point": 6.0
+       }
+      ]
+     },
+     {
+      "key": "totals",
+      "outcomes": [
+       {
+        "name": "Over",
+        "price": -130,
+        "point": 47.5
+       },
+       {
+        "name": "Under",
+        "price": 108,
+        "point": 47.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]

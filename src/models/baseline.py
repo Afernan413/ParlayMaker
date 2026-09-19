@@ -54,6 +54,47 @@ NFL_MARKET_UNIT: dict[str, str] = {
     "player_receptions": "pass",
 }
 
+#: NBA club name (as The Odds API reports it) -> abbreviation used by nba_api.
+NBA_TEAM_ALIASES: dict[str, str] = {
+    "Atlanta Hawks": "ATL", "Boston Celtics": "BOS", "Brooklyn Nets": "BKN",
+    "Charlotte Hornets": "CHA", "Chicago Bulls": "CHI", "Cleveland Cavaliers": "CLE",
+    "Dallas Mavericks": "DAL", "Denver Nuggets": "DEN", "Detroit Pistons": "DET",
+    "Golden State Warriors": "GSW", "Houston Rockets": "HOU", "Indiana Pacers": "IND",
+    "Los Angeles Clippers": "LAC", "Los Angeles Lakers": "LAL",
+    "Memphis Grizzlies": "MEM", "Miami Heat": "MIA", "Milwaukee Bucks": "MIL",
+    "Minnesota Timberwolves": "MIN", "New Orleans Pelicans": "NOP",
+    "New York Knicks": "NYK", "Oklahoma City Thunder": "OKC", "Orlando Magic": "ORL",
+    "Philadelphia 76ers": "PHI", "Phoenix Suns": "PHX", "Portland Trail Blazers": "POR",
+    "Sacramento Kings": "SAC", "San Antonio Spurs": "SAS", "Toronto Raptors": "TOR",
+    "Utah Jazz": "UTA", "Washington Wizards": "WAS",
+}
+
+
+def team_lookup(sport: str) -> dict[str, str]:
+    """Club name -> abbreviation map for the sport's stat feed."""
+    from src.ingestion.weather import TEAM_ALIASES as NFL_TEAM_ALIASES
+
+    return dict(NFL_TEAM_ALIASES) if sport.lower() == "nfl" else dict(NBA_TEAM_ALIASES)
+
+
+def resolve_team(name: str | None, sport: str) -> str:
+    """Normalise a club name or abbreviation to the stat feed's abbreviation."""
+    if not name:
+        return ""
+    candidate = name.strip()
+    return team_lookup(sport).get(candidate, candidate).upper()
+
+
+def same_team(first: str | None, second: str | None, sport: str) -> bool:
+    """Do two team references point at the same club?
+
+    Feeds disagree on naming -- The Odds API says ``Buffalo Bills`` while
+    ``nfl_data_py`` and ESPN say ``BUF`` -- so both sides are resolved first.
+    """
+    left, right = resolve_team(first, sport), resolve_team(second, sport)
+    return bool(left) and left == right
+
+
 LEAGUE_AVG_PPG_NFL = 22.5
 NFL_PLAYS_PER_GAME = 63.0
 OPPONENT_BETA = 0.35  # how strongly a 1-sd defence moves a projection

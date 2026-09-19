@@ -1,0 +1,242 @@
+[
+ {
+  "PLAYER_NAME": "Dexter Ames",
+  "TEAM_ABBREVIATION": "BOS",
+  "MIN": 35.0,
+  "PTS": 24.789,
+  "REB": 4.657,
+  "AST": 5.546,
+  "FG3M": 2.907,
+  "USG_PCT": 0.342
+ },
+ {
+  "PLAYER_NAME": "Julian Poe",
+  "TEAM_ABBREVIATION": "BOS",
+  "MIN": 33.0,
+  "PTS": 18.946,
+  "REB": 7.11,
+  "AST": 3.101,
+  "FG3M": 2.3,
+  "USG_PCT": 0.206
+ },
+ {
+  "PLAYER_NAME": "Marco Vidal",
+  "TEAM_ABBREVIATION": "BOS",
+  "MIN": 30.0,
+  "PTS": 14.965,
+  "REB": 8.717,
+  "AST": 2.391,
+  "FG3M": 0.81,
+  "USG_PCT": 0.214
+ },
+ {
+  "PLAYER_NAME": "Eli Sandoval",
+  "TEAM_ABBREVIATION": "BOS",
+  "MIN": 27.0,
+  "PTS": 13.457,
+  "REB": 3.211,
+  "AST": 4.619,
+  "FG3M": 1.762,
+  "USG_PCT": 0.172
+ },
+ {
+  "PLAYER_NAME": "Terrell Boone",
+  "TEAM_ABBREVIATION": "LAL",
+  "MIN": 35.0,
+  "PTS": 31.041,
+  "REB": 5.276,
+  "AST": 6.436,
+  "FG3M": 3.401,
+  "USG_PCT": 0.323
+ },
+ {
+  "PLAYER_NAME": "Ivan Keller",
+  "TEAM_ABBREVIATION": "LAL",
+  "MIN": 33.0,
+  "PTS": 19.431,
+  "REB": 7.183,
+  "AST": 3.137,
+  "FG3M": 2.042,
+  "USG_PCT": 0.227
+ },
+ {
+  "PLAYER_NAME": "Samir Haddad",
+  "TEAM_ABBREVIATION": "LAL",
+  "MIN": 30.0,
+  "PTS": 14.497,
+  "REB": 9.803,
+  "AST": 2.384,
+  "FG3M": 0.856,
+  "USG_PCT": 0.204
+ },
+ {
+  "PLAYER_NAME": "Nico Bassett",
+  "TEAM_ABBREVIATION": "LAL",
+  "MIN": 27.0,
+  "PTS": 12.475,
+  "REB": 3.836,
+  "AST": 5.209,
+  "FG3M": 1.992,
+  "USG_PCT": 0.185
+ },
+ {
+  "PLAYER_NAME": "Aleks Novak",
+  "TEAM_ABBREVIATION": "DEN",
+  "MIN": 35.0,
+  "PTS": 30.073,
+  "REB": 6.297,
+  "AST": 5.752,
+  "FG3M": 3.372,
+  "USG_PCT": 0.327
+ },
+ {
+  "PLAYER_NAME": "Brant Willow",
+  "TEAM_ABBREVIATION": "DEN",
+  "MIN": 33.0,
+  "PTS": 20.629,
+  "REB": 6.744,
+  "AST": 3.453,
+  "FG3M": 2.391,
+  "USG_PCT": 0.267
+ },
+ {
+  "PLAYER_NAME": "Omar Farrah",
+  "TEAM_ABBREVIATION": "DEN",
+  "MIN": 30.0,
+  "PTS": 15.387,
+  "REB": 8.658,
+  "AST": 2.461,
+  "FG3M": 0.891,
+  "USG_PCT": 0.216
+ },
+ {
+  "PLAYER_NAME": "Casey Lindell",
+  "TEAM_ABBREVIATION": "DEN",
+  "MIN": 27.0,
+  "PTS": 12.212,
+  "REB": 3.99,
+  "AST": 4.348,
+  "FG3M": 2.092,
+  "USG_PCT": 0.176
+ },
+ {
+  "PLAYER_NAME": "Jules Marchand",
+  "TEAM_ABBREVIATION": "PHX",
+  "MIN": 35.0,
+  "PTS": 30.219,
+  "REB": 5.044,
+  "AST": 6.452,
+  "FG3M": 3.265,
+  "USG_PCT": 0.326
+ },
+ {
+  "PLAYER_NAME": "Ty Ferrara",
+  "TEAM_ABBREVIATION": "PHX",
+  "MIN": 33.0,
+  "PTS": 20.246,
+  "REB": 7.146,
+  "AST": 3.288,
+  "FG3M": 2.173,
+  "USG_PCT": 0.251
+ },
+ {
+  "PLAYER_NAME": "Roman Duke",
+  "TEAM_ABBREVIATION": "PHX",
+  "MIN": 30.0,
+  "PTS": 14.489,
+  "REB": 8.362,
+  "AST": 2.037,
+  "FG3M": 0.802,
+  "USG_PCT": 0.245
+ },
+ {
+  "PLAYER_NAME": "Ike Salter",
+  "TEAM_ABBREVIATION": "PHX",
+  "MIN": 27.0,
+  "PTS": 12.798,
+  "REB": 3.887,
+  "AST": 4.812,
+  "FG3M": 2.083,
+  "USG_PCT": 0.184
+ },
+ {
+  "PLAYER_NAME": "Gio Tavares",
+  "TEAM_ABBREVIATION": "MIL",
+  "MIN": 35.0,
+  "PTS": 27.98,
+  "REB": 4.997,
+  "AST": 6.21,
+  "FG3M": 3.4,
+  "USG_PCT": 0.328
+ },
+ {
+  "PLAYER_NAME": "Wes Lambert",
+  "TEAM_ABBREVIATION": "MIL",
+  "MIN": 33.0,
+  "PTS": 19.09,
+  "REB": 7.914,
+  "AST": 3.005,
+  "FG3M": 2.273,
+  "USG_PCT": 0.236
+ },
+ {
+  "PLAYER_NAME": "Ronan Fitch",
+  "TEAM_ABBREVIATION": "MIL",
+  "MIN": 30.0,
+  "PTS": 15.782,
+  "REB": 9.544,
+  "AST": 2.12,
+  "FG3M": 0.726,
+  "USG_PCT": 0.201
+ },
+ {
+  "PLAYER_NAME": "Dario Mensah",
+  "TEAM_ABBREVIATION": "MIL",
+  "MIN": 27.0,
+  "PTS": 12.637,
+  "REB": 3.817,
+  "AST": 4.816,
+  "FG3M": 1.953,
+  "USG_PCT": 0.193
+ },
+ {
+  "PLAYER_NAME": "Curtis Vance",
+  "TEAM_ABBREVIATION": "MIA",
+  "MIN": 35.0,
+  "PTS": 27.231,
+  "REB": 4.521,
+  "AST": 5.982,
+  "FG3M": 3.266,
+  "USG_PCT": 0.305
+ },
+ {
+  "PLAYER_NAME": "Avi Stern",
+  "TEAM_ABBREVIATION": "MIA",
+  "MIN": 33.0,
+  "PTS": 19.48,
+  "REB": 7.657,
+  "AST": 2.774,
+  "FG3M": 2.115,
+  "USG_PCT": 0.248
+ },
+ {
+  "PLAYER_NAME": "Lonnie Grant",
+  "TEAM_ABBREVIATION": "MIA",
+  "MIN": 30.0,
+  "PTS": 13.867,
+  "REB": 8.855,
+  "AST": 2.234,
+  "FG3M": 0.772,
+  "USG_PCT": 0.204
+ },
+ {
+  "PLAYER_NAME": "Pierce Nolan",
+  "TEAM_ABBREVIATION": "MIA",
+  "MIN": 27.0,
+  "PTS": 13.042,
+  "REB": 3.625,
+  "AST": 4.234,
+  "FG3M": 1.863,
+  "USG_PCT": 0.182
+ }
+]

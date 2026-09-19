@@ -201,6 +201,11 @@ def price_ticket(
     )
 
 
+#: Hard cap on the leg pool fed to the enumerator. Combinations grow as the
+#: fourth power, and a slate rarely offers more genuinely distinct edges.
+MAX_POOL = 40
+
+
 def enumerate_tickets(
     legs: Sequence[Leg],
     *,
@@ -211,9 +216,15 @@ def enumerate_tickets(
     seed: int | None = None,
     bankroll: float | None = None,
     kelly: float | None = None,
+    max_pool: int | None = None,
     report: BuildReport | None = None,
 ) -> list[ParlayTicket]:
-    """Feasible, positive-EV tickets from a pool of legs."""
+    """Feasible, positive-EV tickets from a pool of legs.
+
+    Cheap filters (duplicate subject, correlation floor, ticket price band) run
+    before the copula, so a Monte-Carlo simulation is only spent on a
+    combination that could actually be recommended.
+    """
     low = settings.min_legs if min_legs is None else min_legs
     high = settings.max_legs if max_legs is None else max_legs
     report = report if report is not None else BuildReport()
@@ -226,6 +237,10 @@ def enumerate_tickets(
     for _ in range(skipped):
         report.reject("leg odds outside band")
 
+    cap = MAX_POOL if max_pool is None else max_pool
+    if len(eligible) > cap:
+        eligible = sorted(eligible, key=lambda leg: leg.ev, reverse=True)[:cap]
+
     candidates: list[ParlayTicket] = []
     for size in range(low, high + 1):
         for combination in combinations(eligible, size):
@@ -236,6 +251,11 @@ def enumerate_tickets(
             if not same_game_pairs_are_correlated(combination):
                 report.reject("same-game pair below correlation floor")
                 continue
+            price = parlay_decimal_odds(leg.american_odds for leg in combination)
+            american = decimal_to_american(price)
+            if not (settings.parlay_odds_min <= american <= settings.parlay_odds_max):
+                report.reject("ticket odds outside band")
+                continue
 
             ticket = price_ticket(
                 combination,
@@ -244,9 +264,6 @@ def enumerate_tickets(
                 bankroll=bankroll,
                 kelly=kelly,
             )
-            if not (settings.parlay_odds_min <= ticket.american_odds <= settings.parlay_odds_max):
-                report.reject("ticket odds outside band")
-                continue
             if ticket.ev < min_ticket_ev:
                 report.reject("ticket EV below floor")
                 continue
@@ -343,6 +360,7 @@ def build_parlays(
     seed: int | None = None,
     bankroll: float | None = None,
     kelly: float | None = None,
+    max_pool: int | None = None,
 ) -> tuple[list[ParlayTicket], BuildReport]:
     """Enumerate, then select. Returns the card and a diagnostic report."""
     report = BuildReport()
@@ -355,6 +373,7 @@ def build_parlays(
         seed=seed,
         bankroll=bankroll,
         kelly=kelly,
+        max_pool=max_pool,
         report=report,
     )
     selected = select_portfolio(candidates, max_tickets=max_tickets, report=report)

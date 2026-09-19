@@ -1,0 +1,2690 @@
+[
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.5003,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.3079,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.4961,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.3516,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.108,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.7969,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.6961,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.7982,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.4166,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.2281,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.2563,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.4526,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.0173,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.7631,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.3213,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.2217,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.162,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.167,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.3894,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.3859,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.3862,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.0232,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.3906,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.0836,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.6253,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.2323,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.6235,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.0126,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.3836,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.4108,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.6165,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.63,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.5612,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.3634,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.9641,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 1.275,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.3089,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.0042,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.5382,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.503,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.492,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.1546,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.122,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.3508,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.7142,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.2833,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.0168,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.2103,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.4248,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": 0.5521,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.2755,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.0483,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.1047,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.3033,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.1019,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.4023,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.0301,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.1979,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.1141,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.0579,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.2667,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": -0.0122,
+  "success": 0.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "pass",
+  "epa": 0.9118,
+  "success": 1.0
+ },
+ {
+  "posteam": "KC",
+  "defteam": "BUF",
+  "play_type": "run",
+  "epa": -0.1373,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.8827,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.1465,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.3782,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.4996,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.3183,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.4338,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.6188,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.0832,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.1491,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.598,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.0895,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.4237,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.5998,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.2221,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.0286,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.5524,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.6538,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.1824,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.5091,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.2007,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.6012,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.6684,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.0287,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.1158,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.1695,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.0906,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 1.0562,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.5502,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 1.0979,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.2983,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.3512,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.518,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.5733,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.1423,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.4112,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.2099,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.0105,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.1005,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.4749,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.1058,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.5389,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.1494,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.3031,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.5209,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.373,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.4872,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.3576,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.1708,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.1582,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.8072,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.3818,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.3281,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.5067,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.4068,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": 0.3768,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.6554,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.2104,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.5596,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.759,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.2868,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": -0.0288,
+  "success": 0.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.3549,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "pass",
+  "epa": 0.4954,
+  "success": 1.0
+ },
+ {
+  "posteam": "BUF",
+  "defteam": "KC",
+  "play_type": "run",
+  "epa": -0.0985,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.4062,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.4679,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.6241,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.5213,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.1248,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.8102,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.8937,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.2333,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.5165,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.3968,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.8803,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.4033,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.6698,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.3315,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.6083,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.2358,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.3173,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.8624,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.223,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.4364,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.6096,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.0107,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.1134,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.6082,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.6922,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.0452,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.191,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.1431,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.4382,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.9572,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.4451,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.1169,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.8811,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.0003,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.1943,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.0353,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.0695,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.6434,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.3507,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.3131,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.1775,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.0988,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.2326,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.3289,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.2281,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 1.339,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.6426,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.3398,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.6624,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.0365,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.0545,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.0705,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.2366,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.1033,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.2236,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -1.1594,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.3387,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.0104,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.0121,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": 0.2664,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.3028,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": -0.4004,
+  "success": 0.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "pass",
+  "epa": 0.9726,
+  "success": 1.0
+ },
+ {
+  "posteam": "DET",
+  "defteam": "GB",
+  "play_type": "run",
+  "epa": -0.8374,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.1368,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.3377,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.2193,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.1288,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.3289,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.0166,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.0317,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.3382,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.9637,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.4364,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.3502,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.2072,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.1893,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.4121,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.0598,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.1048,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.4834,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.008,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.9342,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.1207,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.1697,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.0263,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.3469,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.0203,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.146,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.0077,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.2522,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.133,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.7097,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.0931,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.1599,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.4102,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.6458,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.1759,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.1487,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.1811,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.2592,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.0005,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.5923,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.6906,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.0131,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.5489,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.2515,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.1678,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.0219,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.3125,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.6832,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.0474,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.3642,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.1115,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.0651,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.2784,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.5164,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.0673,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.4103,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.1911,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.1009,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.138,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.0486,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": 0.6039,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.1376,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": -0.1153,
+  "success": 0.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "pass",
+  "epa": 0.2564,
+  "success": 1.0
+ },
+ {
+  "posteam": "GB",
+  "defteam": "DET",
+  "play_type": "run",
+  "epa": -0.2673,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.2594,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.6035,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.8496,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.0881,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.1475,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.3435,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.4585,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.5016,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.2119,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.3263,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.1535,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.206,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.42,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.0492,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.5881,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.8755,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.7181,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.0794,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.0609,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.6636,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.3014,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.4332,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.1657,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.4093,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.8532,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.3547,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.4984,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.1567,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.2552,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.0535,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.2848,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.2146,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.3997,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.1041,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.4049,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.026,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.6071,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 1.0105,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.1645,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.2772,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.437,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.4259,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.2081,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.0243,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.0628,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.4011,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.0819,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.0898,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.3991,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.4513,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.1062,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.7749,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.1447,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.0031,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.1927,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.0797,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -1.1653,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.407,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.2445,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": 0.1372,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -0.55,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": 0.1369,
+  "success": 1.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "pass",
+  "epa": -1.0044,
+  "success": 0.0
+ },
+ {
+  "posteam": "SF",
+  "defteam": "SEA",
+  "play_type": "run",
+  "epa": -0.3056,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.1526,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.0131,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.492,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.0296,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.2158,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.2139,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.3236,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.2364,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.6768,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.2963,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.4618,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.2654,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.6351,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 1.2491,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.1845,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.257,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -1.5918,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.5433,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.528,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.3769,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.0386,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.0456,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.3346,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.4941,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.3351,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.2808,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.3881,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.628,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.1272,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.513,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.2218,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.3617,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.0627,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.5307,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.382,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.096,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.002,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.4425,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.7803,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.7406,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.321,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.0294,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.1538,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.4726,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.1405,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.6814,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.4517,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.3657,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.5372,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.2972,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.8351,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.0954,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.3953,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": -0.3007,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.2,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": 0.3025,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.3722,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.6568,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.1062,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.3982,
+  "success": 1.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -1.1599,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.3641,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "pass",
+  "epa": -0.1894,
+  "success": 0.0
+ },
+ {
+  "posteam": "SEA",
+  "defteam": "SF",
+  "play_type": "run",
+  "epa": 0.1204,
+  "success": 1.0
+ }
+]

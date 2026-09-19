@@ -1,0 +1,38 @@
+{
+ "injuries": [
+  {
+   "displayName": "LAL",
+   "abbreviation": "LAL",
+   "injuries": [
+    {
+     "status": "OUT",
+     "date": "2026-09-19",
+     "shortComment": "left knee soreness",
+     "athlete": {
+      "displayName": "Ivan Keller",
+      "position": {
+       "abbreviation": "G"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "displayName": "MIA",
+   "abbreviation": "MIA",
+   "injuries": [
+    {
+     "status": "QUESTIONABLE",
+     "date": "2026-09-19",
+     "shortComment": "rest",
+     "athlete": {
+      "displayName": "Pierce Nolan",
+      "position": {
+       "abbreviation": "C"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

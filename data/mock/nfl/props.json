@@ -1,0 +1,695 @@
+{
+ "nfl-mock-1": {
+  "id": "nfl-mock-1",
+  "commence_time": "2026-09-20T17:00:00Z",
+  "home_team": "Kansas City Chiefs",
+  "away_team": "Buffalo Bills",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "player_pass_tds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Marcus Vale",
+        "price": -213,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Marcus Vale",
+        "price": 174,
+        "point": 1.5
+       },
+       {
+        "name": "Over",
+        "description": "Ellis Ward",
+        "price": -125,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Ellis Ward",
+        "price": 104,
+        "point": 1.5
+       }
+      ]
+     },
+     {
+      "key": "player_pass_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Marcus Vale",
+        "price": -111,
+        "point": 291.5
+       },
+       {
+        "name": "Under",
+        "description": "Marcus Vale",
+        "price": -108,
+        "point": 291.5
+       },
+       {
+        "name": "Over",
+        "description": "Ellis Ward",
+        "price": 111,
+        "point": 229.5
+       },
+       {
+        "name": "Under",
+        "description": "Ellis Ward",
+        "price": -133,
+        "point": 229.5
+       }
+      ]
+     },
+     {
+      "key": "player_reception_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Cole Pryor",
+        "price": 110,
+        "point": 44.5
+       },
+       {
+        "name": "Under",
+        "description": "Cole Pryor",
+        "price": -132,
+        "point": 44.5
+       },
+       {
+        "name": "Over",
+        "description": "Hank Osei",
+        "price": -136,
+        "point": 41.5
+       },
+       {
+        "name": "Under",
+        "description": "Hank Osei",
+        "price": 113,
+        "point": 41.5
+       },
+       {
+        "name": "Over",
+        "description": "Trey Alder",
+        "price": -112,
+        "point": 82.5
+       },
+       {
+        "name": "Under",
+        "description": "Trey Alder",
+        "price": -107,
+        "point": 82.5
+       },
+       {
+        "name": "Over",
+        "description": "Nate Brody",
+        "price": 115,
+        "point": 38.5
+       },
+       {
+        "name": "Under",
+        "description": "Nate Brody",
+        "price": -137,
+        "point": 38.5
+       },
+       {
+        "name": "Over",
+        "description": "Owen Falk",
+        "price": -142,
+        "point": 34.5
+       },
+       {
+        "name": "Under",
+        "description": "Owen Falk",
+        "price": 118,
+        "point": 34.5
+       },
+       {
+        "name": "Over",
+        "description": "Reece Colton",
+        "price": -107,
+        "point": 70.5
+       },
+       {
+        "name": "Under",
+        "description": "Reece Colton",
+        "price": -112,
+        "point": 70.5
+       }
+      ]
+     },
+     {
+      "key": "player_receptions",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Hank Osei",
+        "price": -112,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Hank Osei",
+        "price": -107,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Trey Alder",
+        "price": -171,
+        "point": 5.5
+       },
+       {
+        "name": "Under",
+        "description": "Trey Alder",
+        "price": 142,
+        "point": 5.5
+       },
+       {
+        "name": "Over",
+        "description": "Owen Falk",
+        "price": 115,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Owen Falk",
+        "price": -138,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Reece Colton",
+        "price": -173,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Reece Colton",
+        "price": 143,
+        "point": 4.5
+       }
+      ]
+     },
+     {
+      "key": "player_rush_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Deon Rush",
+        "price": -137,
+        "point": 81.5
+       },
+       {
+        "name": "Under",
+        "description": "Deon Rush",
+        "price": 114,
+        "point": 81.5
+       },
+       {
+        "name": "Over",
+        "description": "Jamal Pike",
+        "price": 114,
+        "point": 59.5
+       },
+       {
+        "name": "Under",
+        "description": "Jamal Pike",
+        "price": -137,
+        "point": 59.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "nfl-mock-2": {
+  "id": "nfl-mock-2",
+  "commence_time": "2026-09-20T20:05:00Z",
+  "home_team": "Detroit Lions",
+  "away_team": "Green Bay Packers",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "player_pass_tds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Silas Moreno",
+        "price": -122,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Silas Moreno",
+        "price": 102,
+        "point": 1.5
+       },
+       {
+        "name": "Over",
+        "description": "Luca Reyes",
+        "price": 125,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Luca Reyes",
+        "price": -150,
+        "point": 1.5
+       }
+      ]
+     },
+     {
+      "key": "player_pass_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Silas Moreno",
+        "price": -108,
+        "point": 231.5
+       },
+       {
+        "name": "Under",
+        "description": "Silas Moreno",
+        "price": -111,
+        "point": 231.5
+       },
+       {
+        "name": "Over",
+        "description": "Luca Reyes",
+        "price": -135,
+        "point": 211.5
+       },
+       {
+        "name": "Under",
+        "description": "Luca Reyes",
+        "price": 112,
+        "point": 211.5
+       }
+      ]
+     },
+     {
+      "key": "player_reception_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Andre Bellamy",
+        "price": 115,
+        "point": 64.5
+       },
+       {
+        "name": "Under",
+        "description": "Andre Bellamy",
+        "price": -138,
+        "point": 64.5
+       },
+       {
+        "name": "Over",
+        "description": "Miles Corbin",
+        "price": -141,
+        "point": 37.5
+       },
+       {
+        "name": "Under",
+        "description": "Miles Corbin",
+        "price": 117,
+        "point": 37.5
+       },
+       {
+        "name": "Over",
+        "description": "Zane Hollis",
+        "price": -110,
+        "point": 36.5
+       },
+       {
+        "name": "Under",
+        "description": "Zane Hollis",
+        "price": -109,
+        "point": 36.5
+       },
+       {
+        "name": "Over",
+        "description": "Dorian Slate",
+        "price": 111,
+        "point": 37.5
+       },
+       {
+        "name": "Under",
+        "description": "Dorian Slate",
+        "price": -134,
+        "point": 37.5
+       },
+       {
+        "name": "Over",
+        "description": "Rhys Calder",
+        "price": -139,
+        "point": 30.5
+       },
+       {
+        "name": "Under",
+        "description": "Rhys Calder",
+        "price": 116,
+        "point": 30.5
+       },
+       {
+        "name": "Over",
+        "description": "Xavier Lund",
+        "price": -108,
+        "point": 59.5
+       },
+       {
+        "name": "Under",
+        "description": "Xavier Lund",
+        "price": -111,
+        "point": 59.5
+       }
+      ]
+     },
+     {
+      "key": "player_receptions",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Andre Bellamy",
+        "price": 115,
+        "point": 5.5
+       },
+       {
+        "name": "Under",
+        "description": "Andre Bellamy",
+        "price": -138,
+        "point": 5.5
+       },
+       {
+        "name": "Over",
+        "description": "Miles Corbin",
+        "price": 137,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Miles Corbin",
+        "price": -165,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Rhys Calder",
+        "price": 147,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Rhys Calder",
+        "price": -178,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Xavier Lund",
+        "price": -168,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Xavier Lund",
+        "price": 139,
+        "point": 4.5
+       }
+      ]
+     },
+     {
+      "key": "player_rush_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Kip Dawson",
+        "price": -136,
+        "point": 69.5
+       },
+       {
+        "name": "Under",
+        "description": "Kip Dawson",
+        "price": 114,
+        "point": 69.5
+       },
+       {
+        "name": "Over",
+        "description": "Beau Tanner",
+        "price": 111,
+        "point": 53.5
+       },
+       {
+        "name": "Under",
+        "description": "Beau Tanner",
+        "price": -133,
+        "point": 53.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "nfl-mock-3": {
+  "id": "nfl-mock-3",
+  "commence_time": "2026-09-21T00:20:00Z",
+  "home_team": "San Francisco 49ers",
+  "away_team": "Seattle Seahawks",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "player_pass_tds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Emil Navarro",
+        "price": 159,
+        "point": 2.5
+       },
+       {
+        "name": "Under",
+        "description": "Emil Navarro",
+        "price": -193,
+        "point": 2.5
+       },
+       {
+        "name": "Over",
+        "description": "Aiden Cross",
+        "price": -103,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Aiden Cross",
+        "price": -117,
+        "point": 1.5
+       }
+      ]
+     },
+     {
+      "key": "player_pass_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Emil Navarro",
+        "price": 112,
+        "point": 283.5
+       },
+       {
+        "name": "Under",
+        "description": "Emil Navarro",
+        "price": -134,
+        "point": 283.5
+       },
+       {
+        "name": "Over",
+        "description": "Aiden Cross",
+        "price": 112,
+        "point": 215.5
+       },
+       {
+        "name": "Under",
+        "description": "Aiden Cross",
+        "price": -134,
+        "point": 215.5
+       }
+      ]
+     },
+     {
+      "key": "player_reception_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Jonas Petrie",
+        "price": 110,
+        "point": 79.5
+       },
+       {
+        "name": "Under",
+        "description": "Jonas Petrie",
+        "price": -132,
+        "point": 79.5
+       },
+       {
+        "name": "Over",
+        "description": "Kai Ellington",
+        "price": -134,
+        "point": 50.5
+       },
+       {
+        "name": "Under",
+        "description": "Kai Ellington",
+        "price": 111,
+        "point": 50.5
+       },
+       {
+        "name": "Over",
+        "description": "Rory Beckett",
+        "price": -111,
+        "point": 43.5
+       },
+       {
+        "name": "Under",
+        "description": "Rory Beckett",
+        "price": -108,
+        "point": 43.5
+       },
+       {
+        "name": "Over",
+        "description": "Devon Marsh",
+        "price": 118,
+        "point": 32.5
+       },
+       {
+        "name": "Under",
+        "description": "Devon Marsh",
+        "price": -142,
+        "point": 32.5
+       },
+       {
+        "name": "Over",
+        "description": "Griffin Poole",
+        "price": -139,
+        "point": 66.5
+       },
+       {
+        "name": "Under",
+        "description": "Griffin Poole",
+        "price": 116,
+        "point": 66.5
+       },
+       {
+        "name": "Over",
+        "description": "Sol Ramirez",
+        "price": -107,
+        "point": 33.5
+       },
+       {
+        "name": "Under",
+        "description": "Sol Ramirez",
+        "price": -112,
+        "point": 33.5
+       }
+      ]
+     },
+     {
+      "key": "player_receptions",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Jonas Petrie",
+        "price": -119,
+        "point": 6.5
+       },
+       {
+        "name": "Under",
+        "description": "Jonas Petrie",
+        "price": -101,
+        "point": 6.5
+       },
+       {
+        "name": "Over",
+        "description": "Rory Beckett",
+        "price": -130,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Rory Beckett",
+        "price": 108,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Griffin Poole",
+        "price": 101,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Griffin Poole",
+        "price": -121,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Sol Ramirez",
+        "price": -201,
+        "point": 2.5
+       },
+       {
+        "name": "Under",
+        "description": "Sol Ramirez",
+        "price": 165,
+        "point": 2.5
+       }
+      ]
+     },
+     {
+      "key": "player_rush_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Tobias Crane",
+        "price": 112,
+        "point": 79.5
+       },
+       {
+        "name": "Under",
+        "description": "Tobias Crane",
+        "price": -135,
+        "point": 79.5
+       },
+       {
+        "name": "Over",
+        "description": "Malik Sorenson",
+        "price": -113,
+        "point": 60.5
+       },
+       {
+        "name": "Under",
+        "description": "Malik Sorenson",
+        "price": -106,
+        "point": 60.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

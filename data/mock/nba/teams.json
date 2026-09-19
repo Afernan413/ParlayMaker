@@ -1,0 +1,38 @@
+[
+ {
+  "TEAM_ABBREVIATION": "BOS",
+  "PACE": 100.8,
+  "OFF_RATING": 120.1,
+  "DEF_RATING": 110.4
+ },
+ {
+  "TEAM_ABBREVIATION": "LAL",
+  "PACE": 99.1,
+  "OFF_RATING": 114.6,
+  "DEF_RATING": 114.2
+ },
+ {
+  "TEAM_ABBREVIATION": "DEN",
+  "PACE": 98.4,
+  "OFF_RATING": 118.7,
+  "DEF_RATING": 112.9
+ },
+ {
+  "TEAM_ABBREVIATION": "PHX",
+  "PACE": 100.2,
+  "OFF_RATING": 116.3,
+  "DEF_RATING": 115.1
+ },
+ {
+  "TEAM_ABBREVIATION": "MIL",
+  "PACE": 101.6,
+  "OFF_RATING": 117.4,
+  "DEF_RATING": 113.3
+ },
+ {
+  "TEAM_ABBREVIATION": "MIA",
+  "PACE": 96.9,
+  "OFF_RATING": 112.8,
+  "DEF_RATING": 111.6
+ }
+]
