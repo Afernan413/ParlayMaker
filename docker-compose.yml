@@ -1,0 +1,20 @@
+# Local or single-VPS deployment.
+#   cp .env.example .env   (set WEB_ACCESS_TOKEN and ODDS_API_KEY)
+#   docker compose up -d
+services:
+  parlay:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"   # loopback only; put a TLS proxy in front
+    env_file: .env
+    environment:
+      DB_PATH: /data/sports_data.db
+    volumes:
+      - parlay-data:/data
+    restart: unless-stopped
+    # Drop --mock to pull live odds; --max-events caps prop credit spend.
+    command: >
+      python -m src.web.app --host 0.0.0.0 --port 8000 --live --max-events 6
+
+volumes:
+  parlay-data:

@@ -9,6 +9,8 @@ fractional Kelly for staking -- so the browser never re-implements the maths.
 from __future__ import annotations
 
 import asyncio
+import logging
+import time
 from dataclasses import dataclass
 from itertools import combinations
 from typing import Any, Iterable, Sequence
@@ -36,6 +38,8 @@ from run_pipeline import Slate, build_slate
 #: Copula iterations for interactive pricing. Lower than the CLI default so a
 #: keystroke-speed request stays responsive; still +/-0.5% on a joint probability.
 INTERACTIVE_ITERATIONS = 4_000
+
+logger = logging.getLogger("parlay_engine.web")
 
 
 #: Display names for markets whose canonical stat does not title-case cleanly.
@@ -90,19 +94,39 @@ class SlateStore:
         use_mock: bool = True,
         iterations: int = INTERACTIVE_ITERATIONS,
         max_events: int | None = None,
+        min_refresh_seconds: int | None = None,
     ) -> None:
         self.db_path = db_path
         self.use_mock = use_mock
         self.iterations = iterations
         self.max_events = max_events
+        self.min_refresh_seconds = (
+            settings.min_refresh_seconds
+            if min_refresh_seconds is None
+            else min_refresh_seconds
+        )
         self._slates: dict[str, Slate] = {}
         self._locks: dict[str, asyncio.Lock] = {}
+        self._built_at: dict[str, float] = {}
 
     def _lock(self, sport: str) -> asyncio.Lock:
         return self._locks.setdefault(sport, asyncio.Lock())
 
     def cached(self, sport: str) -> Slate | None:
         return self._slates.get(sport.lower())
+
+    def refresh_allowed(self, sport: str, *, now: float | None = None) -> bool:
+        """Has enough time passed since the last build to spend credits again?
+
+        Live rebuilds cost API credits, so a refresh that arrives inside the
+        floor is served from cache rather than refused -- the caller still gets
+        a slate, just not a new bill.
+        """
+        built = self._built_at.get(sport.lower())
+        if built is None:
+            return True
+        now = time.monotonic() if now is None else now
+        return (now - built) >= self.min_refresh_seconds
 
     async def get(
         self, sport: str, *, refresh: bool = False, use_mock: bool | None = None
@@ -111,6 +135,11 @@ class SlateStore:
         sport = sport.lower()
         if sport not in SPORT_KEYS:
             raise SlateNotFound(f"unsupported sport: {sport}")
+        if refresh and not self.refresh_allowed(sport):
+            logger.info(
+                "refresh for %s ignored: inside the %ss floor", sport, self.min_refresh_seconds
+            )
+            refresh = False
         async with self._lock(sport):
             if refresh or sport not in self._slates:
                 self._slates[sport] = await build_slate(
@@ -119,6 +148,7 @@ class SlateStore:
                     db_path=self.db_path,
                     max_events=self.max_events,
                 )
+                self._built_at[sport] = time.monotonic()
             return self._slates[sport]
 
     def require(self, sport: str) -> Slate:

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parlay Crafter — sign in</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%E2%97%86%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+  .login-card { width: min(100%, 380px); padding: 28px; }
+  .login-card h1 { font-size: 1.25rem; margin-bottom: 4px; }
+  .login-sub { margin: 0 0 20px; font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+  .login-card .field { margin-bottom: 14px; }
+  .login-card .field input { font-size: .95rem; padding: 10px; width: 100%; }
+  .login-error {
+    margin: 0 0 14px; padding: 9px 11px; font-size: .78rem; line-height: 1.4;
+    border-radius: var(--radius-sm); border: 1px solid var(--critical);
+    background: var(--critical-soft); color: var(--text-primary);
+  }
+  .login-card .btn-primary { width: 100%; padding: 10px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<main class="login-wrap">
+  <section class="panel login-card">
+    <h1>Parlay Crafter</h1>
+    <p class="login-sub">
+      This instance is private. Paste the access token from your
+      <code>WEB_ACCESS_TOKEN</code> setting.
+    </p>
+    <p id="error" class="login-error" role="alert" hidden></p>
+    <form id="login-form">
+      <label class="field">
+        <span>Access token</span>
+        <input type="password" id="token" autocomplete="current-password"
+               autofocus required spellcheck="false">
+      </label>
+      <button type="submit" class="btn btn-primary">Sign in</button>
+    </form>
+  </section>
+</main>
+
+<script>
+const form = document.getElementById("login-form");
+const errorBox = document.getElementById("error");
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  errorBox.hidden = true;
+  const button = form.querySelector("button");
+  button.disabled = true;
+  button.textContent = "Checking…";
+
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: document.getElementById("token").value }),
+    });
+    if (response.ok) {
+      window.location.replace("/");
+      return;
+    }
+    const body = await response.json().catch(() => ({}));
+    errorBox.textContent = body.detail ?? `Sign-in failed (${response.status}).`;
+    errorBox.hidden = false;
+  } catch (error) {
+    errorBox.textContent = `Could not reach the server: ${error.message}`;
+    errorBox.hidden = false;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Sign in";
+  }
+});
+</script>
+</body>
+</html>

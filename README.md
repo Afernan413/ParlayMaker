@@ -131,6 +131,23 @@ A mock NFL dry run completes in about a second and prints a card like:
       * Same-game correlation: avg r=0.55, weakest r=0.55, joint x1.26
 ```
 
+## Deploying it
+
+`docs/DEPLOYMENT.md` is the step-by-step guide: lock it with a token, pick a
+hosting path (Tailscale tunnel, Fly.io, or a VPS with Docker Compose), mount a
+volume for SQLite, schedule refreshes inside your credit budget, and verify.
+
+The short version:
+
+```bash
+python -m src.web.app --print-token     # -> WEB_ACCESS_TOKEN
+docker compose up -d                    # or: fly deploy
+```
+
+Without `WEB_ACCESS_TOKEN` the app refuses to bind to anything but loopback —
+an open instance would hand out a paid provider's odds and let strangers spend
+your API credits with `?refresh=true`.
+
 ## Configuration
 
 All thresholds live in `config/settings.py` and can be overridden through the

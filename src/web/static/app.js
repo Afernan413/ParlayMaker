@@ -38,6 +38,10 @@ async function api(path, options) {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
+  if (response.status === 401) {
+    window.location.replace("/login");          // session expired or revoked
+    throw new Error("authentication required");
+  }
   if (!response.ok) {
     let detail = `${response.status} ${response.statusText}`;
     try {

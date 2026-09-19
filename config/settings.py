@@ -59,6 +59,13 @@ class Settings(BaseSettings):
     # --- storage -----------------------------------------------------
     db_path: Path = DATA_DIR / "sports_data.db"
 
+    # --- web app -----------------------------------------------------
+    #: Shared access token. Empty means the app may only bind to loopback.
+    web_access_token: str = ""
+    web_session_hours: int = 336  # 14 days
+    #: Floor between slate rebuilds, so a refresh loop cannot drain the quota.
+    min_refresh_seconds: int = 300
+
     # --- API hygiene -------------------------------------------------
     min_quota_remaining: int = 50
     http_timeout_seconds: float = 20.0
