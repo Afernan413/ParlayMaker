@@ -666,11 +666,24 @@
       return;
     }
     const available = Object.keys(data.sports);
+    if (available.length === 0) {
+      $("status").textContent = "No slate in this build. Rebuild with: python scripts/build_static.py";
+      return;
+    }
     if (!available.includes(state.sport)) state.sport = available[0];
+
+    const skipped = data.skipped || {};
     for (const button of document.querySelectorAll(".seg[data-sport]")) {
-      const present = available.includes(button.dataset.sport);
+      const sport = button.dataset.sport;
+      const present = available.includes(sport);
       button.disabled = !present;
-      button.setAttribute("aria-pressed", String(button.dataset.sport === state.sport));
+      button.setAttribute("aria-pressed", String(sport === state.sport));
+      if (!present) {
+        // Say why it is missing rather than leaving a dead button.
+        button.title = skipped[sport]
+          ? `${sport.toUpperCase()} was skipped in this build: ${skipped[sport]}`
+          : `${sport.toUpperCase()} is not in this build`;
+      }
     }
     wireEvents();
     showView("games");

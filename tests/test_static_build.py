@@ -133,3 +133,57 @@ def test_live_build_without_a_key_falls_back_to_fixtures(tmp_path, monkeypatch, 
     )
     assert code == 0
     assert "building from cached fixtures" in capsys.readouterr().out
+
+
+# ------------------------------------------------------ partial failures
+def test_one_sport_failing_still_publishes_the_others(tmp_path, monkeypatch, capsys):
+    """An out-of-season league or a rate-limited stats host must not take the
+    whole site down -- stats.nba.com blocks datacenter IPs, which broke the
+    first live publish."""
+    real_build = build_static.build_slate
+
+    async def flaky(*, sport, **kwargs):
+        if sport == "nba":
+            raise TimeoutError("stats.nba.com read timed out")
+        return await real_build(sport=sport, **kwargs)
+
+    monkeypatch.setattr(build_static, "build_slate", flaky)
+    out = tmp_path / "site"
+    code = build_static.main(
+        ["--out", str(out), "--mock", "--db", str(tmp_path / "partial.db")]
+    )
+
+    assert code == 0
+    raw = (out / "data.js").read_text()
+    bundle = json.loads(raw[raw.index("{"): raw.rindex(";")])
+    assert set(bundle["sports"]) == {"nfl"}
+    assert "nba" in bundle["skipped"]
+    assert "SKIPPED" in capsys.readouterr().out
+
+
+def test_a_skipped_sport_is_never_replaced_with_sample_data(tmp_path, monkeypatch):
+    """Publishing fixtures in place of a failed live pull would look exactly
+    like real odds on the page."""
+    async def always_fails(*, sport, **kwargs):
+        raise TimeoutError("provider down")
+
+    monkeypatch.setattr(build_static, "build_slate", always_fails)
+    code = build_static.main(
+        ["--out", str(tmp_path / "site"), "--mock", "--db", str(tmp_path / "none.db")]
+    )
+    assert code == 1                                   # nothing to publish
+    assert not (tmp_path / "site" / "data.js").exists()
+
+
+def test_a_sport_with_no_games_is_skipped(tmp_path, monkeypatch):
+    from run_pipeline import Slate
+
+    async def empty(*, sport, **kwargs):
+        return Slate(sport=sport, mock=True, built_at="2026-09-19T00:00:00+00:00")
+
+    monkeypatch.setattr(build_static, "build_slate", empty)
+    code = build_static.main(
+        ["--out", str(tmp_path / "site"), "--mock", "--sports", "nba",
+         "--db", str(tmp_path / "empty.db")]
+    )
+    assert code == 1

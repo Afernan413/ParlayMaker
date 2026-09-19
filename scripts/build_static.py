@@ -192,16 +192,35 @@ async def build_bundle(
     db_path: str | None = None,
     max_events: int | None = None,
 ) -> dict[str, Any]:
-    """Run the engine for each sport and assemble the data bundle."""
+    """Run the engine for each sport and assemble the data bundle.
+
+    One sport failing must not take the whole site down: an out-of-season
+    league, a rate-limited stats host, or a provider outage skips that sport
+    and the rest still publishes. A skipped sport is recorded and reported --
+    never quietly replaced with sample data, which would look like real odds.
+    """
     bundle: dict[str, Any] = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "settings": engine_settings(),
         "sports": {},
+        "skipped": {},
     }
     for sport in sports:
-        slate = await build_slate(
-            sport=sport, use_mock=use_mock, db_path=db_path, max_events=max_events
-        )
+        try:
+            slate = await build_slate(
+                sport=sport, use_mock=use_mock, db_path=db_path, max_events=max_events
+            )
+        except Exception as exc:  # provider outage, rate limit, off-season feed
+            reason = f"{type(exc).__name__}: {exc}"
+            bundle["skipped"][sport] = reason
+            print(f"  {sport}: SKIPPED -- {reason}")
+            continue
+
+        if not slate.games:
+            bundle["skipped"][sport] = "no games on the slate (off-season?)"
+            print(f"  {sport}: SKIPPED -- no games on the slate")
+            continue
+
         bundle["sports"][sport] = sport_bundle(slate)
         print(
             f"  {sport}: {len(slate.games)} games, {len(slate.legs)} bets, "
@@ -276,9 +295,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_events=args.max_events,
         )
     )
+    if not bundle["sports"]:
+        print("\nNo sport built, so there is nothing to publish:", file=sys.stderr)
+        for sport, reason in bundle["skipped"].items():
+            print(f"  {sport}: {reason}", file=sys.stderr)
+        return 1
+
     written = write_site(bundle, args.out)
     size_kb = (args.out / "data.js").stat().st_size / 1024
     print(f"\nWrote {len(written)} files to {args.out}/ (data.js is {size_kb:.0f} KB)")
+    if bundle["skipped"]:
+        print("Skipped: " + ", ".join(bundle["skipped"]))
     print(f"Open it now:  file://{(args.out / 'index.html').resolve()}")
     return 0
 
