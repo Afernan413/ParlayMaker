@@ -27,6 +27,7 @@ ingest -> project -> reason -> price -> optimise -> notify
 | Optimise | `src/optimizer/parlay_builder.py` | Integer program that maximises portfolio EV under leg-count, price, correlation and diversification constraints |
 | Notify | `src/notifications/notifier.py` | Discord embeds / Telegram markdown / console cards |
 | Benchmark | `src/optimizer/clv.py` | Logs every recommendation, then scores its price against the closing line |
+| Craft | `src/web/` | Browser UI: pick legs, see the price, the edge and the payout update live |
 
 ### The guardrails that matter
 
@@ -47,15 +48,58 @@ ingest -> project -> reason -> price -> optimise -> notify
 ## Quick start
 
 ```bash
-uv venv && uv pip install -e '.[dev]'          # add ',stats' for live stat feeds
+uv venv && uv pip install -e '.[dev,web]'      # add ',stats' for live stat feeds
 cp .env.example .env                           # fill in your API keys
 
-# End-to-end run on cached fixtures: no API keys, no credits spent
+# The UI, on cached fixtures: no API keys, no credits spent
+python -m src.web.app --mock                   # http://127.0.0.1:8000
+
+# Same pipeline from the command line
 python run_pipeline.py --sport nfl --mock
 
 # Live run, dispatching to your configured webhook
 python run_pipeline.py --sport nba --mode live --legs 3
 ```
+
+## The web UI
+
+```bash
+python -m src.web.app --mock              # cached fixtures (default)
+python -m src.web.app --live --port 8080  # live odds, weather, injuries, stats
+```
+
+Left pane lists every priced bet on the slate — model probability against the
+de-vigged market probability, with the EV the engine computes for each side.
+Click to add a leg to the slip; the slip prices the whole combination through
+the copula and shows:
+
+* **what you collect** for the stake you type, with profit and the payout at
+  other stakes;
+* **expected value in dollars** next to the price, so a fat payout with a
+  negative edge is obvious;
+* **the suggested stake** at quarter Kelly against the bankroll you set;
+* **model vs market probability** side by side, with the correlation lift
+  spelled out — a same-game slip is not the legs multiplied, and the panel says
+  by how much;
+* **advisories** whenever a slip is outside a house rule: five legs, a leg
+  priced past +130, a same-game pair below the 0.25 correlation floor (with a
+  note when the two legs actively work against each other);
+* **why the model disagrees**, quoting the context adjustments Claude applied.
+
+"Build a card" hands the same slate to the ILP optimizer and loads any ticket it
+returns straight into the slip.
+
+Every number in the browser comes from the Python engine over
+`/api/price` — the front end only scales a priced slip by the stake, because
+payout, profit and EV are linear in it. The API is documented at `/docs`.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/config` | thresholds the UI displays |
+| `GET /api/slate/{sport}?refresh=` | games and every priced leg |
+| `POST /api/price` | price a slip: odds, probability, edge, payout, staking |
+| `POST /api/build` | the optimizer's own card |
+| `GET /api/health` | cached slates and data source |
 
 ### CLI
 
@@ -154,7 +198,7 @@ losing to the market regardless of what the model's EV column claims.
 ## Tests
 
 ```bash
-python -m pytest            # 162 tests, no network access
+python -m pytest            # 182 tests, no network access
 ```
 
 No test makes an unmocked HTTP call: The Odds API, OpenWeather and the injury
@@ -172,6 +216,7 @@ constraints and two end-to-end mock runs.
 | Negatively correlated legs are rejected | `test_negatively_correlated_same_game_pair_is_rejected` |
 | De-vigged probabilities are benchmarked against CLV | `tests/test_clv.py` plus `--clv-report` |
 | Dry run completes well under 45s and renders a card | `test_dry_run_produces_a_valid_card` (~1-2s per sport) |
+| The UI's numbers match the engine's | `tests/test_web.py` (payout, EV, Kelly and re-priced optimizer tickets) |
 
 ## Layout
 
@@ -183,6 +228,7 @@ src/models/                   legs, baseline, distributions, correlation
 src/reasoning/                prompts, context_agent
 src/optimizer/                ev_calculator, leg_builder, parlay_builder, clv
 src/notifications/notifier.py Discord / Telegram / console cards
+src/web/                      FastAPI app, service layer and the browser UI
 scripts/generate_mock_data.py fixture generator
 run_pipeline.py               orchestration CLI
 ```
@@ -199,3 +245,4 @@ projections, so `run_pipeline.py` stays orchestration only.
 * `OPENWEATHER_API_KEY` — NFL stadium forecasts (optional)
 * `DISCORD_WEBHOOK_URL` or `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` — delivery
 * `uv pip install -e '.[stats]'` — `nfl_data_py` / `nba_api` for live stat feeds
+* `uv pip install -e '.[web]'` — FastAPI + uvicorn for the browser UI

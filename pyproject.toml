@@ -23,14 +23,21 @@ stats = [
     "nfl_data_py>=0.3.2",
     "nba_api>=1.4",
 ]
+web = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "respx>=0.21",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
 ]
 
 [project.scripts]
 parlay-engine = "run_pipeline:main"
+parlay-web = "src.web.app:main"
 
 [build-system]
 requires = ["setuptools>=68"]

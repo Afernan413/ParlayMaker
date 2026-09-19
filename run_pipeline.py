@@ -23,7 +23,7 @@ from typing import Any, Sequence
 
 from config.settings import SPORT_KEYS, WEATHER_SPORTS, settings
 from src.ingestion import db, mock
-from src.ingestion.injuries import InjuryClient, status_index
+from src.ingestion.injuries import InjuryClient, InjuryRecord, status_index
 from src.ingestion.odds_api import OddsAPIClient, QuotaExhaustedError
 from src.ingestion.weather import WeatherClient
 from src.models import baseline
@@ -246,6 +246,109 @@ def leg_stage(
 # ----------------------------------------------------------------------
 # orchestration
 # ----------------------------------------------------------------------
+@dataclass
+class Slate:
+    """Everything needed to price parlays for one slate.
+
+    The web layer holds one of these in memory and prices arbitrary leg
+    combinations against it, so a user assembling a slip never re-runs
+    ingestion or projections.
+    """
+
+    sport: str
+    mock: bool
+    built_at: str
+    games: list[dict[str, Any]] = field(default_factory=list)
+    legs: list[Leg] = field(default_factory=list)
+    edges: list[Leg] = field(default_factory=list)
+    context_results: list[ContextResult] = field(default_factory=list)
+    projections: int = 0
+    ingest: dict[str, Any] = field(default_factory=dict)
+    timings: dict[str, float] = field(default_factory=dict)
+
+    @property
+    def legs_by_id(self) -> dict[str, Leg]:
+        return {leg.leg_id: leg for leg in self.legs}
+
+    @property
+    def games_by_id(self) -> dict[str, dict[str, Any]]:
+        return {game["game_id"]: game for game in self.games}
+
+
+async def build_slate(
+    *,
+    sport: str,
+    use_mock: bool = False,
+    db_path: str | None = None,
+    include_props: bool = True,
+    include_game_markets: bool = True,
+    agent: ContextAgent | None = None,
+    timings: dict[str, float] | None = None,
+) -> Slate:
+    """Ingest, project, reason and price every leg on a slate.
+
+    This is the shared half of the pipeline: the CLI hands the result to the
+    optimizer, the web app hands it to a bet slip.
+    """
+    sport = sport.lower()
+    clock = _Stopwatch(timings if timings is not None else {})
+    slate = Slate(
+        sport=sport, mock=use_mock, built_at=db.utcnow(),
+        timings=clock.timings,
+    )
+
+    with clock("ingest"):
+        slate.ingest = await ingest_stage(
+            sport, use_mock=use_mock, db_path=db_path, include_props=include_props
+        )
+
+    slate.games = db.fetch_all(
+        "SELECT * FROM games WHERE sport = ? ORDER BY commence_time",
+        (sport,),
+        db_path=db_path,
+    )
+    if not slate.games:
+        logger.warning("no %s games available; nothing to do", sport)
+        return slate
+
+    with clock("projections"):
+        injury_rows = db.fetch_all(
+            "SELECT * FROM injury_reports WHERE sport = ?", (sport,), db_path=db_path
+        )
+        index = status_index(
+            InjuryRecord(
+                sport=row["sport"], team=row["team"], player_name=row["player_name"],
+                position=row["position"], status=row["status"], practice=row["practice"],
+                detail=row["detail"], source=row["source"], report_date=row["report_date"],
+            )
+            for row in injury_rows
+        )
+        projections, game_projections = projection_stage(
+            sport, slate.games, use_mock=use_mock, injuries=index
+        )
+        slate.projections = len(projections)
+
+    with clock("reasoning"):
+        agent = agent or (RuleBasedContextAgent() if use_mock else ContextAgent())
+        projections, context_results = await reasoning_stage(
+            slate.games, projections, agent=agent, db_path=db_path
+        )
+        slate.context_results = context_results
+
+    with clock("legs"):
+        slate.legs = leg_stage(
+            sport, slate.games, projections, game_projections,
+            db_path=db_path, include_game_markets=include_game_markets,
+        )
+        attach_rationale(slate.legs, slate.context_results)
+        # Re-run the evaluator so the EV floor and price band live in one place.
+        slate.edges, _ = find_edges(
+            slate.legs,
+            implied={leg.leg_id: leg.p_implied for leg in slate.legs},
+        )
+    return slate
+
+
 async def run_pipeline(
     *,
     sport: str,
@@ -269,64 +372,27 @@ async def run_pipeline(
     result = PipelineResult(sport=sport, mode=mode, mock=use_mock)
     clock = _Stopwatch(result.timings)
 
-    with clock("ingest"):
-        result.ingest = await ingest_stage(
-            sport, use_mock=use_mock, db_path=db_path, include_props=include_props
-        )
-
-    games = db.fetch_all(
-        "SELECT * FROM games WHERE sport = ? ORDER BY commence_time",
-        (sport,),
+    slate = await build_slate(
+        sport=sport,
+        use_mock=use_mock,
         db_path=db_path,
+        include_props=include_props,
+        include_game_markets=include_game_markets,
+        agent=agent,
+        timings=result.timings,
     )
-    result.games = len(games)
-    if not games:
-        logger.warning("no %s games available; nothing to do", sport)
+    result.ingest = slate.ingest
+    result.games = len(slate.games)
+    result.projections = slate.projections
+    result.context_results = slate.context_results
+    result.legs_considered = len(slate.legs)
+    result.edges = len(slate.edges)
+    if not slate.games:
         return result
-
-    with clock("projections"):
-        injury_rows = db.fetch_all(
-            "SELECT * FROM injury_reports WHERE sport = ?", (sport,), db_path=db_path
-        )
-        from src.ingestion.injuries import InjuryRecord
-
-        index = status_index(
-            InjuryRecord(
-                sport=row["sport"], team=row["team"], player_name=row["player_name"],
-                position=row["position"], status=row["status"], practice=row["practice"],
-                detail=row["detail"], source=row["source"], report_date=row["report_date"],
-            )
-            for row in injury_rows
-        )
-        projections, game_projections = projection_stage(
-            sport, games, use_mock=use_mock, injuries=index
-        )
-        result.projections = len(projections)
-
-    with clock("reasoning"):
-        agent = agent or (RuleBasedContextAgent() if use_mock else ContextAgent())
-        projections, context_results = await reasoning_stage(
-            games, projections, agent=agent, db_path=db_path
-        )
-        result.context_results = context_results
-
-    with clock("legs"):
-        candidate_legs = leg_stage(
-            sport, games, projections, game_projections,
-            db_path=db_path, include_game_markets=include_game_markets,
-        )
-        attach_rationale(candidate_legs, context_results)
-        result.legs_considered = len(candidate_legs)
-        # Re-run the evaluator so the EV floor and price band live in one place.
-        edges, _ = find_edges(
-            candidate_legs,
-            implied={leg.leg_id: leg.p_implied for leg in candidate_legs},
-        )
-        result.edges = len(edges)
 
     with clock("optimize"):
         tickets, build_report = build_parlays(
-            edges,
+            slate.edges,
             min_legs=legs,
             max_legs=legs,
             max_tickets=max_tickets,
