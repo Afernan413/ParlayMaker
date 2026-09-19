@@ -276,7 +276,19 @@ FROM api_quota_log ORDER BY id DESC LIMIT 10;
 
 Trust that table over the estimate above — it is what the API charged.
 
-### 3. Put the key in `.env` and run
+### 3. Check the path before spending anything
+
+```bash
+python scripts/check_live_access.py
+```
+
+It verifies the keys and that every host the live path needs is reachable, and
+reports the credits left on your account. It costs nothing: The Odds API's
+`/v4/sports` endpoint is free. A host that comes back `unreachable` while others
+pass is an egress/network policy, not a bad key — a sandboxed or corporate
+network will block the data providers no matter what the key says.
+
+### 4. Put the key in `.env` and run
 
 ```bash
 cp .env.example .env
