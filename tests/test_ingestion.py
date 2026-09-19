@@ -362,3 +362,25 @@ async def test_max_events_caps_the_expensive_prop_calls(db_path, odds_event, pro
     assert summary.events_polled == 1
     assert routes["evt-1"].called
     assert not routes["evt-2"].called and not routes["evt-3"].called
+
+
+# ------------------------------------------------- the no-network guard
+async def test_unmocked_http_calls_are_blocked_in_tests():
+    """The guard that keeps a test from passing only because the sandbox has
+    no internet. It caught a real bug: InjuryClient(feed_urls={}) fell back to
+    the live ESPN feed, which failed locally and returned real data on CI."""
+    async with httpx.AsyncClient() as client:
+        with pytest.raises(RuntimeError, match="unmocked network call"):
+            await client.get("https://site.api.espn.com/should-never-be-reached")
+
+
+async def test_empty_feed_map_does_not_fall_back_to_the_live_feed(db_path):
+    """Regression: `feed_urls or {...}` treated {} as 'not supplied'."""
+    client = injuries.InjuryClient(db_path=db_path, feed_urls={})
+    assert client.feed_urls == {}
+    assert await client.ingest("nfl") == []
+
+
+async def test_default_feed_map_is_used_when_none_is_given(db_path):
+    client = injuries.InjuryClient(db_path=db_path)
+    assert set(client.feed_urls) == {"nfl", "nba"}

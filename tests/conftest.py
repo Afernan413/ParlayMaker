@@ -114,3 +114,42 @@ def props_payload() -> dict:
             },
         ],
     }
+
+
+@pytest.fixture(autouse=True)
+def _no_real_network(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fail loudly on any HTTP call a test did not mock.
+
+    Without this a test can pass for the wrong reason on a machine with no
+    outbound access -- the call fails, the code degrades to its fallback, and
+    the assertion holds -- then fail on CI, where the same call succeeds and
+    returns real data. That is exactly how an empty-feed-url bug survived
+    locally and broke the build.
+
+    The guard sits at name resolution, below every HTTP library: respx answers
+    mocked requests without ever resolving a host, so only a genuinely
+    unmocked call reaches here.
+    """
+    import socket
+
+    # A configured HTTPS_PROXY would make every lookup resolve to the proxy's
+    # own address, hiding the real host from the guard. Tests never need a
+    # proxy, so drop them and keep local behaviour identical to CI.
+    for variable in (
+        "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY",
+        "http_proxy", "https_proxy", "all_proxy",
+    ):
+        monkeypatch.delenv(variable, raising=False)
+
+    real_getaddrinfo = socket.getaddrinfo
+    allowed = {"localhost", "127.0.0.1", "::1", "testserver"}
+
+    def guarded(host, *args, **kwargs):
+        if host in allowed:
+            return real_getaddrinfo(host, *args, **kwargs)
+        raise RuntimeError(
+            f"unmocked network call to {host!r} -- mock it with respx, "
+            "or pass an explicit client/feed url"
+        )
+
+    monkeypatch.setattr(socket, "getaddrinfo", guarded)

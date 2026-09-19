@@ -7,7 +7,9 @@ name: Publish parlay model
 
 on:
   push:
-    branches: [main]
+    # Include the working branch as well as main: GitHub runs scheduled and
+    # manual workflows from the default branch only, whatever it is called.
+    branches: [main, "claude/**"]
     paths:
       - "src/**"
       - "config/**"

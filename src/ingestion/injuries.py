@@ -190,10 +190,16 @@ class InjuryClient:
         feed_urls: dict[str, str] | None = None,
     ) -> None:
         self.db_path = db_path
-        self.feed_urls = feed_urls or {
-            "nfl": settings.nfl_injury_feed_url,
-            "nba": settings.nba_injury_feed_url,
-        }
+        # `or` would treat an explicitly empty mapping as "not supplied" and
+        # silently fall back to the live feeds.
+        self.feed_urls = (
+            feed_urls
+            if feed_urls is not None
+            else {
+                "nfl": settings.nfl_injury_feed_url,
+                "nba": settings.nba_injury_feed_url,
+            }
+        )
         self._owns_client = client is None
         self._client = client
 

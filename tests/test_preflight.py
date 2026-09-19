@@ -6,7 +6,8 @@ import httpx
 import pytest
 import respx
 
-from scripts.check_live_access import FAIL, OK, SKIP, render, run_checks
+from scripts import check_live_access
+from scripts.check_live_access import FAIL, OK, SKIP, Check, render, run_checks
 
 ODDS = "https://api.the-odds-api.com/v4/sports"
 ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
@@ -28,7 +29,13 @@ def mock_odds_ok(remaining: str = "412"):
 
 
 @respx.mock
-async def test_everything_reachable_reports_ready():
+async def test_everything_reachable_reports_ready(monkeypatch):
+    # The optional `stats` extra is not installed everywhere (CI runs without
+    # it), and this test is about reachability, not packaging.
+    monkeypatch.setattr(
+        check_live_access, "check_stats_libraries",
+        lambda: Check("stats libraries", OK, "stubbed for this test"),
+    )
     mock_odds_ok()
     respx.get(ESPN).mock(return_value=httpx.Response(200, json={"injuries": []}))
     respx.get(WEATHER).mock(return_value=httpx.Response(200, json={"list": []}))
