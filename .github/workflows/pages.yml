@@ -57,12 +57,15 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
           MAX_EVENTS: ${{ github.event.inputs.max_events || '4' }}
+          # NBA is not buildable from a hosted runner: stats.nba.com refuses
+          # datacenter IPs, so nba_api times out. Build it locally instead.
+          SPORTS: ${{ github.event.inputs.sports || 'nfl' }}
         run: |
           # --live falls back to the cached fixtures when no key is set, so
           # this one command works with or without the secret. A sport that is
           # out of season or whose stats host refuses the runner is skipped;
           # the build only fails if nothing at all could be produced.
-          python scripts/build_static.py --live --max-events "$MAX_EVENTS"
+          python scripts/build_static.py --live --sports $SPORTS --max-events "$MAX_EVENTS"
 
       - uses: actions/upload-pages-artifact@v3
         with:

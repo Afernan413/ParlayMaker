@@ -126,9 +126,14 @@ def rolling_weighted_mean(
 
 
 def _recent_weeks(frame: pd.DataFrame, weeks: int) -> pd.DataFrame:
-    """Most recent ``weeks`` rows, newest first."""
-    if "week" in frame.columns:
-        return frame.sort_values("week", ascending=False).head(weeks)
+    """Most recent ``weeks`` rows, newest first.
+
+    Sorted by season as well as week, so a window that reaches back over a
+    season boundary still orders week 18 of last year before week 1 of this.
+    """
+    keys = [key for key in ("season", "week") if key in frame.columns]
+    if keys:
+        return frame.sort_values(keys, ascending=False).head(weeks)
     return frame.tail(weeks).iloc[::-1]
 
 
@@ -497,15 +502,47 @@ def _matchups(
 # live data loaders (optional dependencies, imported lazily)
 # ----------------------------------------------------------------------
 def load_nfl_frames(seasons: Iterable[int]) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """``(weekly, pbp)`` from ``nfl_data_py``. Requires the ``stats`` extra."""
+    """``(weekly, pbp)`` from nflverse. Requires the ``stats`` extra.
+
+    Uses ``nflreadpy``, the maintained nflverse client. Its predecessor
+    ``nfl_data_py`` still installs but 404s on every season after 2024, which
+    fails as a plain HTTP error rather than anything that reads like "this
+    library is out of date".
+    """
     try:
-        import nfl_data_py as nfl
+        import nflreadpy
     except ImportError as exc:  # pragma: no cover - optional dependency
         raise RuntimeError(
-            "nfl_data_py is not installed; `uv pip install -e '.[stats]'` or run --mock"
+            "nflreadpy is not installed; `uv pip install -e '.[stats]'` or run --mock"
         ) from exc
-    years = list(seasons)
-    return nfl.import_weekly_data(years), nfl.import_pbp_data(years)
+
+    years = sorted(set(seasons))
+    weekly = nflreadpy.load_player_stats(seasons=years).to_pandas()
+    pbp = nflreadpy.load_pbp(seasons=years).to_pandas()
+    return weekly, pbp
+
+
+def seasons_to_load(season: int, *, weeks_needed: int | None = None) -> list[int]:
+    """Which seasons to pull so the rolling window can be filled.
+
+    Early in a season there are not yet four games to average, so the previous
+    one is loaded as well and the window simply runs back across the boundary.
+    """
+    del weeks_needed  # the window itself decides how far back to reach
+    return [season - 1, season]
+
+
+def latest_season_plays(pbp: pd.DataFrame, *, min_plays: int = 1_000) -> pd.DataFrame:
+    """Team efficiency from the current season once it has enough plays.
+
+    Blending last season's EPA into this season's ratings would smear over
+    roster and scheme turnover, so the prior season is only kept while the
+    current one is too thin to measure.
+    """
+    if "season" not in pbp.columns or pbp.empty:
+        return pbp
+    latest = pbp[pbp["season"] == pbp["season"].max()]
+    return latest if len(latest) >= min_plays else pbp
 
 
 def load_nba_frames(season: str) -> tuple[pd.DataFrame, pd.DataFrame]:

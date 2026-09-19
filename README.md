@@ -63,6 +63,14 @@ To put it on the web, enable **Settings → Pages → Source: GitHub Actions**. 
 committed workflow rebuilds and publishes it on a schedule; add an `ODDS_API_KEY`
 repository secret and it switches from the sample slate to real odds by itself.
 
+Two things that only bite on a hosted runner:
+
+* **NBA cannot be built there.** `stats.nba.com` refuses datacenter IPs, so
+  `nba_api` times out on GitHub's runners. The workflow builds NFL only; run
+  `python scripts/build_static.py` locally for an NBA slate.
+* **NFL stats come from `nflreadpy`**, not `nfl_data_py`. The latter still
+  installs but 404s on every season after 2024.
+
 | | Static build (`site/`) | Server app (`src/web/`) |
 | --- | --- | --- |
 | Needs a running process | no | yes |

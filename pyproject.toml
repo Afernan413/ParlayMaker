@@ -20,7 +20,10 @@ dependencies = [
 # Domain feeds. Kept optional because they pin older numpy/pandas and are
 # never touched by the unit tests (all network calls are mocked).
 stats = [
-    "nfl_data_py>=0.3.2",
+    # nflreadpy is the maintained nflverse client; nfl_data_py still installs
+    # but 404s on every season after 2024.
+    "nflreadpy>=0.1.5",
+    "pyarrow>=15",          # nflreadpy returns polars; pandas conversion needs it
     "nba_api>=1.4",
 ]
 web = [

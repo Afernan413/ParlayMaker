@@ -212,12 +212,62 @@ def test_live_loaders_explain_the_missing_extra(monkeypatch):
     real_import = builtins.__import__
 
     def blocked(name, *args, **kwargs):
-        if name.startswith(("nfl_data_py", "nba_api")):
+        if name.startswith(("nflreadpy", "nba_api")):
             raise ImportError(name)
         return real_import(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", blocked)
-    with pytest.raises(RuntimeError, match="nfl_data_py"):
+    with pytest.raises(RuntimeError, match="nflreadpy"):
         baseline.load_nfl_frames([2025])
     with pytest.raises(RuntimeError, match="nba_api"):
         baseline.load_nba_frames("2025-26")
+
+
+# ------------------------------------------------- season-boundary windows
+def test_seasons_to_load_reaches_back_one_year():
+    """In week 2 there are not four games yet, so the window has to cross the
+    season boundary rather than average two games and call it a form read."""
+    assert baseline.seasons_to_load(2026) == [2025, 2026]
+
+
+def test_rolling_window_orders_across_a_season_boundary():
+    frame = pd.DataFrame([
+        {"player_display_name": "QB One", "recent_team": "KC", "season": 2025,
+         "week": 17, "passing_yards": 100.0},
+        {"player_display_name": "QB One", "recent_team": "KC", "season": 2025,
+         "week": 18, "passing_yards": 200.0},
+        {"player_display_name": "QB One", "recent_team": "KC", "season": 2026,
+         "week": 1, "passing_yards": 300.0},
+        {"player_display_name": "QB One", "recent_team": "KC", "season": 2026,
+         "week": 2, "passing_yards": 400.0},
+    ])
+    volume = baseline.nfl_player_volume(frame)
+    # .4*400 + .3*300 + .2*200 + .1*100 -- this season's week 2 weighted first
+    assert volume.iloc[0]["passing_yards"] == pytest.approx(300.0)
+
+
+def test_current_season_plays_are_used_once_there_are_enough():
+    """Blending last season's EPA into this season's ratings would smear over
+    roster and scheme turnover."""
+    plays = pd.DataFrame({
+        "season": [2025] * 400 + [2026] * 1200,
+        "posteam": ["KC"] * 1600, "defteam": ["BUF"] * 1600,
+        "epa": [0.1] * 1600, "play_type": ["pass"] * 1600,
+    })
+    trimmed = baseline.latest_season_plays(plays, min_plays=1_000)
+    assert set(trimmed["season"]) == {2026}
+
+
+def test_thin_current_season_keeps_last_years_plays():
+    plays = pd.DataFrame({
+        "season": [2025] * 400 + [2026] * 100,
+        "posteam": ["KC"] * 500, "defteam": ["BUF"] * 500,
+        "epa": [0.1] * 500, "play_type": ["pass"] * 500,
+    })
+    trimmed = baseline.latest_season_plays(plays, min_plays=1_000)
+    assert set(trimmed["season"]) == {2025, 2026}
+
+
+def test_latest_season_plays_tolerates_frames_without_a_season():
+    plays = pd.DataFrame({"posteam": ["KC"], "defteam": ["BUF"], "epa": [0.1]})
+    assert len(baseline.latest_season_plays(plays)) == 1

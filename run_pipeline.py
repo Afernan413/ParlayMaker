@@ -151,7 +151,8 @@ def projection_stage(
         first, second = mock.mock_stat_frames(sport)
     elif sport == "nfl":
         season = datetime.now(timezone.utc).year
-        first, second = baseline.load_nfl_frames([season])
+        first, second = baseline.load_nfl_frames(baseline.seasons_to_load(season))
+        second = baseline.latest_season_plays(second)
     else:
         year = datetime.now(timezone.utc).year
         first, second = baseline.load_nba_frames(f"{year}-{str(year + 1)[-2:]}")
