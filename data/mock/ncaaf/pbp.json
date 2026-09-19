@@ -1,0 +1,2690 @@
+[
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.0533,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.1149,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.4952,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.3789,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.4863,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.0546,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.0478,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.7566,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.0953,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 1.0713,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.5179,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.3397,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.2764,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.4284,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.278,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.2069,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.0281,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.0688,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.4606,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.3357,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.1509,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.0231,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.5775,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.4029,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.5186,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.2585,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 1.0026,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.1319,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.6485,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.7046,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -1.0888,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.7524,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.0118,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.2593,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.6514,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.957,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.6357,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.0963,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.7159,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.2383,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.726,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.7061,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.2196,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.2465,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.3945,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.4941,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.2207,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.6909,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.4427,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.6697,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.365,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.3889,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.2098,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.4831,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.5704,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.5578,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.6902,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": -0.5108,
+  "success": 0.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.1006,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": 0.3902,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.608,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.3716,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "pass",
+  "epa": 0.0877,
+  "success": 1.0
+ },
+ {
+  "posteam": "Ridgemont Bears",
+  "defteam": "Cliffside Mariners",
+  "play_type": "run",
+  "epa": -0.3703,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.0106,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.1567,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.2673,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.2957,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.3331,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.0803,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.5182,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.3473,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.017,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.2133,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.2471,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.5251,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.1415,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.1434,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.0728,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.3242,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -1.1647,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.426,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.2193,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.7642,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.4104,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.4695,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.1127,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.048,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.0105,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.5473,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.0127,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.2246,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.644,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.3064,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.3633,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.6426,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.5497,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.142,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.2705,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.1099,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.1922,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.2342,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.3649,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.0413,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.7878,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.2859,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.6519,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.1612,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.2167,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.3077,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.003,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.2806,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -1.0052,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": 0.1673,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.7087,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.1951,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.1551,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.0258,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.3215,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.0695,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.509,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": 0.1823,
+  "success": 1.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.2341,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.5044,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.78,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -1.6693,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "pass",
+  "epa": -0.2687,
+  "success": 0.0
+ },
+ {
+  "posteam": "Cliffside Mariners",
+  "defteam": "Ridgemont Bears",
+  "play_type": "run",
+  "epa": -0.842,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.0669,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.0125,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.4806,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.3543,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.3751,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.2885,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.8549,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.1723,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.327,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.3812,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.5406,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.0062,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.8418,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.1919,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.7639,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.7285,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.3234,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.5597,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.3891,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.1865,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.3389,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.178,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.5149,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.6471,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.4988,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.1793,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.1073,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.3056,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.2363,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.0057,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.355,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.2677,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.0277,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.412,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.7125,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.0476,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.1197,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.0876,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.3568,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.5382,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.0129,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.5349,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.138,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.2,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.342,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.2165,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.3261,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.3514,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.3132,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.6066,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.5122,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.7723,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.3292,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.1307,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.0211,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.9392,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.3249,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.5836,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.2357,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": -0.5437,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": 0.2649,
+  "success": 1.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.0858,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "pass",
+  "epa": -0.2185,
+  "success": 0.0
+ },
+ {
+  "posteam": "Granite Tech Miners",
+  "defteam": "Lakeshore Otters",
+  "play_type": "run",
+  "epa": 0.8933,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.2859,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.6535,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.3634,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.2394,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.294,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.7072,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.3141,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.0698,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.6891,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.1846,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.3776,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.1393,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.0237,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.1595,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.1694,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.311,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.4486,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.2296,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.2635,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.4055,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.4884,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.1849,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.3857,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.2073,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.0284,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.3905,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.7145,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.6975,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.1404,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.6517,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.472,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.4069,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.0765,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.3173,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.1781,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.5853,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.3123,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.1993,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.1656,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.0332,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.0936,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.0729,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.1501,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.1328,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.2031,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.0626,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.0538,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.716,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.0773,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.0517,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.8257,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.3017,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.2867,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.3104,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": -0.2977,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.2307,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.3007,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.6937,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.0525,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 0.104,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.148,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": -0.0983,
+  "success": 0.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "pass",
+  "epa": 0.0852,
+  "success": 1.0
+ },
+ {
+  "posteam": "Lakeshore Otters",
+  "defteam": "Granite Tech Miners",
+  "play_type": "run",
+  "epa": 1.1077,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.3907,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.9375,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.0026,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.1772,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.6564,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.1925,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.195,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -1.0389,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.1618,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.1683,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.5686,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.2076,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.0937,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.6884,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.6872,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.1661,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.4843,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.6463,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.537,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.0858,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.8366,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.397,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.6606,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.5386,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.294,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.3726,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 1.5301,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.9441,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.3473,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.241,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.5475,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.3601,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.4304,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.1867,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.7745,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.464,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.4212,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.1866,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.5994,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.0387,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.3379,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.3152,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.693,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.0073,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.0308,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.3609,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.8165,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.1236,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.2484,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.4373,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.4314,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.1954,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.0909,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.1377,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.0548,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.0011,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.4463,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.86,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": 0.0772,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.0942,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.6779,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": -0.5957,
+  "success": 0.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "pass",
+  "epa": 0.0681,
+  "success": 1.0
+ },
+ {
+  "posteam": "Sunland Condors",
+  "defteam": "Pinehurst Foxes",
+  "play_type": "run",
+  "epa": -0.4205,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.1232,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.0362,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.3473,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -1.028,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.3385,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.1248,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.4302,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.1596,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.354,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.0639,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.4914,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.1911,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.0661,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.3515,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -1.0518,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.129,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.8223,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.4932,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.5638,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.4887,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.8861,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.0671,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.3945,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.1853,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.4992,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -1.0432,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.1577,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.2436,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.1569,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.1744,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.2847,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.2106,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.2431,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.8665,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.1061,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.6197,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -1.0537,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.2669,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.8387,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.1495,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.1819,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.1703,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.1663,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.8156,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.3269,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.0561,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.0514,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.2667,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.5504,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.177,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.2936,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.6896,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.7254,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.2404,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.0082,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.3681,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 1.2411,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.5213,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": 0.2364,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.4967,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.2245,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": -0.5537,
+  "success": 0.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "pass",
+  "epa": 0.2597,
+  "success": 1.0
+ },
+ {
+  "posteam": "Pinehurst Foxes",
+  "defteam": "Sunland Condors",
+  "play_type": "run",
+  "epa": -0.0066,
+  "success": 0.0
+ }
+]

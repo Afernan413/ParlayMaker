@@ -47,7 +47,7 @@ def test_config_exposes_the_engine_thresholds(client: TestClient):
     assert engine["max_legs"] == settings.max_legs
     assert engine["min_leg_ev"] == settings.min_leg_ev
     assert engine["min_sgp_correlation"] == settings.min_sgp_correlation
-    assert engine["sports"] == ["nba", "nfl"]
+    assert engine["sports"] == ["nba", "ncaaf", "nfl"]
 
 
 def test_market_names_are_human_readable():

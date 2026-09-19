@@ -3,7 +3,11 @@
   "bookmaker_title": "FanDuel",
   "regions": "us",
   "odds_format": "american",
-  "game_markets": ["h2h", "spreads", "totals"],
+  "game_markets": [
+    "h2h",
+    "spreads",
+    "totals"
+  ],
   "prop_markets": {
     "nfl": [
       "player_pass_yds",
@@ -18,24 +22,94 @@
       "player_rebounds",
       "player_assists",
       "player_threes"
+    ],
+    "ncaaf": [
+      "player_pass_yds",
+      "player_pass_tds",
+      "player_rush_yds",
+      "player_reception_yds",
+      "player_receptions"
     ]
   },
   "markets": {
-    "h2h": {"stat": "moneyline", "family": "binary", "discrete": true, "sport": "any"},
-    "spreads": {"stat": "spread", "family": "normal", "discrete": false, "sport": "any"},
-    "totals": {"stat": "game_total", "family": "normal", "discrete": false, "sport": "any"},
-
-    "player_pass_yds": {"stat": "passing_yards", "family": "lognormal", "discrete": false, "sport": "nfl"},
-    "player_pass_tds": {"stat": "passing_tds", "family": "poisson", "discrete": true, "sport": "nfl"},
-    "player_rush_yds": {"stat": "rushing_yards", "family": "lognormal", "discrete": false, "sport": "nfl"},
-    "player_reception_yds": {"stat": "receiving_yards", "family": "lognormal", "discrete": false, "sport": "nfl"},
-    "player_receptions": {"stat": "receptions", "family": "negative_binomial", "discrete": true, "sport": "nfl"},
-    "player_anytime_td": {"stat": "anytime_td", "family": "poisson_binary", "discrete": true, "sport": "nfl"},
-
-    "player_points": {"stat": "points", "family": "negative_binomial", "discrete": true, "sport": "nba"},
-    "player_rebounds": {"stat": "rebounds", "family": "negative_binomial", "discrete": true, "sport": "nba"},
-    "player_assists": {"stat": "assists", "family": "negative_binomial", "discrete": true, "sport": "nba"},
-    "player_threes": {"stat": "threes", "family": "poisson", "discrete": true, "sport": "nba"}
+    "h2h": {
+      "stat": "moneyline",
+      "family": "binary",
+      "discrete": true,
+      "sport": "any"
+    },
+    "spreads": {
+      "stat": "spread",
+      "family": "normal",
+      "discrete": false,
+      "sport": "any"
+    },
+    "totals": {
+      "stat": "game_total",
+      "family": "normal",
+      "discrete": false,
+      "sport": "any"
+    },
+    "player_pass_yds": {
+      "stat": "passing_yards",
+      "family": "lognormal",
+      "discrete": false,
+      "sport": "nfl"
+    },
+    "player_pass_tds": {
+      "stat": "passing_tds",
+      "family": "poisson",
+      "discrete": true,
+      "sport": "nfl"
+    },
+    "player_rush_yds": {
+      "stat": "rushing_yards",
+      "family": "lognormal",
+      "discrete": false,
+      "sport": "nfl"
+    },
+    "player_reception_yds": {
+      "stat": "receiving_yards",
+      "family": "lognormal",
+      "discrete": false,
+      "sport": "nfl"
+    },
+    "player_receptions": {
+      "stat": "receptions",
+      "family": "negative_binomial",
+      "discrete": true,
+      "sport": "nfl"
+    },
+    "player_anytime_td": {
+      "stat": "anytime_td",
+      "family": "poisson_binary",
+      "discrete": true,
+      "sport": "nfl"
+    },
+    "player_points": {
+      "stat": "points",
+      "family": "negative_binomial",
+      "discrete": true,
+      "sport": "nba"
+    },
+    "player_rebounds": {
+      "stat": "rebounds",
+      "family": "negative_binomial",
+      "discrete": true,
+      "sport": "nba"
+    },
+    "player_assists": {
+      "stat": "assists",
+      "family": "negative_binomial",
+      "discrete": true,
+      "sport": "nba"
+    },
+    "player_threes": {
+      "stat": "threes",
+      "family": "poisson",
+      "discrete": true,
+      "sport": "nba"
+    }
   },
   "dispersion": {
     "passing_yards": 0.27,

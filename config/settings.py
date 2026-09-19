@@ -22,14 +22,18 @@ MOCK_DIR = DATA_DIR / "mock"
 # The Odds API sport keys.
 SPORT_KEYS: dict[str, str] = {
     "nfl": "americanfootball_nfl",
+    "ncaaf": "americanfootball_ncaaf",
     "nba": "basketball_nba",
 }
+
+#: Sports that share the NFL's markets, models and distribution families.
+FOOTBALL_SPORTS = frozenset({"nfl", "ncaaf"})
 
 # Weather only matters for outdoor football.
 WEATHER_SPORTS = frozenset({"nfl"})
 
 #: Minutes before start time that official inactives are published.
-INACTIVE_LEAD_MINUTES: dict[str, int] = {"nfl": 90, "nba": 30}
+INACTIVE_LEAD_MINUTES: dict[str, int] = {"nfl": 90, "ncaaf": 90, "nba": 30}
 
 
 class Settings(BaseSettings):

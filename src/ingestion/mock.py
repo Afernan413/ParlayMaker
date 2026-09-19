@@ -109,7 +109,7 @@ def mock_injury_records(
 def mock_stat_frames(sport: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """``(weekly, pbp)`` for NFL or ``(players, teams)`` for NBA."""
     sport = sport.lower()
-    if sport == "nfl":
+    if sport in {"nfl", "ncaaf"}:
         return (
             pd.DataFrame(load_fixture(sport, "weekly")),
             pd.DataFrame(load_fixture(sport, "pbp")),

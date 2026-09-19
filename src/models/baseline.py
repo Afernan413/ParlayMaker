@@ -71,10 +71,26 @@ NBA_TEAM_ALIASES: dict[str, str] = {
 
 
 def team_lookup(sport: str) -> dict[str, str]:
-    """Club name -> abbreviation map for the sport's stat feed."""
+    """Club name -> abbreviation map for the sport's stat feed.
+
+    College football has hundreds of schools and no stable abbreviation set, so
+    it uses no lookup at all -- :func:`same_team` compares reduced names there.
+    """
     from src.ingestion.weather import TEAM_ALIASES as NFL_TEAM_ALIASES
 
-    return dict(NFL_TEAM_ALIASES) if sport.lower() == "nfl" else dict(NBA_TEAM_ALIASES)
+    sport = sport.lower()
+    if sport == "nfl":
+        return dict(NFL_TEAM_ALIASES)
+    if sport == "ncaaf":
+        return {}
+    return dict(NBA_TEAM_ALIASES)
+
+
+def resolve_in_index(index, name: str, sport: str) -> str | None:
+    """Find ``name`` in a team-indexed frame, tolerating naming differences."""
+    if name in index:
+        return name
+    return next((candidate for candidate in index if same_team(candidate, name, sport)), None)
 
 
 def resolve_team(name: str | None, sport: str) -> str:
@@ -89,14 +105,29 @@ def same_team(first: str | None, second: str | None, sport: str) -> bool:
     """Do two team references point at the same club?
 
     Feeds disagree on naming -- The Odds API says ``Buffalo Bills`` while
-    ``nfl_data_py`` and ESPN say ``BUF`` -- so both sides are resolved first.
+    nflverse and ESPN say ``BUF`` -- so both sides are resolved first. College
+    names carry mascots inconsistently ("USC Trojans" against "USC"), so they
+    are compared on a reduced form and by containment.
     """
+    if sport.lower() == "ncaaf":
+        from src.models.cfb import normalise_team
+
+        left, right = normalise_team(first), normalise_team(second)
+        if not left or not right:
+            return False
+        return left == right or left.startswith(right) or right.startswith(left)
+
     left, right = resolve_team(first, sport), resolve_team(second, sport)
     return bool(left) and left == right
 
 
 LEAGUE_AVG_PPG_NFL = 22.5
 NFL_PLAYS_PER_GAME = 63.0
+#: Standard deviation of a final score / margin, per code.
+NFL_SCORE_SD = 13.2
+COLLEGE_SCORE_SD = 16.5
+#: College scoring baseline: more possessions and wider talent gaps.
+LEAGUE_AVG_PPG_NCAAF = 27.5
 OPPONENT_BETA = 0.35  # how strongly a 1-sd defence moves a projection
 OPPONENT_CLIP = 0.15  # +/- ceiling on the opponent factor
 
@@ -251,8 +282,13 @@ def build_nfl_projections(
     team_lookup: Mapping[str, str] | None = None,
     injury_index: Mapping[str, str] | None = None,
     markets: Sequence[str] | None = None,
+    sport: str = "nfl",
 ) -> list[Projection]:
-    """Baseline NFL player projections for a slate.
+    """Baseline football player projections for a slate.
+
+    Used for both NFL and college football: the college loader normalises its
+    play-by-play into these same columns, so the model does not need to know
+    which code it is looking at.
 
     ``games`` rows need ``game_id``/``home_team``/``away_team``; team names are
     resolved to the abbreviations used by ``weekly`` via ``team_lookup``.
@@ -265,14 +301,33 @@ def build_nfl_projections(
     def_mean = float(efficiency["def_epa_allowed"].mean()) if not efficiency.empty else 0.0
     def_sd = float(efficiency["def_epa_allowed"].std(ddof=0)) if len(efficiency) > 1 else 0.0
 
+    # College has no stable abbreviation table, so the slate's school name has
+    # to be matched against the stat feed's tolerantly. Resolving once per
+    # distinct name keeps it out of the inner loop.
+    known_teams = list(volume["team"].dropna().unique()) if not volume.empty else []
+    resolved: dict[str, str | None] = {}
+
+    def resolve(name: str) -> str | None:
+        if name not in resolved:
+            match = next(
+                (candidate for candidate in known_teams if same_team(candidate, name, sport)),
+                None,
+            )
+            resolved[name] = match
+        return resolved[name]
+
     projections: list[Projection] = []
     for game in games:
         matchups = _matchups(game, team_lookup)
         for team, opponent in matchups:
-            side = volume[volume["team"] == team]
+            stat_team = resolve(team)
+            if stat_team is None:
+                continue
+            side = volume[volume["team"] == stat_team]
+            stat_opponent = resolve_in_index(efficiency.index, opponent, sport)
             opp_def = (
-                float(efficiency.loc[opponent, "def_epa_allowed"])
-                if opponent in efficiency.index
+                float(efficiency.loc[stat_opponent, "def_epa_allowed"])
+                if stat_opponent is not None
                 else def_mean
             )
             factor = opponent_factor(opp_def, def_mean, def_sd)
@@ -288,7 +343,7 @@ def build_nfl_projections(
                         continue
                     projections.append(
                         Projection(
-                            sport="nfl",
+                            sport=sport,
                             game_id=str(game["game_id"]),
                             player_name=row["player_name"],
                             team=team,
@@ -310,8 +365,13 @@ def project_nfl_game(
     efficiency: pd.DataFrame,
     *,
     team_lookup: Mapping[str, str] | None = None,
+    sport: str = "nfl",
 ) -> GameProjection | None:
-    """Total/margin projection from EPA differentials."""
+    """Total/margin projection from EPA differentials.
+
+    College games are higher scoring and far more variable than the NFL, so the
+    baseline and the spread of outcomes both widen.
+    """
     matchups = _matchups(game, team_lookup)
     if len(matchups) != 2:
         return None
@@ -319,26 +379,32 @@ def project_nfl_game(
     del away_again, home_again
 
     def points(team: str, opponent: str) -> float:
-        off = float(efficiency.loc[team, "off_epa"]) if team in efficiency.index else 0.0
+        own = resolve_in_index(efficiency.index, team, sport)
+        against = resolve_in_index(efficiency.index, opponent, sport)
+        off = float(efficiency.loc[own, "off_epa"]) if own is not None else 0.0
         opp_def = (
-            float(efficiency.loc[opponent, "def_epa_allowed"])
-            if opponent in efficiency.index
+            float(efficiency.loc[against, "def_epa_allowed"])
+            if against is not None
             else 0.0
         )
         edge = (off + opp_def) / 2.0
-        return LEAGUE_AVG_PPG_NFL + edge * NFL_PLAYS_PER_GAME
+        baseline = LEAGUE_AVG_PPG_NCAAF if sport == "ncaaf" else LEAGUE_AVG_PPG_NFL
+        return baseline + edge * NFL_PLAYS_PER_GAME
 
     home_points = points(home, away)
     away_points = points(away, home)
+    # College games swing far wider than the NFL: bigger talent gaps, more
+    # possessions, less roster parity.
+    spread = COLLEGE_SCORE_SD if sport == "ncaaf" else NFL_SCORE_SD
     return GameProjection(
         game_id=str(game["game_id"]),
-        sport="nfl",
+        sport=sport,
         home_team=home,
         away_team=away,
         total_mean=home_points + away_points,
-        total_sd=13.2,
+        total_sd=spread,
         home_margin_mean=home_points - away_points + 1.4,  # home-field advantage
-        margin_sd=13.2,
+        margin_sd=spread,
     )
 
 

@@ -1,0 +1,38 @@
+{
+ "injuries": [
+  {
+   "displayName": "Cliffside Mariners",
+   "abbreviation": "Cliffside Mariners",
+   "injuries": [
+    {
+     "status": "OUT",
+     "date": "2026-09-19",
+     "shortComment": "shoulder",
+     "athlete": {
+      "displayName": "Trey Vaughn",
+      "position": {
+       "abbreviation": "WR"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "displayName": "Pinehurst Foxes",
+   "abbreviation": "Pinehurst Foxes",
+   "injuries": [
+    {
+     "status": "QUESTIONABLE",
+     "date": "2026-09-19",
+     "shortComment": "illness",
+     "athlete": {
+      "displayName": "Dez Quintero",
+      "position": {
+       "abbreviation": "RB"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

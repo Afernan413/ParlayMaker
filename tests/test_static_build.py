@@ -55,9 +55,9 @@ def test_data_is_javascript_not_json(built):
     assert "window.PARLAY_DATA" in (out / "data.js").read_text()
 
 
-def test_bundle_carries_both_sports(built):
+def test_bundle_carries_every_sport(built):
     _, bundle = built
-    assert set(bundle["sports"]) == {"nfl", "nba"}
+    assert set(bundle["sports"]) == {"nfl", "ncaaf", "nba"}
     for sport in bundle["sports"].values():
         assert sport["games"] and sport["legs"]
         assert sport["mock"] is True
@@ -150,7 +150,8 @@ def test_one_sport_failing_still_publishes_the_others(tmp_path, monkeypatch, cap
     monkeypatch.setattr(build_static, "build_slate", flaky)
     out = tmp_path / "site"
     code = build_static.main(
-        ["--out", str(out), "--mock", "--db", str(tmp_path / "partial.db")]
+        ["--out", str(out), "--mock", "--sports", "nfl", "nba",
+         "--db", str(tmp_path / "partial.db")]
     )
 
     assert code == 0

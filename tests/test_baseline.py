@@ -137,7 +137,33 @@ def test_team_lookup_resolves_full_club_names(weekly, pbp):
               "away_team": "Buffalo Bills"}]
     lookup = {"Kansas City Chiefs": "KC", "Buffalo Bills": "BUF"}
     assert build_nfl_projections(weekly, pbp, games, team_lookup=lookup)
-    assert not build_nfl_projections(weekly, pbp, games)  # unresolved names
+    # Even without the lookup the alias table resolves the club name, so a
+    # missing mapping no longer silently drops a whole team's projections.
+    assert build_nfl_projections(weekly, pbp, games)
+
+
+def test_unknown_team_still_yields_nothing(weekly, pbp):
+    games = [{"game_id": "g1", "home_team": "Toronto Huskies",
+              "away_team": "Sydney Swans"}]
+    assert not build_nfl_projections(weekly, pbp, games)
+
+
+def test_college_names_match_without_an_alias_table(weekly, pbp):
+    """College has no abbreviations; the slate's school name is matched to the
+    stat feed's tolerantly ("Ohio State" against "Ohio State Buckeyes")."""
+    college = weekly.copy()
+    college["recent_team"] = college["recent_team"].map(
+        {"KC": "Ridgemont Bears", "BUF": "Cliffside Mariners"}
+    )
+    plays = pbp.copy()
+    mapping = {"KC": "Ridgemont Bears", "BUF": "Cliffside Mariners"}
+    plays["posteam"] = plays["posteam"].map(mapping)
+    plays["defteam"] = plays["defteam"].map(mapping)
+
+    games = [{"game_id": "g1", "home_team": "Ridgemont", "away_team": "Cliffside"}]
+    projections = build_nfl_projections(college, plays, games, team_lookup={}, sport="ncaaf")
+    assert projections
+    assert {p.sport for p in projections} == {"ncaaf"}
 
 
 def test_nfl_game_projection_favours_the_better_offence(weekly, pbp):

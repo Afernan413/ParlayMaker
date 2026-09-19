@@ -1,0 +1,695 @@
+{
+ "ncaaf-mock-1": {
+  "id": "ncaaf-mock-1",
+  "commence_time": "2026-09-20T17:00:00Z",
+  "home_team": "Ridgemont Bears",
+  "away_team": "Cliffside Mariners",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "player_pass_tds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Cody Rendell",
+        "price": -138,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Cody Rendell",
+        "price": 115,
+        "point": 1.5
+       },
+       {
+        "name": "Over",
+        "description": "Nash Pemberton",
+        "price": 122,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Nash Pemberton",
+        "price": -147,
+        "point": 1.5
+       }
+      ]
+     },
+     {
+      "key": "player_pass_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Cody Rendell",
+        "price": -134,
+        "point": 258.5
+       },
+       {
+        "name": "Under",
+        "description": "Cody Rendell",
+        "price": 111,
+        "point": 258.5
+       },
+       {
+        "name": "Over",
+        "description": "Nash Pemberton",
+        "price": -133,
+        "point": 206.5
+       },
+       {
+        "name": "Under",
+        "description": "Nash Pemberton",
+        "price": 111,
+        "point": 206.5
+       }
+      ]
+     },
+     {
+      "key": "player_reception_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Brock Ivey",
+        "price": 112,
+        "point": 41.5
+       },
+       {
+        "name": "Under",
+        "description": "Brock Ivey",
+        "price": -134,
+        "point": 41.5
+       },
+       {
+        "name": "Over",
+        "description": "Jesse Lindo",
+        "price": -133,
+        "point": 51.5
+       },
+       {
+        "name": "Under",
+        "description": "Jesse Lindo",
+        "price": 110,
+        "point": 51.5
+       },
+       {
+        "name": "Over",
+        "description": "Tate Kowalski",
+        "price": -111,
+        "point": 87.5
+       },
+       {
+        "name": "Under",
+        "description": "Tate Kowalski",
+        "price": -108,
+        "point": 87.5
+       },
+       {
+        "name": "Over",
+        "description": "Kade Whitlock",
+        "price": 111,
+        "point": 31.5
+       },
+       {
+        "name": "Under",
+        "description": "Kade Whitlock",
+        "price": -134,
+        "point": 31.5
+       },
+       {
+        "name": "Over",
+        "description": "Sonny Adeyemi",
+        "price": -135,
+        "point": 38.5
+       },
+       {
+        "name": "Under",
+        "description": "Sonny Adeyemi",
+        "price": 113,
+        "point": 38.5
+       },
+       {
+        "name": "Over",
+        "description": "Trey Vaughn",
+        "price": -109,
+        "point": 60.5
+       },
+       {
+        "name": "Under",
+        "description": "Trey Vaughn",
+        "price": -110,
+        "point": 60.5
+       }
+      ]
+     },
+     {
+      "key": "player_receptions",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Brock Ivey",
+        "price": -123,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Brock Ivey",
+        "price": 103,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Tate Kowalski",
+        "price": -148,
+        "point": 6.5
+       },
+       {
+        "name": "Under",
+        "description": "Tate Kowalski",
+        "price": 123,
+        "point": 6.5
+       },
+       {
+        "name": "Over",
+        "description": "Kade Whitlock",
+        "price": -148,
+        "point": 2.5
+       },
+       {
+        "name": "Under",
+        "description": "Kade Whitlock",
+        "price": 123,
+        "point": 2.5
+       },
+       {
+        "name": "Over",
+        "description": "Trey Vaughn",
+        "price": -165,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Trey Vaughn",
+        "price": 137,
+        "point": 3.5
+       }
+      ]
+     },
+     {
+      "key": "player_rush_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Amari Booth",
+        "price": 113,
+        "point": 73.5
+       },
+       {
+        "name": "Under",
+        "description": "Amari Booth",
+        "price": -135,
+        "point": 73.5
+       },
+       {
+        "name": "Over",
+        "description": "Eli Guerrero",
+        "price": 115,
+        "point": 59.5
+       },
+       {
+        "name": "Under",
+        "description": "Eli Guerrero",
+        "price": -137,
+        "point": 59.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "ncaaf-mock-2": {
+  "id": "ncaaf-mock-2",
+  "commence_time": "2026-09-20T20:05:00Z",
+  "home_team": "Granite Tech Miners",
+  "away_team": "Lakeshore Otters",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "player_pass_tds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Dominic Reyes-Hall",
+        "price": -234,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Dominic Reyes-Hall",
+        "price": 190,
+        "point": 1.5
+       },
+       {
+        "name": "Over",
+        "description": "Hollis Barrow",
+        "price": -117,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Hollis Barrow",
+        "price": -103,
+        "point": 1.5
+       }
+      ]
+     },
+     {
+      "key": "player_pass_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Dominic Reyes-Hall",
+        "price": -109,
+        "point": 285.5
+       },
+       {
+        "name": "Under",
+        "description": "Dominic Reyes-Hall",
+        "price": -110,
+        "point": 285.5
+       },
+       {
+        "name": "Over",
+        "description": "Hollis Barrow",
+        "price": -108,
+        "point": 219.5
+       },
+       {
+        "name": "Under",
+        "description": "Hollis Barrow",
+        "price": -111,
+        "point": 219.5
+       }
+      ]
+     },
+     {
+      "key": "player_reception_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Bennett Shaw",
+        "price": 113,
+        "point": 79.5
+       },
+       {
+        "name": "Under",
+        "description": "Bennett Shaw",
+        "price": -136,
+        "point": 79.5
+       },
+       {
+        "name": "Over",
+        "description": "Cruz Delgado",
+        "price": -131,
+        "point": 48.5
+       },
+       {
+        "name": "Under",
+        "description": "Cruz Delgado",
+        "price": 109,
+        "point": 48.5
+       },
+       {
+        "name": "Over",
+        "description": "Ian McCrae",
+        "price": -109,
+        "point": 45.5
+       },
+       {
+        "name": "Under",
+        "description": "Ian McCrae",
+        "price": -110,
+        "point": 45.5
+       },
+       {
+        "name": "Over",
+        "description": "Cash Sutter",
+        "price": 109,
+        "point": 39.5
+       },
+       {
+        "name": "Under",
+        "description": "Cash Sutter",
+        "price": -130,
+        "point": 39.5
+       },
+       {
+        "name": "Over",
+        "description": "Dev Anand",
+        "price": -136,
+        "point": 36.5
+       },
+       {
+        "name": "Under",
+        "description": "Dev Anand",
+        "price": 114,
+        "point": 36.5
+       },
+       {
+        "name": "Over",
+        "description": "Ramon Vidal",
+        "price": -109,
+        "point": 64.5
+       },
+       {
+        "name": "Under",
+        "description": "Ramon Vidal",
+        "price": -110,
+        "point": 64.5
+       }
+      ]
+     },
+     {
+      "key": "player_receptions",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Bennett Shaw",
+        "price": 109,
+        "point": 6.5
+       },
+       {
+        "name": "Under",
+        "description": "Bennett Shaw",
+        "price": -131,
+        "point": 6.5
+       },
+       {
+        "name": "Over",
+        "description": "Ian McCrae",
+        "price": -120,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Ian McCrae",
+        "price": 100,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Dev Anand",
+        "price": 120,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Dev Anand",
+        "price": -144,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Ramon Vidal",
+        "price": -173,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Ramon Vidal",
+        "price": 143,
+        "point": 4.5
+       }
+      ]
+     },
+     {
+      "key": "player_rush_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Ty Okafor",
+        "price": 112,
+        "point": 72.5
+       },
+       {
+        "name": "Under",
+        "description": "Ty Okafor",
+        "price": -134,
+        "point": 72.5
+       },
+       {
+        "name": "Over",
+        "description": "Zeke Tanaka",
+        "price": 109,
+        "point": 52.5
+       },
+       {
+        "name": "Under",
+        "description": "Zeke Tanaka",
+        "price": -131,
+        "point": 52.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "ncaaf-mock-3": {
+  "id": "ncaaf-mock-3",
+  "commence_time": "2026-09-21T00:20:00Z",
+  "home_team": "Sunland Condors",
+  "away_team": "Pinehurst Foxes",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "player_pass_tds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Landry Poe",
+        "price": -238,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Landry Poe",
+        "price": 193,
+        "point": 1.5
+       },
+       {
+        "name": "Over",
+        "description": "Wyatt Calloway",
+        "price": 132,
+        "point": 1.5
+       },
+       {
+        "name": "Under",
+        "description": "Wyatt Calloway",
+        "price": -159,
+        "point": 1.5
+       }
+      ]
+     },
+     {
+      "key": "player_pass_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Landry Poe",
+        "price": -109,
+        "point": 289.5
+       },
+       {
+        "name": "Under",
+        "description": "Landry Poe",
+        "price": -110,
+        "point": 289.5
+       },
+       {
+        "name": "Over",
+        "description": "Wyatt Calloway",
+        "price": 114,
+        "point": 216.5
+       },
+       {
+        "name": "Under",
+        "description": "Wyatt Calloway",
+        "price": -137,
+        "point": 216.5
+       }
+      ]
+     },
+     {
+      "key": "player_reception_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Colt Ferreira",
+        "price": 114,
+        "point": 48.5
+       },
+       {
+        "name": "Under",
+        "description": "Colt Ferreira",
+        "price": -136,
+        "point": 48.5
+       },
+       {
+        "name": "Over",
+        "description": "Juno Mbeki",
+        "price": -132,
+        "point": 41.5
+       },
+       {
+        "name": "Under",
+        "description": "Juno Mbeki",
+        "price": 110,
+        "point": 41.5
+       },
+       {
+        "name": "Over",
+        "description": "Ovie Bassey",
+        "price": -109,
+        "point": 77.5
+       },
+       {
+        "name": "Under",
+        "description": "Ovie Bassey",
+        "price": -109,
+        "point": 77.5
+       },
+       {
+        "name": "Over",
+        "description": "Ari Feldman",
+        "price": 114,
+        "point": 58.5
+       },
+       {
+        "name": "Under",
+        "description": "Ari Feldman",
+        "price": -136,
+        "point": 58.5
+       },
+       {
+        "name": "Over",
+        "description": "Malachi Doss",
+        "price": -135,
+        "point": 32.5
+       },
+       {
+        "name": "Under",
+        "description": "Malachi Doss",
+        "price": 112,
+        "point": 32.5
+       },
+       {
+        "name": "Over",
+        "description": "Toby Renshaw",
+        "price": -108,
+        "point": 37.5
+       },
+       {
+        "name": "Under",
+        "description": "Toby Renshaw",
+        "price": -111,
+        "point": 37.5
+       }
+      ]
+     },
+     {
+      "key": "player_receptions",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Juno Mbeki",
+        "price": -119,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Juno Mbeki",
+        "price": -101,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Ovie Bassey",
+        "price": -148,
+        "point": 5.5
+       },
+       {
+        "name": "Under",
+        "description": "Ovie Bassey",
+        "price": 123,
+        "point": 5.5
+       },
+       {
+        "name": "Over",
+        "description": "Ari Feldman",
+        "price": -120,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Ari Feldman",
+        "price": -100,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Malachi Doss",
+        "price": 167,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Malachi Doss",
+        "price": -203,
+        "point": 3.5
+       }
+      ]
+     },
+     {
+      "key": "player_rush_yds",
+      "outcomes": [
+       {
+        "name": "Over",
+        "description": "Micah Strand",
+        "price": -111,
+        "point": 62.5
+       },
+       {
+        "name": "Under",
+        "description": "Micah Strand",
+        "price": -107,
+        "point": 62.5
+       },
+       {
+        "name": "Over",
+        "description": "Dez Quintero",
+        "price": -138,
+        "point": 57.5
+       },
+       {
+        "name": "Under",
+        "description": "Dez Quintero",
+        "price": 115,
+        "point": 57.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

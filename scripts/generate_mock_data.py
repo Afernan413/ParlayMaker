@@ -87,6 +87,38 @@ NFL_PROP_MARKETS = {
 }
 
 # --------------------------------------------------------------------------
+# College football fixture definition (fictional schools and players)
+# --------------------------------------------------------------------------
+NCAAF_GAMES = [
+    {"game_id": "ncaaf-mock-1", "home": "RDG", "away": "CLF",
+     "home_name": "Ridgemont Bears", "away_name": "Cliffside Mariners"},
+    {"game_id": "ncaaf-mock-2", "home": "GRN", "away": "LKS",
+     "home_name": "Granite Tech Miners", "away_name": "Lakeshore Otters"},
+    {"game_id": "ncaaf-mock-3", "home": "SUN", "away": "PNE",
+     "home_name": "Sunland Condors", "away_name": "Pinehurst Foxes"},
+]
+
+# Wider spread than the NFL: college talent gaps are far larger.
+NCAAF_TEAM_STRENGTH = {
+    "RDG": 0.16, "CLF": -0.04, "GRN": 0.09, "LKS": 0.02, "SUN": 0.12, "PNE": -0.08,
+}
+
+NCAAF_NAMES: dict[str, list[str]] = {
+    "RDG": ["Cody Rendell", "Amari Booth", "Tate Kowalski", "Jesse Lindo", "Brock Ivey"],
+    "CLF": ["Nash Pemberton", "Eli Guerrero", "Trey Vaughn", "Sonny Adeyemi", "Kade Whitlock"],
+    "GRN": ["Dominic Reyes-Hall", "Ty Okafor", "Bennett Shaw", "Cruz Delgado", "Ian McCrae"],
+    "LKS": ["Hollis Barrow", "Zeke Tanaka", "Ramon Vidal", "Cash Sutter", "Dev Anand"],
+    "SUN": ["Landry Poe", "Micah Strand", "Ovie Bassey", "Colt Ferreira", "Juno Mbeki"],
+    "PNE": ["Wyatt Calloway", "Dez Quintero", "Ari Feldman", "Toby Renshaw", "Malachi Doss"],
+}
+
+NCAAF_SCHOOLS = {game["home"]: game["home_name"] for game in NCAAF_GAMES}
+NCAAF_SCHOOLS.update({game["away"]: game["away_name"] for game in NCAAF_GAMES})
+
+NCAAF_INACTIVES = [("CLF", 2, "OUT", "shoulder"), ("PNE", 1, "QUESTIONABLE", "illness")]
+
+
+# --------------------------------------------------------------------------
 # NBA fixture definition
 # --------------------------------------------------------------------------
 NBA_GAMES = [
@@ -152,9 +184,9 @@ def _write(path: Path, payload: Any) -> None:
 # --------------------------------------------------------------------------
 # NFL
 # --------------------------------------------------------------------------
-def nfl_roster() -> list[dict[str, Any]]:
+def nfl_roster(names_by_team=None) -> list[dict[str, Any]]:
     roster = []
-    for team, names in NFL_NAMES.items():
+    for team, names in (names_by_team or NFL_NAMES).items():
         for position, name in zip(NFL_POSITIONS, names):
             roster.append({"team": team, "position": position, "player_name": name})
     return roster
@@ -183,14 +215,15 @@ def nfl_weekly(roster: list[dict[str, Any]]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def nfl_pbp() -> pd.DataFrame:
+def nfl_pbp(games=None, strength=None) -> pd.DataFrame:
     rows = []
-    for game in NFL_GAMES:
+    strength = strength or NFL_TEAM_STRENGTH
+    for game in (games or NFL_GAMES):
         for offence, defence in ((game["home"], game["away"]), (game["away"], game["home"])):
-            strength = NFL_TEAM_STRENGTH[offence] - NFL_TEAM_STRENGTH[defence] / 2.0
+            edge = strength[offence] - strength[defence] / 2.0
             for index in range(64):
                 play_type = "pass" if index % 5 < 3 else "run"
-                epa = float(RNG.normal(strength, 0.45))
+                epa = float(RNG.normal(edge, 0.45))
                 rows.append({
                     "posteam": offence, "defteam": defence, "play_type": play_type,
                     "epa": round(epa, 4), "success": float(epa > 0),
@@ -234,13 +267,13 @@ def game_market_payload(
     ]
 
 
-def nfl_odds_events(game_projections: dict[str, Any]) -> list[dict[str, Any]]:
+def nfl_odds_events(game_projections: dict[str, Any], games=None, sport_key='americanfootball_nfl') -> list[dict[str, Any]]:
     events = []
-    for index, (game, kickoff) in enumerate(zip(NFL_GAMES, KICKOFFS)):
+    for index, (game, kickoff) in enumerate(zip(games or NFL_GAMES, KICKOFFS)):
         projection = game_projections[game["game_id"]]
         events.append({
             "id": game["game_id"],
-            "sport_key": "americanfootball_nfl",
+            "sport_key": sport_key,
             "commence_time": kickoff,
             "home_team": game["home_name"],
             "away_team": game["away_name"],
@@ -311,7 +344,7 @@ def prop_outcomes(
     ]
 
 
-def nfl_props(projections, roster) -> dict[str, Any]:
+def nfl_props(projections, roster, games=None) -> dict[str, Any]:
     position_by_name = {p["player_name"]: p["position"] for p in roster}
     by_game: dict[str, dict[str, list]] = {}
     index = {(p.game_id, p.player_name, p.market): p for p in projections}
@@ -333,7 +366,7 @@ def nfl_props(projections, roster) -> dict[str, Any]:
         )
 
     payloads = {}
-    for game, kickoff in zip(NFL_GAMES, KICKOFFS):
+    for game, kickoff in zip(games or NFL_GAMES, KICKOFFS):
         markets = by_game.get(game["game_id"], {})
         payloads[game["game_id"]] = {
             "id": game["game_id"],
@@ -507,6 +540,43 @@ def main() -> None:
     _write(
         nfl_dir / "injuries.json",
         injury_payload(NFL_INACTIVES, NFL_NAMES, ["QB", "RB", "WR", "WR", "TE"]),
+    )
+
+    # --- College football -------------------------------------------------
+    ncaaf_dir = MOCK_DIR / "ncaaf"
+    c_roster = nfl_roster(
+        {NCAAF_SCHOOLS[code]: names for code, names in NCAAF_NAMES.items()}
+    )
+    c_weekly = nfl_weekly(c_roster)
+    c_pbp = nfl_pbp(
+        [{**g, "home": g["home_name"], "away": g["away_name"]} for g in NCAAF_GAMES],
+        {NCAAF_SCHOOLS[code]: value for code, value in NCAAF_TEAM_STRENGTH.items()},
+    )
+    c_eff = nfl_team_efficiency(c_pbp)
+    # Real college feeds carry full school names on both sides, not codes.
+    c_games = [
+        {"game_id": g["game_id"], "home_team": g["home_name"], "away_team": g["away_name"]}
+        for g in NCAAF_GAMES
+    ]
+    c_game_projections = {
+        g["game_id"]: project_nfl_game(g, c_eff, sport="ncaaf") for g in c_games
+    }
+    c_projections = build_nfl_projections(c_weekly, c_pbp, c_games, sport="ncaaf")
+
+    _write(ncaaf_dir / "weekly.json", c_weekly.to_dict(orient="records"))
+    _write(ncaaf_dir / "pbp.json", c_pbp.to_dict(orient="records"))
+    _write(
+        ncaaf_dir / "odds.json",
+        nfl_odds_events(c_game_projections, NCAAF_GAMES, "americanfootball_ncaaf"),
+    )
+    _write(ncaaf_dir / "props.json", nfl_props(c_projections, c_roster, NCAAF_GAMES))
+    _write(
+        ncaaf_dir / "injuries.json",
+        injury_payload(
+            [(NCAAF_SCHOOLS[t], i, st, d) for t, i, st, d in NCAAF_INACTIVES],
+            {NCAAF_SCHOOLS[c]: n for c, n in NCAAF_NAMES.items()},
+            ["QB", "RB", "WR", "WR", "TE"],
+        ),
     )
 
     # --- NBA -------------------------------------------------------------

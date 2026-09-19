@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Sequence
 
-from config.settings import SPORT_KEYS, WEATHER_SPORTS, settings
+from config.settings import FOOTBALL_SPORTS, SPORT_KEYS, WEATHER_SPORTS, settings
 from src.ingestion import db, mock
 from src.ingestion.injuries import InjuryClient, InjuryRecord, status_index
 from src.ingestion.odds_api import OddsAPIClient, QuotaExhaustedError
@@ -153,17 +153,25 @@ def projection_stage(
         season = datetime.now(timezone.utc).year
         first, second = baseline.load_nfl_frames(baseline.seasons_to_load(season))
         second = baseline.latest_season_plays(second)
+    elif sport == "ncaaf":
+        from src.models import cfb
+
+        season = datetime.now(timezone.utc).year
+        first, second = cfb.load_cfb_frames(baseline.seasons_to_load(season))
+        second = baseline.latest_season_plays(second)
     else:
         year = datetime.now(timezone.utc).year
         first, second = baseline.load_nba_frames(f"{year}-{str(year + 1)[-2:]}")
 
-    if sport == "nfl":
+    if sport in FOOTBALL_SPORTS:
         projections = baseline.build_nfl_projections(
-            first, second, games, team_lookup=lookup, injury_index=injuries
+            first, second, games, team_lookup=lookup, injury_index=injuries, sport=sport
         )
         efficiency = baseline.nfl_team_efficiency(second)
         game_projections = {
-            game["game_id"]: baseline.project_nfl_game(game, efficiency, team_lookup=lookup)
+            game["game_id"]: baseline.project_nfl_game(
+                game, efficiency, team_lookup=lookup, sport=sport
+            )
             for game in games
         }
     else:

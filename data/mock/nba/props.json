@@ -15,97 +15,97 @@
        {
         "name": "Over",
         "description": "Dexter Ames",
-        "price": -107,
+        "price": -167,
         "point": 6.5
        },
        {
         "name": "Under",
         "description": "Dexter Ames",
-        "price": -112,
+        "price": 139,
         "point": 6.5
        },
        {
         "name": "Over",
         "description": "Julian Poe",
-        "price": 136,
+        "price": 113,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Julian Poe",
-        "price": -164,
+        "price": -135,
         "point": 3.5
        },
        {
         "name": "Over",
         "description": "Marco Vidal",
-        "price": -102,
+        "price": -142,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Marco Vidal",
-        "price": -117,
+        "price": 118,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Eli Sandoval",
+        "price": -175,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Eli Sandoval",
+        "price": 145,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Terrell Boone",
         "price": -101,
         "point": 5.5
        },
        {
         "name": "Under",
-        "description": "Eli Sandoval",
+        "description": "Terrell Boone",
         "price": -119,
         "point": 5.5
        },
        {
         "name": "Over",
-        "description": "Terrell Boone",
-        "price": 138,
-        "point": 5.5
-       },
-       {
-        "name": "Under",
-        "description": "Terrell Boone",
-        "price": -166,
-        "point": 5.5
-       },
-       {
-        "name": "Over",
         "description": "Ivan Keller",
-        "price": 105,
+        "price": 106,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Ivan Keller",
-        "price": -126,
+        "price": -127,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Samir Haddad",
-        "price": -166,
+        "price": -156,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Samir Haddad",
-        "price": 138,
+        "price": 130,
         "point": 1.5
        },
        {
         "name": "Over",
         "description": "Nico Bassett",
-        "price": 146,
+        "price": 130,
         "point": 4.5
        },
        {
         "name": "Under",
         "description": "Nico Bassett",
-        "price": -176,
+        "price": -156,
         "point": 4.5
        }
       ]
@@ -116,98 +116,98 @@
        {
         "name": "Over",
         "description": "Dexter Ames",
-        "price": 117,
-        "point": 28.5
+        "price": 123,
+        "point": 29.5
        },
        {
         "name": "Under",
         "description": "Dexter Ames",
-        "price": -141,
-        "point": 28.5
-       },
-       {
-        "name": "Over",
-        "description": "Julian Poe",
-        "price": -113,
-        "point": 21.5
-       },
-       {
-        "name": "Under",
-        "description": "Julian Poe",
-        "price": -106,
-        "point": 21.5
-       },
-       {
-        "name": "Over",
-        "description": "Marco Vidal",
-        "price": -114,
-        "point": 17.5
-       },
-       {
-        "name": "Under",
-        "description": "Marco Vidal",
-        "price": -105,
-        "point": 17.5
-       },
-       {
-        "name": "Over",
-        "description": "Eli Sandoval",
-        "price": 123,
-        "point": 15.5
-       },
-       {
-        "name": "Under",
-        "description": "Eli Sandoval",
         "price": -148,
-        "point": 15.5
+        "point": 29.5
+       },
+       {
+        "name": "Over",
+        "description": "Julian Poe",
+        "price": -116,
+        "point": 22.5
+       },
+       {
+        "name": "Under",
+        "description": "Julian Poe",
+        "price": -103,
+        "point": 22.5
+       },
+       {
+        "name": "Over",
+        "description": "Marco Vidal",
+        "price": -143,
+        "point": 16.5
+       },
+       {
+        "name": "Under",
+        "description": "Marco Vidal",
+        "price": 119,
+        "point": 16.5
+       },
+       {
+        "name": "Over",
+        "description": "Eli Sandoval",
+        "price": -106,
+        "point": 14.5
+       },
+       {
+        "name": "Under",
+        "description": "Eli Sandoval",
+        "price": -113,
+        "point": 14.5
        },
        {
         "name": "Over",
         "description": "Terrell Boone",
+        "price": 102,
+        "point": 21.5
+       },
+       {
+        "name": "Under",
+        "description": "Terrell Boone",
+        "price": -122,
+        "point": 21.5
+       },
+       {
+        "name": "Over",
+        "description": "Ivan Keller",
+        "price": -119,
+        "point": 17.5
+       },
+       {
+        "name": "Under",
+        "description": "Ivan Keller",
         "price": -101,
-        "point": 26.5
-       },
-       {
-        "name": "Under",
-        "description": "Terrell Boone",
-        "price": -118,
-        "point": 26.5
-       },
-       {
-        "name": "Over",
-        "description": "Ivan Keller",
-        "price": -126,
-        "point": 16.5
-       },
-       {
-        "name": "Under",
-        "description": "Ivan Keller",
-        "price": 105,
-        "point": 16.5
+        "point": 17.5
        },
        {
         "name": "Over",
         "description": "Samir Haddad",
-        "price": 133,
-        "point": 12.5
+        "price": 134,
+        "point": 13.5
        },
        {
         "name": "Under",
         "description": "Samir Haddad",
         "price": -161,
-        "point": 12.5
+        "point": 13.5
        },
        {
         "name": "Over",
         "description": "Nico Bassett",
         "price": -103,
-        "point": 10.5
+        "point": 9.5
        },
        {
         "name": "Under",
         "description": "Nico Bassett",
         "price": -116,
-        "point": 10.5
+        "point": 9.5
        }
       ]
      },
@@ -217,97 +217,97 @@
        {
         "name": "Over",
         "description": "Dexter Ames",
-        "price": 118,
+        "price": 104,
         "point": 5.5
        },
        {
         "name": "Under",
         "description": "Dexter Ames",
-        "price": -142,
+        "price": -125,
         "point": 5.5
        },
        {
         "name": "Over",
         "description": "Julian Poe",
-        "price": -168,
-        "point": 7.5
+        "price": -113,
+        "point": 9.5
        },
        {
         "name": "Under",
         "description": "Julian Poe",
-        "price": 139,
-        "point": 7.5
-       },
-       {
-        "name": "Over",
-        "description": "Marco Vidal",
-        "price": -100,
-        "point": 9.5
-       },
-       {
-        "name": "Under",
-        "description": "Marco Vidal",
-        "price": -120,
+        "price": -106,
         "point": 9.5
        },
        {
         "name": "Over",
-        "description": "Eli Sandoval",
-        "price": -102,
-        "point": 3.5
+        "description": "Marco Vidal",
+        "price": -106,
+        "point": 10.5
        },
        {
         "name": "Under",
-        "description": "Eli Sandoval",
-        "price": -118,
-        "point": 3.5
+        "description": "Marco Vidal",
+        "price": -113,
+        "point": 10.5
        },
        {
         "name": "Over",
-        "description": "Terrell Boone",
-        "price": -110,
+        "description": "Eli Sandoval",
+        "price": 112,
         "point": 4.5
        },
        {
         "name": "Under",
-        "description": "Terrell Boone",
-        "price": -108,
-        "point": 4.5
-       },
-       {
-        "name": "Over",
-        "description": "Ivan Keller",
-        "price": -108,
-        "point": 5.5
-       },
-       {
-        "name": "Under",
-        "description": "Ivan Keller",
-        "price": -111,
-        "point": 5.5
-       },
-       {
-        "name": "Over",
-        "description": "Samir Haddad",
-        "price": 113,
-        "point": 8.5
-       },
-       {
-        "name": "Under",
-        "description": "Samir Haddad",
+        "description": "Eli Sandoval",
         "price": -135,
-        "point": 8.5
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Terrell Boone",
+        "price": 103,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Terrell Boone",
+        "price": -123,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Ivan Keller",
+        "price": -114,
+        "point": 5.5
+       },
+       {
+        "name": "Under",
+        "description": "Ivan Keller",
+        "price": -105,
+        "point": 5.5
+       },
+       {
+        "name": "Over",
+        "description": "Samir Haddad",
+        "price": -111,
+        "point": 7.5
+       },
+       {
+        "name": "Under",
+        "description": "Samir Haddad",
+        "price": -108,
+        "point": 7.5
        },
        {
         "name": "Over",
         "description": "Nico Bassett",
-        "price": -204,
+        "price": -100,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Nico Bassett",
-        "price": 168,
+        "price": -119,
         "point": 2.5
        }
       ]
@@ -318,97 +318,97 @@
        {
         "name": "Over",
         "description": "Dexter Ames",
-        "price": 150,
+        "price": 107,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Dexter Ames",
-        "price": -182,
+        "price": -128,
         "point": 3.5
        },
        {
         "name": "Over",
         "description": "Julian Poe",
-        "price": -108,
+        "price": 114,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Julian Poe",
-        "price": -111,
-        "point": 2.5
-       },
-       {
-        "name": "Over",
-        "description": "Marco Vidal",
-        "price": -220,
-        "point": 0.5
-       },
-       {
-        "name": "Under",
-        "description": "Marco Vidal",
-        "price": 180,
-        "point": 0.5
-       },
-       {
-        "name": "Over",
-        "description": "Eli Sandoval",
         "price": -137,
-        "point": 1.5
+        "point": 2.5
+       },
+       {
+        "name": "Over",
+        "description": "Marco Vidal",
+        "price": -230,
+        "point": 0.5
+       },
+       {
+        "name": "Under",
+        "description": "Marco Vidal",
+        "price": 187,
+        "point": 0.5
+       },
+       {
+        "name": "Over",
+        "description": "Eli Sandoval",
+        "price": 196,
+        "point": 2.5
        },
        {
         "name": "Under",
         "description": "Eli Sandoval",
-        "price": 114,
-        "point": 1.5
+        "price": -242,
+        "point": 2.5
        },
        {
         "name": "Over",
         "description": "Terrell Boone",
-        "price": -138,
+        "price": -172,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Terrell Boone",
-        "price": 115,
+        "price": 142,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Ivan Keller",
-        "price": -147,
+        "price": -114,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Ivan Keller",
-        "price": 123,
+        "price": -105,
         "point": 1.5
        },
        {
         "name": "Over",
         "description": "Samir Haddad",
-        "price": 104,
+        "price": 106,
         "point": 0.5
        },
        {
         "name": "Under",
         "description": "Samir Haddad",
-        "price": -125,
+        "price": -127,
         "point": 0.5
        },
        {
         "name": "Over",
         "description": "Nico Bassett",
-        "price": -113,
+        "price": -103,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Nico Bassett",
-        "price": -106,
+        "price": -116,
         "point": 1.5
        }
       ]
@@ -433,97 +433,97 @@
        {
         "name": "Over",
         "description": "Aleks Novak",
-        "price": 104,
+        "price": -130,
         "point": 6.5
        },
        {
         "name": "Under",
         "description": "Aleks Novak",
-        "price": -124,
+        "price": 108,
         "point": 6.5
        },
        {
         "name": "Over",
         "description": "Brant Willow",
-        "price": -148,
-        "point": 3.5
-       },
-       {
-        "name": "Under",
-        "description": "Brant Willow",
-        "price": 123,
-        "point": 3.5
-       },
-       {
-        "name": "Over",
-        "description": "Omar Farrah",
-        "price": 114,
-        "point": 2.5
-       },
-       {
-        "name": "Under",
-        "description": "Omar Farrah",
-        "price": -137,
-        "point": 2.5
-       },
-       {
-        "name": "Over",
-        "description": "Casey Lindell",
-        "price": -121,
-        "point": 4.5
-       },
-       {
-        "name": "Under",
-        "description": "Casey Lindell",
-        "price": 101,
-        "point": 4.5
-       },
-       {
-        "name": "Over",
-        "description": "Jules Marchand",
-        "price": -108,
-        "point": 6.5
-       },
-       {
-        "name": "Under",
-        "description": "Jules Marchand",
         "price": -111,
-        "point": 6.5
-       },
-       {
-        "name": "Over",
-        "description": "Ty Ferrara",
-        "price": -125,
-        "point": 2.5
+        "point": 3.5
        },
        {
         "name": "Under",
-        "description": "Ty Ferrara",
-        "price": 105,
-        "point": 2.5
+        "description": "Brant Willow",
+        "price": -107,
+        "point": 3.5
        },
        {
         "name": "Over",
-        "description": "Roman Duke",
-        "price": -132,
-        "point": 1.5
-       },
-       {
-        "name": "Under",
-        "description": "Roman Duke",
+        "description": "Omar Farrah",
         "price": 110,
-        "point": 1.5
+        "point": 2.5
+       },
+       {
+        "name": "Under",
+        "description": "Omar Farrah",
+        "price": -132,
+        "point": 2.5
+       },
+       {
+        "name": "Over",
+        "description": "Casey Lindell",
+        "price": -144,
+        "point": 4.5
+       },
+       {
+        "name": "Under",
+        "description": "Casey Lindell",
+        "price": 120,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Jules Marchand",
+        "price": -159,
+        "point": 5.5
+       },
+       {
+        "name": "Under",
+        "description": "Jules Marchand",
+        "price": 132,
+        "point": 5.5
+       },
+       {
+        "name": "Over",
+        "description": "Ty Ferrara",
+        "price": 158,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Ty Ferrara",
+        "price": -191,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Roman Duke",
+        "price": 130,
+        "point": 2.5
+       },
+       {
+        "name": "Under",
+        "description": "Roman Duke",
+        "price": -157,
+        "point": 2.5
        },
        {
         "name": "Over",
         "description": "Ike Salter",
-        "price": -131,
+        "price": -114,
         "point": 4.5
        },
        {
         "name": "Under",
         "description": "Ike Salter",
-        "price": 109,
+        "price": -105,
         "point": 4.5
        }
       ]
@@ -534,98 +534,98 @@
        {
         "name": "Over",
         "description": "Aleks Novak",
-        "price": -126,
-        "point": 34.5
+        "price": -141,
+        "point": 31.5
        },
        {
         "name": "Under",
         "description": "Aleks Novak",
-        "price": 105,
-        "point": 34.5
+        "price": 117,
+        "point": 31.5
        },
        {
         "name": "Over",
         "description": "Brant Willow",
-        "price": 116,
-        "point": 23.5
-       },
-       {
-        "name": "Under",
-        "description": "Brant Willow",
-        "price": -140,
-        "point": 23.5
-       },
-       {
-        "name": "Over",
-        "description": "Omar Farrah",
-        "price": -105,
-        "point": 17.5
-       },
-       {
-        "name": "Under",
-        "description": "Omar Farrah",
-        "price": -114,
-        "point": 17.5
-       },
-       {
-        "name": "Over",
-        "description": "Casey Lindell",
-        "price": -148,
-        "point": 13.5
-       },
-       {
-        "name": "Under",
-        "description": "Casey Lindell",
-        "price": 123,
-        "point": 13.5
-       },
-       {
-        "name": "Over",
-        "description": "Jules Marchand",
-        "price": 105,
-        "point": 29.5
-       },
-       {
-        "name": "Under",
-        "description": "Jules Marchand",
-        "price": -126,
-        "point": 29.5
-       },
-       {
-        "name": "Over",
-        "description": "Ty Ferrara",
-        "price": -122,
-        "point": 19.5
-       },
-       {
-        "name": "Under",
-        "description": "Ty Ferrara",
         "price": 102,
+        "point": 25.5
+       },
+       {
+        "name": "Under",
+        "description": "Brant Willow",
+        "price": -123,
+        "point": 25.5
+       },
+       {
+        "name": "Over",
+        "description": "Omar Farrah",
+        "price": -115,
+        "point": 19.5
+       },
+       {
+        "name": "Under",
+        "description": "Omar Farrah",
+        "price": -104,
+        "point": 19.5
+       },
+       {
+        "name": "Over",
+        "description": "Casey Lindell",
+        "price": -129,
+        "point": 14.5
+       },
+       {
+        "name": "Under",
+        "description": "Casey Lindell",
+        "price": 107,
+        "point": 14.5
+       },
+       {
+        "name": "Over",
+        "description": "Jules Marchand",
+        "price": 112,
+        "point": 27.5
+       },
+       {
+        "name": "Under",
+        "description": "Jules Marchand",
+        "price": -134,
+        "point": 27.5
+       },
+       {
+        "name": "Over",
+        "description": "Ty Ferrara",
+        "price": -113,
+        "point": 19.5
+       },
+       {
+        "name": "Under",
+        "description": "Ty Ferrara",
+        "price": -106,
         "point": 19.5
        },
        {
         "name": "Over",
         "description": "Roman Duke",
-        "price": -117,
+        "price": -116,
         "point": 14.5
        },
        {
         "name": "Under",
         "description": "Roman Duke",
-        "price": -102,
+        "price": -103,
         "point": 14.5
        },
        {
         "name": "Over",
         "description": "Ike Salter",
-        "price": 115,
-        "point": 12.5
+        "price": -109,
+        "point": 11.5
        },
        {
         "name": "Under",
         "description": "Ike Salter",
-        "price": -139,
-        "point": 12.5
+        "price": -110,
+        "point": 11.5
        }
       ]
      },
@@ -635,97 +635,97 @@
        {
         "name": "Over",
         "description": "Aleks Novak",
-        "price": -112,
-        "point": 6.5
+        "price": -117,
+        "point": 5.5
        },
        {
         "name": "Under",
         "description": "Aleks Novak",
-        "price": -107,
-        "point": 6.5
+        "price": -102,
+        "point": 5.5
        },
        {
         "name": "Over",
         "description": "Brant Willow",
-        "price": -106,
+        "price": -137,
         "point": 7.5
        },
        {
         "name": "Under",
         "description": "Brant Willow",
-        "price": -113,
+        "price": 114,
         "point": 7.5
        },
        {
         "name": "Over",
         "description": "Omar Farrah",
-        "price": -144,
-        "point": 9.5
-       },
-       {
-        "name": "Under",
-        "description": "Omar Farrah",
-        "price": 120,
-        "point": 9.5
-       },
-       {
-        "name": "Over",
-        "description": "Casey Lindell",
-        "price": 131,
-        "point": 4.5
-       },
-       {
-        "name": "Under",
-        "description": "Casey Lindell",
-        "price": -158,
-        "point": 4.5
-       },
-       {
-        "name": "Over",
-        "description": "Jules Marchand",
         "price": -126,
+        "point": 11.5
+       },
+       {
+        "name": "Under",
+        "description": "Omar Farrah",
+        "price": 105,
+        "point": 11.5
+       },
+       {
+        "name": "Over",
+        "description": "Casey Lindell",
+        "price": 117,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Casey Lindell",
+        "price": -140,
+        "point": 3.5
+       },
+       {
+        "name": "Over",
+        "description": "Jules Marchand",
+        "price": -120,
         "point": 4.5
        },
        {
         "name": "Under",
         "description": "Jules Marchand",
-        "price": 105,
+        "price": -100,
         "point": 4.5
        },
        {
         "name": "Over",
         "description": "Ty Ferrara",
-        "price": -160,
-        "point": 6.5
+        "price": -138,
+        "point": 7.5
        },
        {
         "name": "Under",
         "description": "Ty Ferrara",
-        "price": 133,
-        "point": 6.5
+        "price": 115,
+        "point": 7.5
        },
        {
         "name": "Over",
         "description": "Roman Duke",
-        "price": 143,
+        "price": 124,
         "point": 8.5
        },
        {
         "name": "Under",
         "description": "Roman Duke",
-        "price": -173,
+        "price": -149,
         "point": 8.5
        },
        {
         "name": "Over",
         "description": "Ike Salter",
-        "price": -114,
+        "price": 103,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Ike Salter",
-        "price": -105,
+        "price": -123,
         "point": 3.5
        }
       ]
@@ -736,97 +736,97 @@
        {
         "name": "Over",
         "description": "Aleks Novak",
-        "price": -161,
+        "price": -133,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Aleks Novak",
-        "price": 134,
+        "price": 111,
         "point": 3.5
        },
        {
         "name": "Over",
         "description": "Brant Willow",
-        "price": 105,
+        "price": 131,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Brant Willow",
-        "price": -126,
+        "price": -158,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Omar Farrah",
-        "price": -202,
+        "price": -176,
         "point": 0.5
        },
        {
         "name": "Under",
         "description": "Omar Farrah",
-        "price": 166,
+        "price": 145,
         "point": 0.5
        },
        {
         "name": "Over",
         "description": "Casey Lindell",
-        "price": -101,
+        "price": 117,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Casey Lindell",
-        "price": -119,
+        "price": -141,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Jules Marchand",
-        "price": 167,
+        "price": 176,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Jules Marchand",
-        "price": -204,
+        "price": -215,
         "point": 3.5
        },
        {
         "name": "Over",
         "description": "Ty Ferrara",
-        "price": 161,
+        "price": 153,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Ty Ferrara",
-        "price": -196,
+        "price": -185,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Roman Duke",
-        "price": -168,
+        "price": -159,
         "point": 0.5
        },
        {
         "name": "Under",
         "description": "Roman Duke",
-        "price": 139,
+        "price": 132,
         "point": 0.5
        },
        {
         "name": "Over",
         "description": "Ike Salter",
-        "price": -143,
+        "price": -105,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Ike Salter",
-        "price": 119,
+        "price": -114,
         "point": 1.5
        }
       ]
@@ -851,97 +851,97 @@
        {
         "name": "Over",
         "description": "Gio Tavares",
-        "price": -116,
+        "price": -111,
         "point": 4.5
        },
        {
         "name": "Under",
         "description": "Gio Tavares",
-        "price": -104,
+        "price": -108,
         "point": 4.5
        },
        {
         "name": "Over",
         "description": "Wes Lambert",
-        "price": 118,
+        "price": 102,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Wes Lambert",
-        "price": -141,
+        "price": -122,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Ronan Fitch",
-        "price": -129,
+        "price": -191,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Ronan Fitch",
-        "price": 107,
+        "price": 157,
         "point": 1.5
        },
        {
         "name": "Over",
         "description": "Dario Mensah",
-        "price": -105,
-        "point": 3.5
+        "price": 149,
+        "point": 4.5
        },
        {
         "name": "Under",
         "description": "Dario Mensah",
-        "price": -114,
+        "price": -181,
+        "point": 4.5
+       },
+       {
+        "name": "Over",
+        "description": "Curtis Vance",
+        "price": 115,
+        "point": 6.5
+       },
+       {
+        "name": "Under",
+        "description": "Curtis Vance",
+        "price": -138,
+        "point": 6.5
+       },
+       {
+        "name": "Over",
+        "description": "Avi Stern",
+        "price": -130,
+        "point": 3.5
+       },
+       {
+        "name": "Under",
+        "description": "Avi Stern",
+        "price": 109,
         "point": 3.5
        },
        {
         "name": "Over",
-        "description": "Curtis Vance",
-        "price": 111,
-        "point": 6.5
-       },
-       {
-        "name": "Under",
-        "description": "Curtis Vance",
-        "price": -133,
-        "point": 6.5
-       },
-       {
-        "name": "Over",
-        "description": "Avi Stern",
-        "price": -156,
-        "point": 2.5
-       },
-       {
-        "name": "Under",
-        "description": "Avi Stern",
-        "price": 129,
-        "point": 2.5
-       },
-       {
-        "name": "Over",
         "description": "Lonnie Grant",
-        "price": 164,
+        "price": 171,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Lonnie Grant",
-        "price": -200,
+        "price": -208,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Pierce Nolan",
-        "price": 107,
+        "price": -106,
         "point": 4.5
        },
        {
         "name": "Under",
         "description": "Pierce Nolan",
-        "price": -129,
+        "price": -113,
         "point": 4.5
        }
       ]
@@ -952,98 +952,98 @@
        {
         "name": "Over",
         "description": "Gio Tavares",
-        "price": -107,
-        "point": 23.5
+        "price": -110,
+        "point": 21.5
        },
        {
         "name": "Under",
         "description": "Gio Tavares",
+        "price": -109,
+        "point": 21.5
+       },
+       {
+        "name": "Over",
+        "description": "Wes Lambert",
+        "price": -115,
+        "point": 17.5
+       },
+       {
+        "name": "Under",
+        "description": "Wes Lambert",
+        "price": -105,
+        "point": 17.5
+       },
+       {
+        "name": "Over",
+        "description": "Ronan Fitch",
+        "price": 102,
+        "point": 11.5
+       },
+       {
+        "name": "Under",
+        "description": "Ronan Fitch",
+        "price": -122,
+        "point": 11.5
+       },
+       {
+        "name": "Over",
+        "description": "Dario Mensah",
+        "price": -108,
+        "point": 9.5
+       },
+       {
+        "name": "Under",
+        "description": "Dario Mensah",
         "price": -111,
+        "point": 9.5
+       },
+       {
+        "name": "Over",
+        "description": "Curtis Vance",
+        "price": -124,
+        "point": 32.5
+       },
+       {
+        "name": "Under",
+        "description": "Curtis Vance",
+        "price": 103,
+        "point": 32.5
+       },
+       {
+        "name": "Over",
+        "description": "Avi Stern",
+        "price": 103,
+        "point": 23.5
+       },
+       {
+        "name": "Under",
+        "description": "Avi Stern",
+        "price": -123,
         "point": 23.5
        },
        {
         "name": "Over",
-        "description": "Wes Lambert",
-        "price": -157,
-        "point": 15.5
-       },
-       {
-        "name": "Under",
-        "description": "Wes Lambert",
-        "price": 130,
-        "point": 15.5
-       },
-       {
-        "name": "Over",
-        "description": "Ronan Fitch",
-        "price": 132,
-        "point": 13.5
-       },
-       {
-        "name": "Under",
-        "description": "Ronan Fitch",
-        "price": -159,
-        "point": 13.5
-       },
-       {
-        "name": "Over",
-        "description": "Dario Mensah",
-        "price": -106,
-        "point": 10.5
-       },
-       {
-        "name": "Under",
-        "description": "Dario Mensah",
-        "price": -113,
-        "point": 10.5
-       },
-       {
-        "name": "Over",
-        "description": "Curtis Vance",
-        "price": -125,
-        "point": 29.5
-       },
-       {
-        "name": "Under",
-        "description": "Curtis Vance",
-        "price": 104,
-        "point": 29.5
-       },
-       {
-        "name": "Over",
-        "description": "Avi Stern",
-        "price": 102,
-        "point": 20.5
-       },
-       {
-        "name": "Under",
-        "description": "Avi Stern",
-        "price": -122,
-        "point": 20.5
-       },
-       {
-        "name": "Over",
         "description": "Lonnie Grant",
-        "price": -120,
-        "point": 14.5
+        "price": -111,
+        "point": 17.5
        },
        {
         "name": "Under",
         "description": "Lonnie Grant",
-        "price": -100,
-        "point": 14.5
+        "price": -108,
+        "point": 17.5
        },
        {
         "name": "Over",
         "description": "Pierce Nolan",
-        "price": -155,
-        "point": 13.5
+        "price": -142,
+        "point": 12.5
        },
        {
         "name": "Under",
         "description": "Pierce Nolan",
-        "price": 129,
-        "point": 13.5
+        "price": 118,
+        "point": 12.5
        }
       ]
      },
@@ -1053,97 +1053,97 @@
        {
         "name": "Over",
         "description": "Gio Tavares",
-        "price": -187,
+        "price": -168,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Gio Tavares",
-        "price": 154,
+        "price": 139,
         "point": 3.5
        },
        {
         "name": "Over",
         "description": "Wes Lambert",
-        "price": 119,
-        "point": 6.5
+        "price": 111,
+        "point": 5.5
        },
        {
         "name": "Under",
         "description": "Wes Lambert",
-        "price": -142,
-        "point": 6.5
+        "price": -134,
+        "point": 5.5
        },
        {
         "name": "Over",
         "description": "Ronan Fitch",
-        "price": -127,
+        "price": -105,
         "point": 7.5
        },
        {
         "name": "Under",
         "description": "Ronan Fitch",
-        "price": 106,
+        "price": -114,
         "point": 7.5
        },
        {
         "name": "Over",
         "description": "Dario Mensah",
-        "price": -197,
+        "price": -171,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Dario Mensah",
-        "price": 162,
+        "price": 142,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Curtis Vance",
-        "price": 106,
-        "point": 4.5
+        "price": 105,
+        "point": 5.5
        },
        {
         "name": "Under",
         "description": "Curtis Vance",
-        "price": -127,
-        "point": 4.5
+        "price": -125,
+        "point": 5.5
        },
        {
         "name": "Over",
+        "description": "Avi Stern",
+        "price": 116,
+        "point": 8.5
+       },
+       {
+        "name": "Under",
         "description": "Avi Stern",
         "price": -140,
-        "point": 7.5
-       },
-       {
-        "name": "Under",
-        "description": "Avi Stern",
-        "price": 117,
-        "point": 7.5
+        "point": 8.5
        },
        {
         "name": "Over",
         "description": "Lonnie Grant",
-        "price": -123,
+        "price": -134,
         "point": 9.5
        },
        {
         "name": "Under",
         "description": "Lonnie Grant",
-        "price": 102,
+        "price": 112,
         "point": 9.5
        },
        {
         "name": "Over",
         "description": "Pierce Nolan",
-        "price": 103,
+        "price": 114,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Pierce Nolan",
-        "price": -123,
+        "price": -137,
         "point": 3.5
        }
       ]
@@ -1154,97 +1154,97 @@
        {
         "name": "Over",
         "description": "Gio Tavares",
-        "price": -135,
+        "price": -156,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Gio Tavares",
-        "price": 113,
+        "price": 130,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Wes Lambert",
-        "price": -187,
+        "price": -184,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Wes Lambert",
-        "price": 154,
+        "price": 152,
         "point": 1.5
        },
        {
         "name": "Over",
         "description": "Ronan Fitch",
-        "price": 134,
+        "price": 120,
         "point": 0.5
        },
        {
         "name": "Under",
         "description": "Ronan Fitch",
-        "price": -161,
+        "price": -144,
         "point": 0.5
        },
        {
         "name": "Over",
         "description": "Dario Mensah",
-        "price": -106,
+        "price": 116,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Dario Mensah",
-        "price": -113,
+        "price": -140,
         "point": 1.5
        },
        {
         "name": "Over",
         "description": "Curtis Vance",
-        "price": -120,
+        "price": -164,
         "point": 3.5
        },
        {
         "name": "Under",
         "description": "Curtis Vance",
-        "price": -100,
+        "price": 136,
         "point": 3.5
        },
        {
         "name": "Over",
         "description": "Avi Stern",
-        "price": 172,
+        "price": 167,
         "point": 2.5
        },
        {
         "name": "Under",
         "description": "Avi Stern",
-        "price": -210,
+        "price": -203,
         "point": 2.5
        },
        {
         "name": "Over",
         "description": "Lonnie Grant",
-        "price": -145,
+        "price": -170,
         "point": 0.5
        },
        {
         "name": "Under",
         "description": "Lonnie Grant",
-        "price": 121,
+        "price": 141,
         "point": 0.5
        },
        {
         "name": "Over",
         "description": "Pierce Nolan",
-        "price": -211,
+        "price": -248,
         "point": 1.5
        },
        {
         "name": "Under",
         "description": "Pierce Nolan",
-        "price": 173,
+        "price": 201,
         "point": 1.5
        }
       ]

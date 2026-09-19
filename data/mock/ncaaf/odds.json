@@ -1,0 +1,176 @@
+[
+ {
+  "id": "ncaaf-mock-1",
+  "sport_key": "americanfootball_ncaaf",
+  "commence_time": "2026-09-20T17:00:00Z",
+  "home_team": "Ridgemont Bears",
+  "away_team": "Cliffside Mariners",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "h2h",
+      "outcomes": [
+       {
+        "name": "Ridgemont Bears",
+        "price": -1058
+       },
+       {
+        "name": "Cliffside Mariners",
+        "price": 661
+       }
+      ]
+     },
+     {
+      "key": "spreads",
+      "outcomes": [
+       {
+        "name": "Ridgemont Bears",
+        "price": -111,
+        "point": -23.5
+       },
+       {
+        "name": "Cliffside Mariners",
+        "price": -108,
+        "point": 23.5
+       }
+      ]
+     },
+     {
+      "key": "totals",
+      "outcomes": [
+       {
+        "name": "Over",
+        "price": 112,
+        "point": 61.5
+       },
+       {
+        "name": "Under",
+        "price": -135,
+        "point": 61.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "ncaaf-mock-2",
+  "sport_key": "americanfootball_ncaaf",
+  "commence_time": "2026-09-20T20:05:00Z",
+  "home_team": "Granite Tech Miners",
+  "away_team": "Lakeshore Otters",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "h2h",
+      "outcomes": [
+       {
+        "name": "Granite Tech Miners",
+        "price": -227
+       },
+       {
+        "name": "Lakeshore Otters",
+        "price": 185
+       }
+      ]
+     },
+     {
+      "key": "spreads",
+      "outcomes": [
+       {
+        "name": "Granite Tech Miners",
+        "price": -109,
+        "point": -7.0
+       },
+       {
+        "name": "Lakeshore Otters",
+        "price": -110,
+        "point": 7.0
+       }
+      ]
+     },
+     {
+      "key": "totals",
+      "outcomes": [
+       {
+        "name": "Over",
+        "price": -110,
+        "point": 58.5
+       },
+       {
+        "name": "Under",
+        "price": -108,
+        "point": 58.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "ncaaf-mock-3",
+  "sport_key": "americanfootball_ncaaf",
+  "commence_time": "2026-09-21T00:20:00Z",
+  "home_team": "Sunland Condors",
+  "away_team": "Pinehurst Foxes",
+  "bookmakers": [
+   {
+    "key": "fanduel",
+    "title": "FanDuel",
+    "markets": [
+     {
+      "key": "h2h",
+      "outcomes": [
+       {
+        "name": "Sunland Condors",
+        "price": -1581
+       },
+       {
+        "name": "Pinehurst Foxes",
+        "price": 857
+       }
+      ]
+     },
+     {
+      "key": "spreads",
+      "outcomes": [
+       {
+        "name": "Sunland Condors",
+        "price": -109,
+        "point": -20.0
+       },
+       {
+        "name": "Pinehurst Foxes",
+        "price": -109,
+        "point": 20.0
+       }
+      ]
+     },
+     {
+      "key": "totals",
+      "outcomes": [
+       {
+        "name": "Over",
+        "price": -130,
+        "point": 55.5
+       },
+       {
+        "name": "Under",
+        "price": 108,
+        "point": 55.5
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]
