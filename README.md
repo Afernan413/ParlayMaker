@@ -255,7 +255,7 @@ short version:
 | --- | --- | --- | --- |
 | Who is starting | snap shares, and a promotion when the man ahead is out | no snap source | no snap source |
 | Who is hurt | the league's own weekly report + live feed | ESPN feed, patchy by conference | ESPN feed |
-| Weather | outdoor venues, needs `OPENWEATHER_API_KEY` | no venue coordinates | indoors, N/A |
+| Weather | AccuWeather on outdoor venues; key read from `OPENWEATHER_API_KEY` | no venue coordinates | indoors, N/A |
 
 The one that mattered most: a backup promoted because the starter is out used
 to be projected off his own four-game average, which for a third-string
@@ -315,7 +315,7 @@ every Tuesday.
 python -m pytest            # 182 tests, no network access
 ```
 
-No test makes an unmocked HTTP call: The Odds API, OpenWeather and the injury
+No test makes an unmocked HTTP call: The Odds API, AccuWeather and the injury
 feeds are mocked with `respx`, and the Anthropic client is always a stub. The
 suite covers the quota floor, the ±20% clamp (including an adversarial agent
 that asks for 5×), the correlation rejection rules, the de-vig maths, the ILP

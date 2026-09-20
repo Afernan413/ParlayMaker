@@ -1,8 +1,26 @@
 """Stadium weather ingestion.
 
-Forecasts are pulled from OpenWeather's 5-day/3-hour endpoint and the slot
-nearest to kickoff is kept. Domes short-circuit the network call entirely --
-there is no weather story indoors, and it saves quota.
+Forecasts come from AccuWeather, and the reading nearest kickoff is kept. Domes
+short-circuit the network call entirely -- there is no weather story indoors,
+and it saves quota.
+
+Three things about AccuWeather shape this module:
+
+* **A venue is addressed by an opaque location key**, not by coordinates, and
+  looking one up costs a call. The keys are stable, so they are cached in
+  ``weather_locations`` and a venue is resolved once rather than every run.
+* **The hourly forecast only reaches twelve hours out.** A slate built on
+  Saturday morning for a Sunday afternoon kickoff is outside it, so the daily
+  forecast is used for anything further away and the hourly one when kickoff is
+  close. The hourly reading is sharper, so it is preferred whenever it covers
+  the game.
+* **The free tier allows fifty calls a day** and answers 503 once that is
+  spent. That is a clean stop, not a failure: whatever has been fetched is
+  kept and the rest of the slate is left without a forecast.
+
+The API key is read from ``OPENWEATHER_API_KEY``. The name is historical -- the
+deployed secret is called that, and renaming it would mean re-adding it
+everywhere.
 """
 
 from __future__ import annotations
@@ -16,6 +34,7 @@ import httpx
 
 from config.settings import settings
 from src.ingestion import db
+from src.models.schedule import EASTERN_SHIFT
 
 logger = logging.getLogger(__name__)
 
@@ -131,49 +150,134 @@ def _parse_iso(value: str) -> datetime:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
-def select_forecast_slot(
-    payload: dict[str, Any], kickoff: datetime
-) -> dict[str, Any] | None:
-    """Pick the 3-hourly slot closest to kickoff.
+#: AccuWeather's hourly forecast reaches this far ahead. Beyond it the daily
+#: forecast is the only thing that covers the game.
+HOURLY_HORIZON = timedelta(hours=12)
 
-    The design doc asks for a read taken ~3 hours before kickoff; because the
-    provider buckets in 3-hour steps, the closest bucket to kickoff itself is
-    the sharpest available signal for game conditions.
+#: What a 503 from AccuWeather means when the body says so.
+QUOTA_MESSAGE = "allowed number of requests has been exceeded"
+
+
+class WeatherQuotaExhausted(RuntimeError):
+    """The provider's daily call allowance is spent."""
+
+
+def select_forecast_slot(
+    payload: Any, kickoff: datetime
+) -> dict[str, Any] | None:
+    """Pick the hourly reading closest to kickoff.
+
+    AccuWeather returns a bare list of hours. The design doc asks for a read a
+    few hours before kickoff; the closest hour to kickoff itself is the sharpest
+    available signal for game conditions.
     """
-    slots = payload.get("list") or []
-    if not slots:
+    slots = payload if isinstance(payload, list) else (payload or {}).get("list") or []
+    dated = [slot for slot in slots if slot.get("DateTime")]
+    if not dated:
         return None
-    return min(slots, key=lambda slot: abs(_parse_iso(slot["dt_txt"]) - kickoff))
+    return min(dated, key=lambda slot: abs(_parse_iso(slot["DateTime"]) - kickoff))
+
+
+def select_daily_slot(payload: Any, kickoff: datetime) -> dict[str, Any] | None:
+    """Pick the day covering kickoff from the 5-day forecast.
+
+    Compared in local terms, not UTC. A Sunday night kickoff at 8:20pm Eastern
+    is 01:20 the next day in UTC, so matching UTC dates would ask for tomorrow's
+    forecast for tonight's game. AccuWeather dates its days in the venue's own
+    offset, which is what the shift lines up with.
+    """
+    days = (payload or {}).get("DailyForecasts") or []
+    dated = [day for day in days if day.get("Date")]
+    if not dated:
+        return None
+    local_kickoff = (kickoff.astimezone(timezone.utc) - EASTERN_SHIFT).date()
+    return min(
+        dated,
+        key=lambda day: abs((_parse_iso(day["Date"]) - EASTERN_SHIFT).date() - local_kickoff),
+    )
+
+
+def _value(block: Any) -> float | None:
+    """AccuWeather wraps every measurement as ``{"Value": x, "Unit": "F"}``."""
+    if not isinstance(block, dict):
+        return None
+    value = block.get("Value")
+    return float(value) if value is not None else None
+
+
+def _probability(percent: Any) -> float | None:
+    """A 0-100 chance as the 0-1 fraction the rest of the engine stores."""
+    if percent is None:
+        return None
+    return max(0.0, min(float(percent) / 100.0, 1.0))
+
+
+def _flags(temp_f: float | None, wind_mph: float | None) -> tuple[int, int]:
+    return (
+        int(wind_mph is not None and wind_mph > settings.high_wind_mph),
+        int(temp_f is not None and temp_f <= settings.freezing_temp_f),
+    )
 
 
 def snapshot_from_slot(
     game_id: str, stadium: str | None, slot: dict[str, Any]
 ) -> WeatherSnapshot:
-    """Convert one OpenWeather slot into a :class:`WeatherSnapshot`."""
-    main = slot.get("main") or {}
-    wind = slot.get("wind") or {}
-    weather = (slot.get("weather") or [{}])[0]
-    temp_f = main.get("temp")
-    wind_mph = wind.get("speed")
+    """Convert one AccuWeather hourly reading into a :class:`WeatherSnapshot`."""
+    wind = slot.get("Wind") or {}
+    temp_f = _value(slot.get("Temperature"))
+    wind_mph = _value(wind.get("Speed"))
+    high_wind, freezing = _flags(temp_f, wind_mph)
     return WeatherSnapshot(
         game_id=game_id,
         stadium=stadium,
         is_dome=0,
         temperature_f=temp_f,
         wind_speed_mph=wind_mph,
-        wind_deg=wind.get("deg"),
-        precip_chance=slot.get("pop"),
-        conditions=weather.get("description"),
-        high_wind=int(wind_mph is not None and wind_mph > settings.high_wind_mph),
-        freezing=int(temp_f is not None and temp_f <= settings.freezing_temp_f),
-        forecast_for=slot.get("dt_txt"),
+        wind_deg=(wind.get("Direction") or {}).get("Degrees"),
+        precip_chance=_probability(slot.get("PrecipitationProbability")),
+        conditions=slot.get("IconPhrase"),
+        high_wind=high_wind,
+        freezing=freezing,
+        forecast_for=slot.get("DateTime"),
+    )
+
+
+def snapshot_from_day(
+    game_id: str, stadium: str | None, day: dict[str, Any]
+) -> WeatherSnapshot:
+    """Convert a daily forecast into a snapshot, for a kickoff too far out.
+
+    Coarser than the hourly reading by nature: the temperature is the day's
+    high rather than the temperature at kickoff, and the wind is the daytime
+    figure. It is still much better than no forecast, and the conditions string
+    says which it is so nothing downstream mistakes one for the other.
+    """
+    daytime = day.get("Day") or {}
+    temperature = day.get("Temperature") or {}
+    temp_f = _value(temperature.get("Maximum"))
+    wind_mph = _value((daytime.get("Wind") or {}).get("Speed"))
+    high_wind, freezing = _flags(temp_f, wind_mph)
+    phrase = daytime.get("IconPhrase") or day.get("Headline", {}).get("Text")
+    return WeatherSnapshot(
+        game_id=game_id,
+        stadium=stadium,
+        is_dome=0,
+        temperature_f=temp_f,
+        wind_speed_mph=wind_mph,
+        wind_deg=((daytime.get("Wind") or {}).get("Direction") or {}).get("Degrees"),
+        precip_chance=_probability(daytime.get("PrecipitationProbability")),
+        conditions=f"{phrase} (daily outlook)" if phrase else "daily outlook",
+        high_wind=high_wind,
+        freezing=freezing,
+        forecast_for=day.get("Date"),
     )
 
 
 class WeatherClient:
-    """OpenWeather forecast fetcher with dome short-circuiting."""
+    """AccuWeather forecast fetcher with dome short-circuiting and key caching."""
 
-    api_name = "openweather"
+    api_name = "accuweather"
+    provider = "accuweather"
 
     def __init__(
         self,
@@ -183,11 +287,14 @@ class WeatherClient:
         client: httpx.AsyncClient | None = None,
         db_path: str | None = None,
     ) -> None:
+        # Read from the OpenWeather-named setting on purpose: that is what the
+        # deployed secret is called. See the module docstring.
         self.api_key = api_key if api_key is not None else settings.openweather_api_key
-        self.base_url = (base_url or settings.openweather_base_url).rstrip("/")
+        self.base_url = (base_url or settings.accuweather_base_url).rstrip("/")
         self.db_path = db_path
         self._owns_client = client is None
         self._client = client
+        self._quota_spent = False
 
     async def __aenter__(self) -> "WeatherClient":
         if self._client is None:
@@ -209,27 +316,70 @@ class WeatherClient:
             )
         return self._client
 
-    async def fetch_forecast(self, lat: float, lon: float) -> dict[str, Any]:
-        """Raw 5-day/3-hour forecast in imperial units."""
+    # -- plumbing -----------------------------------------------------
+    async def _get(self, path: str, params: dict[str, Any]) -> Any:
+        """One authenticated call, with the quota answer recognised as such."""
         if not self.api_key:
             raise RuntimeError("OPENWEATHER_API_KEY is not set")
-        response = await self.client.get(
-            "/data/2.5/forecast",
-            params={
-                "lat": lat,
-                "lon": lon,
-                "units": "imperial",
-                "appid": self.api_key,
-            },
-        )
+        if self._quota_spent:
+            raise WeatherQuotaExhausted("daily forecast allowance already spent")
+
+        response = await self.client.get(path, params={**params, "apikey": self.api_key})
         db.log_quota(
-            self.api_name,
-            "/data/2.5/forecast",
-            status_code=response.status_code,
-            db_path=self.db_path,
+            self.api_name, path, status_code=response.status_code, db_path=self.db_path
         )
+        if response.status_code == 503 and QUOTA_MESSAGE in response.text.lower():
+            # Not a provider outage: the day's allowance is gone. Remember it so
+            # the rest of the slate does not spend a call each to find out.
+            self._quota_spent = True
+            raise WeatherQuotaExhausted(
+                "AccuWeather daily request allowance exhausted; "
+                "the rest of this slate has no forecast"
+            )
         response.raise_for_status()
         return response.json()
+
+    async def location_key(self, lat: float, lon: float) -> str | None:
+        """AccuWeather's key for a venue, from the cache where possible."""
+        venue_key = f"{round(float(lat), 4)},{round(float(lon), 4)}"
+        cached = db.cached_location_key(venue_key, self.provider, db_path=self.db_path)
+        if cached:
+            return cached
+
+        payload = await self._get(
+            "/locations/v1/cities/geoposition/search", {"q": venue_key}
+        )
+        key = (payload or {}).get("Key")
+        if not key:
+            logger.warning("no AccuWeather location for %s", venue_key)
+            return None
+        db.store_location_key(
+            venue_key, self.provider, str(key),
+            name=(payload or {}).get("LocalizedName"), db_path=self.db_path,
+        )
+        return str(key)
+
+    # -- forecasts ----------------------------------------------------
+    async def fetch_hourly(self, location_key: str) -> Any:
+        """The next twelve hours, in imperial units."""
+        return await self._get(
+            f"/forecasts/v1/hourly/12hour/{location_key}",
+            {"details": "true", "metric": "false"},
+        )
+
+    async def fetch_daily(self, location_key: str) -> Any:
+        """The next five days, for a kickoff beyond the hourly horizon."""
+        return await self._get(
+            f"/forecasts/v1/daily/5day/{location_key}",
+            {"details": "true", "metric": "false"},
+        )
+
+    async def fetch_forecast(self, lat: float, lon: float) -> Any:
+        """Raw hourly forecast for a venue. Kept for callers that want it."""
+        key = await self.location_key(lat, lon)
+        if key is None:
+            raise RuntimeError(f"no forecast location for {lat},{lon}")
+        return await self.fetch_hourly(key)
 
     async def snapshot_for_game(self, game: dict[str, Any]) -> WeatherSnapshot | None:
         """Forecast for one ``games`` row, or ``None`` if the venue is unknown."""
@@ -241,11 +391,21 @@ class WeatherClient:
             return dome_snapshot(game["game_id"], venue["stadium"], game.get("commence_time"))
 
         kickoff = _parse_iso(game["commence_time"])
-        payload = await self.fetch_forecast(venue["lat"], venue["lon"])
-        slot = select_forecast_slot(payload, kickoff)
-        if slot is None:
+        key = await self.location_key(venue["lat"], venue["lon"])
+        if key is None:
             return None
-        return snapshot_from_slot(game["game_id"], venue["stadium"], slot)
+
+        # The hourly reading is sharper, so use it whenever it reaches the game.
+        within_hourly = kickoff - datetime.now(timezone.utc) <= HOURLY_HORIZON
+        if within_hourly:
+            slot = select_forecast_slot(await self.fetch_hourly(key), kickoff)
+            if slot is not None:
+                return snapshot_from_slot(game["game_id"], venue["stadium"], slot)
+
+        day = select_daily_slot(await self.fetch_daily(key), kickoff)
+        if day is None:
+            return None
+        return snapshot_from_day(game["game_id"], venue["stadium"], day)
 
     async def ingest_games(self, games: Sequence[dict[str, Any]]) -> list[WeatherSnapshot]:
         """Fetch and persist snapshots for a slate; venue errors are skipped."""
@@ -253,6 +413,10 @@ class WeatherClient:
         for game in games:
             try:
                 snapshot = await self.snapshot_for_game(game)
+            except WeatherQuotaExhausted as exc:
+                # Stop rather than hammer: every further call would answer 503.
+                logger.warning("%s", exc)
+                break
             except (httpx.HTTPError, RuntimeError) as exc:
                 logger.warning("weather fetch failed for %s: %s", game.get("game_id"), exc)
                 continue

@@ -92,11 +92,38 @@ designations it actually got rather than pretending.
 
 ## Weather
 
-`src/ingestion/weather.py`. NFL only, and only outdoors.
+`src/ingestion/weather.py`. NFL only, and only outdoors. The provider is
+**AccuWeather**.
 
-Needs `OPENWEATHER_API_KEY`. Without it the forecast is never fetched — which
-used to happen silently, so a build with no key looked identical to one that
-had considered the weather and found it mild. It is now reported.
+The key is read from `OPENWEATHER_API_KEY`. That name is historical — the
+deployed secret is called that, and renaming it would mean re-adding it
+everywhere — but the value is an AccuWeather key. Without it the forecast is
+never fetched, which used to happen silently, so a build with no key looked
+identical to one that had considered the weather and found it mild. It is now
+reported.
+
+Three things about AccuWeather shape the client:
+
+* **A venue is addressed by an opaque location key**, not by coordinates, and
+  looking one up costs a call. The keys are stable, so they are cached in the
+  `weather_locations` table: 30-odd rows resolved once turn a
+  two-call-per-venue forecast into one.
+* **The hourly forecast only reaches twelve hours out.** A Saturday build for a
+  Sunday afternoon kickoff is outside it, so the daily forecast covers anything
+  further away and the hourly one is used when kickoff is close, being sharper.
+  A daily reading says `(daily outlook)` in its conditions string, so nothing
+  mistakes the day's high for the temperature at kickoff.
+* **The free tier allows 50 calls a day** and answers `503` once spent. That is
+  a clean stop rather than an outage: the slate stops asking, keeps what it has,
+  and the rest goes unforecast. A plain `503` with no quota message is treated
+  as a real outage and still tried per game.
+
+A full NFL Sunday is about 13 outdoor venues, so roughly 13 calls per build once
+the location keys are cached — two builds a day fits inside the free tier.
+
+Kickoff times are compared in local terms, not UTC: an 8:20pm Eastern game is
+01:20 the next day in UTC, and matching UTC dates would ask for tomorrow's
+forecast for tonight's game.
 
 Retractable roofs and domes are marked in the stadium table and skipped: there
 is no weather story indoors, and it saves quota.

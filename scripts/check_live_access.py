@@ -134,18 +134,26 @@ async def check_weather(client: httpx.AsyncClient, api_key: str) -> Check:
             required=False,
         )
     try:
+        # A geoposition lookup is the cheapest call that proves the key works,
+        # and it is the first thing a real forecast does anyway.
         response = await client.get(
-            f"{settings.openweather_base_url}/data/2.5/forecast",
-            params={"lat": 42.7738, "lon": -78.7870, "units": "imperial", "appid": api_key},
+            f"{settings.accuweather_base_url}/locations/v1/cities/geoposition/search",
+            params={"q": "42.7738,-78.787", "apikey": api_key},
             timeout=20.0,
         )
     except httpx.HTTPError as exc:
         return Check(
-            "api.openweathermap.org", FAIL, f"unreachable: {type(exc).__name__}",
+            "dataservice.accuweather.com", FAIL, f"unreachable: {type(exc).__name__}",
+            required=False,
+        )
+    if response.status_code == 503 and "exceeded" in response.text.lower():
+        return Check(
+            "dataservice.accuweather.com", SKIP,
+            "daily request allowance already spent (50/day on the free tier)",
             required=False,
         )
     return Check(
-        "api.openweathermap.org",
+        "dataservice.accuweather.com",
         OK if response.status_code == 200 else FAIL,
         f"HTTP {response.status_code}",
         required=False,

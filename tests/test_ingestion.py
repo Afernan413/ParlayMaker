@@ -197,6 +197,43 @@ async def test_missing_api_key_raises_before_any_request(db_path):
 
 
 # ------------------------------------------------------------------ weather
+GEO = "https://weather.test/locations/v1/cities/geoposition/search"
+HOURLY = "https://weather.test/forecasts/v1/hourly/12hour/349727"
+DAILY = "https://weather.test/forecasts/v1/daily/5day/349727"
+
+BILLS = {
+    "game_id": "g9",
+    "sport": "nfl",
+    "home_team": "Buffalo Bills",
+    "away_team": "Miami Dolphins",
+    "commence_time": "2026-12-20T18:00:00Z",
+}
+
+
+def hour(stamp: str, temp: float, wind: float, deg: int, pop: int, phrase: str) -> dict:
+    """One AccuWeather hourly reading, in its own shape."""
+    return {
+        "DateTime": stamp,
+        "IconPhrase": phrase,
+        "Temperature": {"Value": temp, "Unit": "F"},
+        "Wind": {
+            "Speed": {"Value": wind, "Unit": "mi/h"},
+            "Direction": {"Degrees": deg, "English": "NW"},
+        },
+        "PrecipitationProbability": pop,
+    }
+
+
+def mock_geo(key: str = "349727", name: str = "Orchard Park"):
+    return respx.get(GEO).mock(
+        return_value=httpx.Response(200, json={"Key": key, "LocalizedName": name})
+    )
+
+
+def client(db_path):
+    return weather.WeatherClient("wkey", base_url="https://weather.test", db_path=db_path)
+
+
 def test_dome_game_skips_network(db_path):
     snapshot = weather.dome_snapshot("g1", "Ford Field", "2026-09-20T17:00:00Z")
     assert snapshot.is_dome == 1
@@ -204,62 +241,196 @@ def test_dome_game_skips_network(db_path):
 
 
 @respx.mock
-async def test_outdoor_forecast_flags_wind_and_cold(db_path):
-    payload = {
-        "list": [
-            {"dt_txt": "2026-12-20 12:00:00", "main": {"temp": 40.0},
-             "wind": {"speed": 8.0, "deg": 200}, "pop": 0.1,
-             "weather": [{"description": "clear sky"}]},
-            {"dt_txt": "2026-12-20 18:00:00", "main": {"temp": 21.0},
-             "wind": {"speed": 23.0, "deg": 310}, "pop": 0.4,
-             "weather": [{"description": "light snow"}]},
-        ]
-    }
-    respx.get("https://weather.test/data/2.5/forecast").mock(
-        return_value=httpx.Response(200, json=payload)
-    )
-    game = {
-        "game_id": "g9",
-        "sport": "nfl",
-        "home_team": "Buffalo Bills",
-        "away_team": "Miami Dolphins",
-        "commence_time": "2026-12-20T18:00:00Z",
-    }
-    db.upsert_games([game], db_path=db_path)
-    async with weather.WeatherClient(
-        "wkey", base_url="https://weather.test", db_path=db_path
-    ) as client:
-        snapshots = await client.ingest_games([game])
+async def test_outdoor_forecast_flags_wind_and_cold(db_path, monkeypatch):
+    """Kickoff inside the hourly horizon gets the hour nearest to it."""
+    _freeze_now(monkeypatch, "2026-12-20T12:00:00Z")
+    mock_geo()
+    respx.get(HOURLY).mock(return_value=httpx.Response(200, json=[
+        hour("2026-12-20T12:00:00+00:00", 40.0, 8.0, 200, 10, "Clear"),
+        hour("2026-12-20T18:00:00+00:00", 21.0, 23.0, 310, 40, "Light snow"),
+    ]))
+    db.upsert_games([BILLS], db_path=db_path)
+    async with client(db_path) as weather_client:
+        snapshots = await weather_client.ingest_games([BILLS])
 
     assert len(snapshots) == 1
     snap = snapshots[0]
-    assert snap.forecast_for == "2026-12-20 18:00:00"  # nearest slot to kickoff
+    assert snap.forecast_for == "2026-12-20T18:00:00+00:00"   # nearest to kickoff
     assert snap.high_wind == 1 and snap.freezing == 1
     assert snap.is_dome == 0
+    assert snap.conditions == "Light snow"
+    # A 0-100 chance is stored as the 0-1 fraction the rest of the engine uses.
+    assert snap.precip_chance == pytest.approx(0.4)
     stored = db.fetch_all("SELECT * FROM weather_snapshots", db_path=db_path)
     assert stored[0]["wind_speed_mph"] == 23.0
+    assert stored[0]["wind_deg"] == 310
+
+
+def _freeze_now(monkeypatch, iso: str):
+    """Pin "now" so the hourly/daily choice is deterministic."""
+    fixed = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return fixed if tz else fixed.replace(tzinfo=None)
+
+    monkeypatch.setattr(weather, "datetime", Clock)
+
+
+@respx.mock
+async def test_a_kickoff_beyond_the_hourly_horizon_uses_the_daily_forecast(
+    db_path, monkeypatch
+):
+    """AccuWeather's hourly forecast reaches twelve hours. A Saturday build for
+    a Sunday kickoff is outside it, and no forecast at all would be worse."""
+    _freeze_now(monkeypatch, "2026-12-18T12:00:00Z")   # two days out
+    mock_geo()
+    hourly = respx.get(HOURLY)
+    respx.get(DAILY).mock(return_value=httpx.Response(200, json={"DailyForecasts": [
+        {"Date": "2026-12-19T07:00:00-05:00",
+         "Temperature": {"Maximum": {"Value": 50.0, "Unit": "F"}},
+         "Day": {"IconPhrase": "Rain", "PrecipitationProbability": 80,
+                 "Wind": {"Speed": {"Value": 12.0}, "Direction": {"Degrees": 180}}}},
+        {"Date": "2026-12-20T07:00:00-05:00",
+         "Temperature": {"Maximum": {"Value": 24.0, "Unit": "F"}},
+         "Day": {"IconPhrase": "Snow", "PrecipitationProbability": 70,
+                 "Wind": {"Speed": {"Value": 25.0}, "Direction": {"Degrees": 300}}}},
+    ]}))
+    db.upsert_games([BILLS], db_path=db_path)
+    async with client(db_path) as weather_client:
+        snapshots = await weather_client.ingest_games([BILLS])
+
+    assert not hourly.called, "should not spend a call on a window that cannot reach"
+    snap = snapshots[0]
+    assert snap.temperature_f == 24.0        # the day of the game, not the day before
+    assert snap.wind_speed_mph == 25.0
+    assert snap.high_wind == 1 and snap.freezing == 1
+    # Says which kind of forecast it is, so nothing mistakes it for an hourly read.
+    assert "daily outlook" in snap.conditions
+
+
+@respx.mock
+async def test_a_location_key_is_looked_up_once_and_cached(db_path, monkeypatch):
+    """The free tier is 50 calls a day; a venue's key must not cost one per run."""
+    _freeze_now(monkeypatch, "2026-12-20T12:00:00Z")
+    geo = mock_geo()
+    respx.get(HOURLY).mock(return_value=httpx.Response(200, json=[
+        hour("2026-12-20T18:00:00+00:00", 40.0, 8.0, 200, 10, "Clear"),
+    ]))
+    db.upsert_games([BILLS], db_path=db_path)
+    for _ in range(3):
+        async with client(db_path) as weather_client:
+            await weather_client.ingest_games([BILLS])
+    assert geo.call_count == 1
+    assert db.cached_location_key("42.7738,-78.787", "accuweather", db_path=db_path) == "349727"
+
+
+@respx.mock
+async def test_a_venue_accuweather_cannot_place_is_skipped(db_path):
+    respx.get(GEO).mock(return_value=httpx.Response(200, json={}))
+    db.upsert_games([BILLS], db_path=db_path)
+    async with client(db_path) as weather_client:
+        assert await weather_client.ingest_games([BILLS]) == []
+
+
+@respx.mock
+async def test_the_daily_allowance_running_out_stops_the_slate(db_path, monkeypatch):
+    """A 503 that says the allowance is spent is a clean stop, not an outage:
+    every further call would answer the same, so the rest is left unforecast."""
+    _freeze_now(monkeypatch, "2026-12-20T12:00:00Z")
+    geo = respx.get(GEO).mock(
+        return_value=httpx.Response(
+            503, text="The allowed number of requests has been exceeded."
+        )
+    )
+    games = [dict(BILLS, game_id=f"g{i}") for i in range(4)]
+    db.upsert_games(games, db_path=db_path)
+    async with client(db_path) as weather_client:
+        assert await weather_client.ingest_games(games) == []
+    assert geo.call_count == 1, "should not retry once the allowance is known to be gone"
+
+
+@respx.mock
+async def test_a_real_provider_outage_is_not_mistaken_for_the_quota(db_path, monkeypatch):
+    _freeze_now(monkeypatch, "2026-12-20T12:00:00Z")
+    geo = respx.get(GEO).mock(return_value=httpx.Response(503, text="Service Unavailable"))
+    games = [dict(BILLS, game_id=f"g{i}") for i in range(3)]
+    db.upsert_games(games, db_path=db_path)
+    async with client(db_path) as weather_client:
+        assert await weather_client.ingest_games(games) == []
+    # Each game is still tried: an outage can clear, a spent allowance cannot.
+    assert geo.call_count == 3
 
 
 @respx.mock
 async def test_dome_game_makes_no_http_call(db_path):
-    route = respx.get("https://weather.test/data/2.5/forecast")
+    geo = respx.get(GEO)
+    hourly = respx.get(HOURLY)
     game = {"game_id": "g2", "sport": "nfl", "home_team": "Detroit Lions",
             "away_team": "Chicago Bears", "commence_time": "2026-12-20T18:00:00Z"}
     db.upsert_games([game], db_path=db_path)
-    async with weather.WeatherClient(
-        "wkey", base_url="https://weather.test", db_path=db_path
-    ) as client:
-        snapshots = await client.ingest_games([game])
-    assert not route.called
+    async with client(db_path) as weather_client:
+        snapshots = await weather_client.ingest_games([game])
+    assert not geo.called and not hourly.called
     assert snapshots[0].is_dome == 1
 
 
 async def test_unknown_stadium_is_skipped(db_path):
-    async with weather.WeatherClient("wkey", db_path=db_path) as client:
-        assert await client.snapshot_for_game(
+    async with weather.WeatherClient("wkey", db_path=db_path) as weather_client:
+        assert await weather_client.snapshot_for_game(
             {"game_id": "x", "home_team": "Toronto Huskies",
              "commence_time": "2026-12-20T18:00:00Z"}
         ) is None
+
+
+async def test_no_key_is_a_clear_error(db_path):
+    async with weather.WeatherClient("", db_path=db_path) as weather_client:
+        with pytest.raises(RuntimeError, match="OPENWEATHER_API_KEY"):
+            await weather_client.location_key(42.0, -78.0)
+
+
+def test_the_hourly_reading_nearest_kickoff_wins():
+    kickoff = datetime(2026, 12, 20, 18, tzinfo=timezone.utc)
+    slots = [
+        hour("2026-12-20T15:00:00+00:00", 40.0, 5.0, 10, 0, "Clear"),
+        hour("2026-12-20T17:00:00+00:00", 38.0, 6.0, 20, 0, "Cloudy"),
+        hour("2026-12-20T21:00:00+00:00", 30.0, 7.0, 30, 0, "Snow"),
+    ]
+    assert weather.select_forecast_slot(slots, kickoff)["IconPhrase"] == "Cloudy"
+
+
+def test_an_empty_forecast_is_none_rather_than_an_exception():
+    kickoff = datetime(2026, 12, 20, 18, tzinfo=timezone.utc)
+    assert weather.select_forecast_slot([], kickoff) is None
+    assert weather.select_daily_slot({}, kickoff) is None
+
+
+def test_a_missing_measurement_does_not_flag_anything():
+    """AccuWeather omits blocks rather than sending nulls; neither is a reading."""
+    snap = weather.snapshot_from_slot("g1", "Highmark Stadium", {"DateTime": "x"})
+    assert snap.temperature_f is None and snap.wind_speed_mph is None
+    assert snap.high_wind == 0 and snap.freezing == 0
+
+
+def test_a_night_kickoff_gets_its_own_day_not_tomorrows():
+    """8:20pm Eastern is 01:20 the next day in UTC. Matching UTC dates would ask
+    for tomorrow's forecast for tonight's game."""
+    kickoff = datetime(2026, 12, 21, 1, 20, tzinfo=timezone.utc)
+    payload = {"DailyForecasts": [
+        {"Date": "2026-12-20T07:00:00-05:00", "Day": {"IconPhrase": "game day"}},
+        {"Date": "2026-12-21T07:00:00-05:00", "Day": {"IconPhrase": "day after"}},
+    ]}
+    assert weather.select_daily_slot(payload, kickoff)["Day"]["IconPhrase"] == "game day"
+
+
+def test_an_afternoon_kickoff_still_gets_its_own_day():
+    kickoff = datetime(2026, 12, 20, 18, tzinfo=timezone.utc)
+    payload = {"DailyForecasts": [
+        {"Date": "2026-12-19T07:00:00-05:00", "Day": {"IconPhrase": "day before"}},
+        {"Date": "2026-12-20T07:00:00-05:00", "Day": {"IconPhrase": "game day"}},
+    ]}
+    assert weather.select_daily_slot(payload, kickoff)["Day"]["IconPhrase"] == "game day"
 
 
 def test_forecast_window_is_three_hours_before_kickoff():

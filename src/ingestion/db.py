@@ -95,6 +95,18 @@ SCHEMA: tuple[str, ...] = (
         UNIQUE (game_id, forecast_for, captured_at)
     )
     """,
+    # AccuWeather addresses a venue by an opaque location key, which costs a
+    # call to look up. The keys are stable, so they are cached here: 30-odd rows
+    # resolved once turn a two-call-per-venue forecast into one.
+    """
+    CREATE TABLE IF NOT EXISTS weather_locations (
+        venue_key    TEXT PRIMARY KEY,       -- "lat,lon" rounded, provider-agnostic
+        provider     TEXT NOT NULL,
+        location_key TEXT NOT NULL,
+        name         TEXT,
+        resolved_at  TEXT NOT NULL
+    )
+    """,
     """
     CREATE TABLE IF NOT EXISTS injury_reports (
         id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -272,6 +284,28 @@ def insert_weather(rows: Iterable[dict[str, Any]], db_path=None) -> int:
 
 def insert_injuries(rows: Iterable[dict[str, Any]], db_path=None) -> int:
     return _bulk("injury_reports", rows, db_path)
+
+
+def cached_location_key(venue_key: str, provider: str, db_path=None) -> str | None:
+    """A forecast provider's key for a venue, if it has been looked up before."""
+    rows = fetch_all(
+        "SELECT location_key FROM weather_locations WHERE venue_key = ? AND provider = ?",
+        (venue_key, provider),
+        db_path=db_path,
+    )
+    return rows[0]["location_key"] if rows else None
+
+
+def store_location_key(
+    venue_key: str, provider: str, location_key: str, name: str | None = None, db_path=None
+) -> None:
+    """Remember a venue's provider key so it is never looked up twice."""
+    with connect(db_path) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO weather_locations "
+            "(venue_key, provider, location_key, name, resolved_at) VALUES (?, ?, ?, ?, ?)",
+            (venue_key, provider, location_key, name, utcnow()),
+        )
 
 
 def insert_projections(rows: Iterable[dict[str, Any]], db_path=None) -> int:

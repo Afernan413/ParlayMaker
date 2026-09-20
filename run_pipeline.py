@@ -133,9 +133,12 @@ async def ingest_stage(
     a sport with no injury feed is reported rather than silently skipped.
     """
     if use_mock:
+        summary = mock.ingest_mock_slate(sport, db_path=db_path).as_dict()
         if inputs is not None:
-            inputs.record("weather", True, "bundled fixture forecast", 0)
-        return mock.ingest_mock_slate(sport, db_path=db_path).as_dict()
+            # This slate's forecasts, not every row the database has ever held.
+            count = int(summary.get("weather") or 0)
+            inputs.record("weather", bool(count), "bundled fixture forecast", count)
+        return summary
 
     async with OddsAPIClient(db_path=db_path) as client:
         try:

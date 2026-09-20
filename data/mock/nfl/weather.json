@@ -1,50 +1,44 @@
 {
- "nfl-mock-1": {
-  "city": {
-   "name": "KC"
-  },
-  "list": [
-   {
-    "dt_txt": "2026-09-20 17:00:00",
-    "main": {
-     "temp": 29.0,
-     "feels_like": 23.0
-    },
-    "wind": {
-     "speed": 22.0,
-     "deg": 310
-    },
-    "pop": 0.35,
-    "weather": [
-     {
-      "description": "light snow"
-     }
-    ]
-   }
+  "nfl-mock-1": [
+    {
+      "DateTime": "2026-09-20T17:00:00+00:00",
+      "IconPhrase": "Light Snow",
+      "Temperature": {
+        "Value": 29.0,
+        "Unit": "F"
+      },
+      "Wind": {
+        "Speed": {
+          "Value": 22.0,
+          "Unit": "mi/h"
+        },
+        "Direction": {
+          "Degrees": 310
+        }
+      },
+      "PrecipitationProbability": 35,
+      "RelativeHumidity": 70
+    }
+  ],
+  "nfl-mock-3": [
+    {
+      "DateTime": "2026-09-21T00:20:00+00:00",
+      "IconPhrase": "Clear Sky",
+      "Temperature": {
+        "Value": 63.0,
+        "Unit": "F"
+      },
+      "Wind": {
+        "Speed": {
+          "Value": 7.0,
+          "Unit": "mi/h"
+        },
+        "Direction": {
+          "Degrees": 220
+        }
+      },
+      "PrecipitationProbability": 5,
+      "RelativeHumidity": 70
+    }
   ]
- },
- "nfl-mock-3": {
-  "city": {
-   "name": "SF"
-  },
-  "list": [
-   {
-    "dt_txt": "2026-09-21 00:20:00",
-    "main": {
-     "temp": 63.0,
-     "feels_like": 57.0
-    },
-    "wind": {
-     "speed": 7.0,
-     "deg": 220
-    },
-    "pop": 0.05,
-    "weather": [
-     {
-      "description": "clear sky"
-     }
-    ]
-   }
-  ]
- }
 }

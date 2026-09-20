@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate the offline fixtures used by ``run_pipeline.py --mock``.
 
-The fixtures mimic the real payload shapes (The Odds API events, OpenWeather
+The fixtures mimic the real payload shapes (The Odds API events, AccuWeather
 forecasts, ESPN injury feeds, nfl_data_py / nba_api frames) so mock runs
 exercise the same parsers as live runs. Player and team names are fictional.
 
@@ -386,7 +386,7 @@ def nfl_props(projections, roster, games=None) -> dict[str, Any]:
 
 
 def nfl_weather() -> dict[str, Any]:
-    """OpenWeather-shaped forecasts: game 1 is windy and cold, game 3 is mild."""
+    """AccuWeather-shaped hourly forecasts: game 1 windy and cold, game 3 mild."""
     profiles = {
         "nfl-mock-1": {"temp": 29.0, "wind": 22.0, "deg": 310, "pop": 0.35,
                        "conditions": "light snow"},
@@ -398,19 +398,21 @@ def nfl_weather() -> dict[str, Any]:
         profile = profiles.get(game["game_id"])
         if profile is None:
             continue  # dome game: the pipeline short-circuits it
-        slot_time = kickoff.replace("T", " ").replace("Z", "")
-        payloads[game["game_id"]] = {
-            "city": {"name": game["home"]},
-            "list": [
-                {
-                    "dt_txt": slot_time,
-                    "main": {"temp": profile["temp"], "feels_like": profile["temp"] - 6},
-                    "wind": {"speed": profile["wind"], "deg": profile["deg"]},
-                    "pop": profile["pop"],
-                    "weather": [{"description": profile["conditions"]}],
-                }
-            ],
-        }
+        # A bare list of hourly readings, which is what AccuWeather returns.
+        payloads[game["game_id"]] = [
+            {
+                "DateTime": kickoff.replace("Z", "+00:00"),
+                "IconPhrase": profile["conditions"].title(),
+                "Temperature": {"Value": profile["temp"], "Unit": "F"},
+                "Wind": {
+                    "Speed": {"Value": profile["wind"], "Unit": "mi/h"},
+                    "Direction": {"Degrees": profile["deg"]},
+                },
+                # AccuWeather states a chance out of 100, not as a fraction.
+                "PrecipitationProbability": round(profile["pop"] * 100),
+                "RelativeHumidity": 70,
+            }
+        ]
     return payloads
 
 

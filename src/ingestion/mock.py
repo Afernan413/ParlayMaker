@@ -59,7 +59,7 @@ def ingest_mock_slate(sport: str, *, db_path: str | None = None) -> IngestSummar
         summary.events_polled += 1
 
     games = db.fetch_all("SELECT * FROM games WHERE sport = ?", (sport,), db_path=db_path)
-    store_mock_weather(sport, games, db_path=db_path)
+    summary.weather = len(store_mock_weather(sport, games, db_path=db_path))
     mock_injury_records(sport, db_path=db_path)
 
     summary.quota_remaining = None

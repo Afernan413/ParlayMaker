@@ -11,7 +11,7 @@ from scripts.check_live_access import FAIL, OK, SKIP, Check, render, run_checks
 
 ODDS = "https://api.the-odds-api.com/v4/sports"
 ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
-WEATHER = "https://api.openweathermap.org/data/2.5/forecast"
+WEATHER = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search"
 
 
 def by_name(checks) -> dict:
@@ -51,7 +51,7 @@ async def test_everything_reachable_reports_ready(monkeypatch):
     assert "412 credits remaining" in results["api.the-odds-api.com"].detail
     assert "free" in results["api.the-odds-api.com"].detail
     assert results["site.api.espn.com"].status == OK
-    assert results["api.openweathermap.org"].status == OK
+    assert results["dataservice.accuweather.com"].status == OK
     assert not any(check.blocking for check in checks)
     assert "READY" in render(checks)
 

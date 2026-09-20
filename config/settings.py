@@ -53,8 +53,12 @@ class Settings(BaseSettings):
     odds_api_base_url: str = "https://api.the-odds-api.com"
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-opus-5"
+    #: Forecast provider key. The name says OpenWeather for continuity -- the
+    #: deployed secret is called OPENWEATHER_API_KEY -- but the value is an
+    #: AccuWeather key and the client talks to AccuWeather. Renaming it would
+    #: mean re-adding the secret everywhere it is already set.
     openweather_api_key: str = ""
-    openweather_base_url: str = "https://api.openweathermap.org"
+    accuweather_base_url: str = "https://dataservice.accuweather.com"
     nfl_injury_feed_url: str = (
         "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
     )

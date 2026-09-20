@@ -62,6 +62,8 @@ class IngestSummary:
     games: int = 0
     lines: int = 0
     props: int = 0
+    #: Venue forecasts stored for this slate.
+    weather: int = 0
     events_polled: int = 0
     requests_made: int = 0
     quota_remaining: int | None = None
@@ -73,6 +75,7 @@ class IngestSummary:
             "games": self.games,
             "lines": self.lines,
             "props": self.props,
+            "weather": self.weather,
             "events_polled": self.events_polled,
             "requests_made": self.requests_made,
             "quota_remaining": self.quota_remaining,
