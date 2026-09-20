@@ -247,10 +247,26 @@ def test_games_carry_model_predictions_and_the_market_line(built):
             assert game["market_spread"] is not None
 
 
-def test_bundle_stays_small_enough_to_load_on_a_phone(built):
+def test_the_fixture_bundle_stays_small(built):
+    """Only covers the three-game fixture. The real build reports its own size
+    (see bundle_size), because a busy college Saturday is several times this."""
     out, _ = built
     size_kb = (out / "data.js").stat().st_size / 1024
     assert size_kb < 600, f"data.js grew to {size_kb:.0f} KB"
+
+
+def test_the_build_reports_what_the_browser_actually_downloads(built):
+    out, _ = built
+    report = build_static.bundle_size(out / "data.js")
+    assert report["gzip_kb"] < report["raw_kb"], "gzip should be the smaller number"
+    assert report["warn"] is False
+
+
+def test_a_big_bundle_is_flagged_rather_than_rejected(tmp_path):
+    """A slate can legitimately be large; the build says so and carries on."""
+    big = tmp_path / "data.js"
+    big.write_text("x" * (build_static.BUNDLE_WARN_KB + 1) * 1024)
+    assert build_static.bundle_size(big)["warn"] is True
 
 
 def test_live_build_without_a_key_falls_back_to_fixtures(tmp_path, monkeypatch, capsys):

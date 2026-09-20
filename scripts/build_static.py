@@ -323,6 +323,30 @@ def write_site(bundle: dict[str, Any], out_dir: Path) -> list[Path]:
     return written
 
 
+#: Past this the page is worth thinking about. It is a warning, not a limit:
+#: the bundle is served gzipped, so transfer is a fraction of the raw size, and
+#: what actually costs time is parsing it and running the copula over the legs.
+BUNDLE_WARN_KB = 1500
+
+
+def bundle_size(data_file: Path) -> dict[str, Any]:
+    """How big the bundle is, raw and as the browser receives it.
+
+    Reported from the build rather than asserted in a test, because the test
+    only ever sees the three-game fixture -- it cannot know what a busy college
+    Saturday does to the real thing.
+    """
+    import gzip
+
+    raw = data_file.read_bytes()
+    compressed = gzip.compress(raw, compresslevel=6)
+    return {
+        "raw_kb": len(raw) / 1024,
+        "gzip_kb": len(compressed) / 1024,
+        "warn": len(raw) / 1024 > BUNDLE_WARN_KB,
+    }
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="build_static.py",
@@ -369,8 +393,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
     written = write_site(bundle, args.out)
-    size_kb = (args.out / "data.js").stat().st_size / 1024
-    print(f"\nWrote {len(written)} files to {args.out}/ (data.js is {size_kb:.0f} KB)")
+    report = bundle_size(args.out / "data.js")
+    print(
+        f"\nWrote {len(written)} files to {args.out}/ "
+        f"(data.js is {report['raw_kb']:.0f} KB, {report['gzip_kb']:.0f} KB over the wire)"
+    )
+    if report["warn"]:
+        print(
+            f"  NOTE: that is past {BUNDLE_WARN_KB} KB. The page parses the whole "
+            "bundle on load, so trim it with fewer sports or a lower "
+            "--max-events if it starts to feel slow."
+        )
     if bundle["skipped"]:
         print("Skipped: " + ", ".join(bundle["skipped"]))
     print(f"Open it now:  file://{(args.out / 'index.html').resolve()}")
