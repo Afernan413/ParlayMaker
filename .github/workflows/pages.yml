@@ -76,7 +76,24 @@ jobs:
           # this one command works with or without the secret. A sport that is
           # out of season or whose stats host refuses the runner is skipped;
           # the build only fails if nothing at all could be produced.
-          python scripts/build_static.py --live --sports $SPORTS --max-events "$MAX_EVENTS"
+          set -o pipefail
+          python scripts/build_static.py --live --sports $SPORTS \
+            --max-events "$MAX_EVENTS" 2>&1 | tee build.log
+
+      - name: Report what was built
+        if: always()
+        run: |
+          # In the run summary as well as the log: the logs API only serves the
+          # tail, and what the model knew is near the top of a build's output.
+          {
+            echo '## Build'
+            echo
+            echo '```'
+            cat build.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "=== what the model knew ==="
+          grep -E "^  (nfl|ncaaf|nba):|^      (yes|NO )|^Skipped:" build.log || true
 
       - uses: actions/upload-pages-artifact@v3
         with:
