@@ -117,6 +117,26 @@ def test_the_page_explains_a_missing_sport_instead_of_ignoring_the_press():
     assert "seg-empty" in script
 
 
+def test_what_the_model_knew_travels_with_the_bundle(built):
+    """A gap belongs on the page. Hidden, it reads as a gap that does not exist."""
+    _, bundle = built
+    for sport in bundle["sports"].values():
+        names = [row["name"] for row in sport["inputs"]]
+        assert names == ["starters", "injuries", "weather"]
+        for row in sport["inputs"]:
+            assert isinstance(row["available"], bool)
+            assert row["detail"], "an input with no explanation is the old silence"
+
+
+def test_the_page_lists_what_the_model_knew():
+    html = _source("index.html")
+    script = _source("app.js")
+    assert 'id="model-inputs"' in html
+    assert "renderInputs" in script
+    # Struck through rather than omitted.
+    assert "model-input" in _source("styles.css")
+
+
 def test_weeks_travel_with_the_bundle(built):
     """The page picks one week to build within, so it needs the list."""
     _, bundle = built

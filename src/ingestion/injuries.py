@@ -198,6 +198,7 @@ class InjuryClient:
             else {
                 "nfl": settings.nfl_injury_feed_url,
                 "nba": settings.nba_injury_feed_url,
+                "ncaaf": settings.ncaaf_injury_feed_url,
             }
         )
         self._owns_client = client is None
@@ -252,3 +253,83 @@ def status_index(records: Iterable[InjuryRecord]) -> dict[str, str]:
     for record in records:
         index.setdefault(record.player_name, []).append(record.status)
     return {name: worst_status(values) for name, values in index.items()}
+
+
+# ----------------------------------------------------------------------
+# the league's own report, via nflverse
+# ----------------------------------------------------------------------
+#: nflverse ``report_status`` values, which are the league's own wording.
+#: ``normalize_status`` already understands them; this only names the column.
+NFLVERSE_STATUS_COLUMN = "report_status"
+NFLVERSE_PRACTICE_COLUMN = "practice_status"
+
+
+def parse_nflverse_injuries(frame, *, week: int | None = None) -> list[InjuryRecord]:
+    """Normalise nflverse's weekly injury report into :class:`InjuryRecord` rows.
+
+    This is the league's own Wednesday-to-Friday report -- practice
+    participation plus the Friday game status -- rather than a scrape of a
+    site's summary. It carries the team and the position, which the
+    reallocation model in :mod:`src.models.roles` needs to know *which*
+    position group lost a player, and it is published per week going back
+    through history, so the learning loop can see what the model would have
+    known at the time.
+
+    A row with no status is a player who appeared on the practice report but
+    was not given a game designation, which means available.
+    """
+    import pandas as pd
+
+    if frame is None or len(frame) == 0:
+        return []
+    rows = frame if isinstance(frame, pd.DataFrame) else frame.to_pandas()
+    if week is not None and "week" in rows.columns:
+        rows = rows[rows["week"] == week]
+
+    records: list[InjuryRecord] = []
+    for row in rows.to_dict("records"):
+        name = row.get("full_name") or " ".join(
+            part for part in (row.get("first_name"), row.get("last_name")) if part
+        )
+        if not name:
+            continue
+        status = normalize_status(row.get(NFLVERSE_STATUS_COLUMN))
+        detail = row.get("report_primary_injury") or row.get("practice_primary_injury")
+        records.append(
+            InjuryRecord(
+                sport="nfl",
+                team=row.get("team"),
+                player_name=str(name).strip(),
+                position=row.get("position"),
+                status=status,
+                practice=row.get(NFLVERSE_PRACTICE_COLUMN),
+                detail=str(detail) if detail else None,
+                source="nflverse",
+                report_date=None,
+            )
+        )
+    return records
+
+
+def load_nflverse_injuries(
+    seasons: Iterable[int], *, week: int | None = None
+) -> list[InjuryRecord]:
+    """Fetch and normalise the league injury report for the given seasons."""
+    try:
+        import nflreadpy
+    except ImportError as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError(
+            "nflreadpy is not installed; `uv pip install -e '.[stats]'`"
+        ) from exc
+    frame = nflreadpy.load_injuries(seasons=sorted(set(seasons))).to_pandas()
+    return parse_nflverse_injuries(frame, week=week)
+
+
+def latest_week(records: Iterable[InjuryRecord]) -> list[InjuryRecord]:
+    """Only the most severe designation per player, for one slate."""
+    worst: dict[str, InjuryRecord] = {}
+    for record in records:
+        seen = worst.get(record.player_name)
+        if seen is None or STATUS_ORDER.index(record.status) < STATUS_ORDER.index(seen.status):
+            worst[record.player_name] = record
+    return list(worst.values())

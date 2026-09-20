@@ -123,6 +123,34 @@
       `${legs.filter(hasEdge).length} rated +EV · ` +
       `${sport.adjustments} context adjustments · built ${age.text}` +
       describeTraining();
+    renderInputs();
+  }
+
+  /**
+   * What the model could actually see: starters, injuries, weather.
+   *
+   * Every one of these is optional in practice -- a forecast needs a key, an
+   * injury report needs the league to publish one, a snap share needs a couple
+   * of games played. Listing them stops the page implying the model weighed
+   * something it never saw.
+   */
+  function renderInputs() {
+    const list = $("model-inputs");
+    const rows = sportData().inputs || [];
+    list.innerHTML = "";
+    list.hidden = rows.length === 0;
+    for (const row of rows) {
+      const item = document.createElement("li");
+      item.className = `model-input ${row.available ? "known" : "unknown"}`;
+      const label = document.createElement("span");
+      label.className = "model-input-name";
+      label.textContent = row.name;
+      const detail = document.createElement("span");
+      detail.className = "model-input-detail";
+      detail.textContent = row.detail || (row.available ? "in use" : "not available");
+      item.append(label, detail);
+      list.append(item);
+    }
   }
 
   /**

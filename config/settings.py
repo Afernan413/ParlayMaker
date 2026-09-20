@@ -61,6 +61,13 @@ class Settings(BaseSettings):
     nba_injury_feed_url: str = (
         "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries"
     )
+    #: College football. The NCAA mandates no injury report, so coverage is
+    #: patchy by conference -- the Big Ten and SEC publish availability reports,
+    #: many programmes publish nothing. A thin result here is the sport, not a
+    #: bug, and the run says how many designations it actually got.
+    ncaaf_injury_feed_url: str = (
+        "https://site.api.espn.com/apis/site/v2/sports/football/college-football/injuries"
+    )
     discord_webhook_url: str = ""
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""

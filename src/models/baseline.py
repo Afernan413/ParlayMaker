@@ -26,6 +26,7 @@ from config.settings import settings
 from src.ingestion.injuries import status_multiplier
 from src.models.calibration import calibration_for
 from src.models.legs import Projection
+from src.models.roles import RoleModel, normalise_name, per_snap_projection
 
 logger = logging.getLogger(__name__)
 
@@ -298,6 +299,7 @@ def build_nfl_projections(
     injury_index: Mapping[str, str] | None = None,
     markets: Sequence[str] | None = None,
     sport: str = "nfl",
+    roles: RoleModel | None = None,
 ) -> list[Projection]:
     """Baseline football player projections for a slate.
 
@@ -307,11 +309,27 @@ def build_nfl_projections(
 
     ``games`` rows need ``game_id``/``home_team``/``away_team``; team names are
     resolved to the abbreviations used by ``weekly`` via ``team_lookup``.
+
+    ``roles`` carries snap shares and who is out (see :mod:`src.models.roles`).
+    Where it covers a player, volume is projected per snap and multiplied by the
+    snaps they are expected to take, so a promoted backup is priced as the
+    starter he is about to be rather than as the reserve he was. Where it does
+    not -- college football, basketball, a mock slate -- the per-game average is
+    used unchanged.
     """
     volume = nfl_player_volume(weekly)
     efficiency = nfl_team_efficiency(pbp)
-    injury_index = injury_index or {}
+    roles = roles or RoleModel()
     wanted = set(markets or NFL_STAT_MARKETS.values())
+    group_rates = position_group_rates(volume, roles)
+    # Keyed on a normalised name so a feed's spelling still joins when the role
+    # model is not available -- an injury report says "Michael Penix Jr." where
+    # the box score says "Michael Penix", and left unjoined a ruled-out starter
+    # reads as available. Availability does not depend on the snap window, so it
+    # applies from the first week of a season.
+    availability_index = {
+        normalise_name(name): status for name, status in (injury_index or {}).items()
+    }
 
     def_mean = float(efficiency["def_epa_allowed"].mean()) if not efficiency.empty else 0.0
     def_sd = float(efficiency["def_epa_allowed"].std(ddof=0)) if len(efficiency) > 1 else 0.0
@@ -347,7 +365,18 @@ def build_nfl_projections(
             )
             factor = opponent_factor(opp_def, def_mean, def_sd)
             for _, row in side.iterrows():
-                availability = status_multiplier(injury_index.get(row["player_name"]))
+                player = row["player_name"]
+                role = roles.get(stat_team, player)
+                # The role model's own status comes from the league report and
+                # is keyed on a normalised name, so it catches spellings the
+                # raw index misses ("Michael Penix Jr." against the box score's
+                # "Michael Penix").
+                # The league report first, then whatever the live feed said.
+                status = (
+                    roles.status_for(player, stat_team)
+                    or availability_index.get(normalise_name(player))
+                )
+                availability = status_multiplier(status)
                 if availability <= 0:
                     continue
                 for stat, market in NFL_STAT_MARKETS.items():
@@ -356,23 +385,100 @@ def build_nfl_projections(
                     base = float(row[stat])
                     if base <= 0:
                         continue
+
+                    mean, role_notes = _volume_for(
+                        base, stat, role,
+                        group_rates.get((stat_team, _position_of(role), stat)),
+                        roles.snaps_for(stat_team),
+                    )
                     projections.append(
                         Projection(
                             sport=sport,
                             game_id=str(game["game_id"]),
-                            player_name=row["player_name"],
+                            player_name=player,
                             team=team,
                             opponent=opponent,
                             market=market,
-                            mean=base * factor * availability,
+                            mean=mean * factor * availability,
                             notes=(
                                 f"4wk weighted {stat}={base:.2f}",
+                                *role_notes,
                                 f"opp factor={factor:.3f}",
                                 f"availability={availability:.2f}",
                             ),
                         )
                     )
     return projections
+
+
+def _position_of(role) -> str:
+    return role.position if role is not None else ""
+
+
+def _volume_for(
+    base: float, stat: str, role, group_rate: tuple[float, float] | None, team_snaps: float
+) -> tuple[float, tuple[str, ...]]:
+    """Per-game volume, re-expressed per snap where the snap data allows it.
+
+    Returns the projected volume and the notes explaining it. Without a role or
+    without snaps, ``base`` is returned untouched -- the per-game average is
+    what the model has always used and it is right for a settled role.
+    """
+    if role is None or role.snaps <= 0 or group_rate is None:
+        return base, ()
+    if not role.role_changed:
+        # A settled role's per-game average is already the right answer, and it
+        # is the quantity the calibration was fitted on. Re-deriving it per snap
+        # would pull every projection a quarter of the way toward its position
+        # group for no gain, and quietly put the model out of step with the
+        # corrections fitted for it.
+        return base, (f"snap share {role.share:.2f}, role unchanged",)
+    group_total, group_snaps = group_rate
+    expected = role.expected_snaps(team_snaps)
+    if expected <= 0:
+        return base, ()
+    projected = per_snap_projection(
+        own_total=base,
+        own_snaps=role.snaps,
+        group_total=group_total,
+        group_snaps=group_snaps,
+        expected_snaps=expected,
+    )
+    notes = (
+        f"snap share {role.share:.2f} -> {role.expected_share:.2f}"
+        f" ({role.snaps:.0f} played -> {expected:.0f} expected snaps)",
+    )
+    if role.promoted:
+        notes += (f"promoted: {stat} {base:.1f} -> {projected:.1f} at the group's rate",)
+    return projected, notes
+
+
+def position_group_rates(
+    volume: pd.DataFrame, roles: RoleModel
+) -> dict[tuple[str, str, str], tuple[float, float]]:
+    """``(team, position, stat) -> (group production, group snaps)``.
+
+    A backup with almost no snaps of his own is priced at his position group's
+    rate on that team, so the group's totals have to be summed once up front.
+    """
+    if volume.empty or roles.empty:
+        return {}
+    totals: dict[tuple[str, str, str], list[float]] = {}
+    for row in volume.to_dict("records"):
+        role = roles.get(row.get("team"), row.get("player_name"))
+        if role is None or role.snaps <= 0:
+            continue
+        for stat in NFL_STAT_MARKETS:
+            value = row.get(stat)
+            if value is None or pd.isna(value):
+                continue
+            key = (role.team, role.position, stat)
+            entry = totals.setdefault(key, [0.0, 0.0])
+            # Both sides per appearance, matching `Role.snaps`, so the ratio is
+            # a production rate per snap rather than a mix of two windows.
+            entry[0] += float(value)
+            entry[1] += role.snaps
+    return {key: (value[0], value[1]) for key, value in totals.items()}
 
 
 def project_nfl_game(

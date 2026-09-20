@@ -246,6 +246,34 @@ itself would measure nothing. Mean CLV is the honest test of whether the
 de-vigged probabilities carry signal; if it sits below zero, the projections are
 losing to the market regardless of what the model's EV column claims.
 
+## Starters, injuries and weather
+
+`docs/CONTEXT.md` is the full account, including what is missing per sport. The
+short version:
+
+| | NFL | College | NBA |
+| --- | --- | --- | --- |
+| Who is starting | snap shares, and a promotion when the man ahead is out | no snap source | no snap source |
+| Who is hurt | the league's own weekly report + live feed | ESPN feed, patchy by conference | ESPN feed |
+| Weather | outdoor venues, needs `OPENWEATHER_API_KEY` | no venue coordinates | indoors, N/A |
+
+The one that mattered most: a backup promoted because the starter is out used
+to be projected off his own four-game average, which for a third-string
+quarterback says fifteen passing yards. Volume is now projected per snap and
+multiplied by the snaps he is expected to take, with his rate shrunk toward his
+position group's — so he is priced as the starter he is about to be.
+
+Each of these is reported rather than assumed. The run summary and the page both
+say what the model could actually see:
+
+```
+inputs=starters=1799 injuries=320 weather=none
+```
+
+`weather=none` means the forecast was never fetched. That used to be silent,
+which made a build with no API key look like one that had considered the weather
+and found it mild.
+
 ## Learning from results
 
 The projection recipe's priors -- a four-week weighted average for the mean, a

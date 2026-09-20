@@ -505,3 +505,36 @@ h3 { font-size: .85rem; }
 .seg.seg-empty:hover {
   opacity: 0.7;
 }
+
+/* What the model could see. A missing input is struck through rather than
+   omitted: a gap the page hides reads as a gap that does not exist. */
+.model-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+.model-input {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-1);
+}
+.model-input-name {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.model-input.known .model-input-name { color: var(--good); }
+.model-input.unknown .model-input-name { color: var(--text-muted); }
+.model-input.unknown { opacity: 0.8; }
+.model-input-detail { color: var(--text-secondary); }
+@media (max-width: 540px) {
+  .model-inputs { font-size: 0.72rem; }
+}

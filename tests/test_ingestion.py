@@ -383,7 +383,9 @@ async def test_empty_feed_map_does_not_fall_back_to_the_live_feed(db_path):
 
 async def test_default_feed_map_is_used_when_none_is_given(db_path):
     client = injuries.InjuryClient(db_path=db_path)
-    assert set(client.feed_urls) == {"nfl", "nba"}
+    assert set(client.feed_urls) == {"nfl", "nba", "ncaaf"}
+    for url in client.feed_urls.values():
+        assert url.startswith("https://")
 
 
 @respx.mock

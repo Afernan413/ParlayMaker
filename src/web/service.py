@@ -222,6 +222,7 @@ def slate_meta(slate: Slate) -> dict[str, Any]:
         "edges": len(slate.edges),
         "projections": slate.projections,
         "adjustments": adjustments,
+        "inputs": slate.inputs.as_rows() if slate.inputs else [],
         "seconds": round(sum(slate.timings.values()), 2),
     }
 

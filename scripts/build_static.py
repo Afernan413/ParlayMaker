@@ -179,6 +179,10 @@ def sport_bundle(slate: Slate) -> dict[str, Any]:
         "sport": slate.sport,
         "mock": slate.mock,
         "built_at": slate.built_at,
+        # What the projections could actually see. A gap belongs on the page:
+        # otherwise the page implies the model weighed the weather when the
+        # forecast was never fetched.
+        "inputs": slate.inputs.as_rows() if slate.inputs else [],
         "games": game_rows(slate),
         "weeks": week_rows(slate),
         "legs": [

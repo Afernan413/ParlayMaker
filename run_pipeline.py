@@ -19,7 +19,7 @@ import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Sequence
+from typing import Mapping, Any, Sequence
 
 from config.settings import FOOTBALL_SPORTS, SPORT_KEYS, WEATHER_SPORTS, settings
 from src.ingestion import db, mock
@@ -28,6 +28,8 @@ from src.ingestion.odds_api import OddsAPIClient, QuotaExhaustedError
 from src.ingestion.weather import WeatherClient
 from src.models import baseline
 from src.models.legs import Leg
+from src.models.inputs import ModelInputs, injury_status, starter_status, weather_status
+from src.models.roles import RoleModel, load_nfl_roles
 from src.notifications.notifier import Notifier, render_console
 from src.optimizer import clv
 from src.optimizer.ev_calculator import find_edges
@@ -58,6 +60,8 @@ class PipelineResult:
     dispatch: str = ""
     run_id: str = ""
     journalled: int = 0
+    #: One line naming what the projections could and could not see.
+    inputs_summary: str = ""
 
     @property
     def duration(self) -> float:
@@ -82,6 +86,7 @@ class PipelineResult:
             "solver_status": self.build_report.solver_status,
             "run_id": self.run_id,
             "journalled": self.journalled,
+            "inputs": self.inputs_summary,
             "rejections": self.build_report.rejected,
             "seconds": round(self.duration, 2),
         }
@@ -120,9 +125,16 @@ async def ingest_stage(
     db_path: str | None,
     include_props: bool,
     max_events: int | None = None,
+    inputs: ModelInputs | None = None,
 ) -> dict[str, Any]:
-    """Load the slate, weather and injuries into SQLite."""
+    """Load the slate, weather and injuries into SQLite.
+
+    ``inputs`` records what was actually available, so a missing forecast key or
+    a sport with no injury feed is reported rather than silently skipped.
+    """
     if use_mock:
+        if inputs is not None:
+            inputs.record("weather", True, "bundled fixture forecast", 0)
         return mock.ingest_mock_slate(sport, db_path=db_path).as_dict()
 
     async with OddsAPIClient(db_path=db_path) as client:
@@ -137,25 +149,52 @@ async def ingest_stage(
     games = db.fetch_all(
         "SELECT * FROM games WHERE sport = ?", (sport,), db_path=db_path
     )
+    snapshots = 0
     if sport in WEATHER_SPORTS and settings.openweather_api_key:
         async with WeatherClient(db_path=db_path) as weather_client:
-            await weather_client.ingest_games(games)
-    async with InjuryClient(db_path=db_path) as injury_client:
-        await injury_client.ingest(sport)
+            snapshots = len(await weather_client.ingest_games(games))
+    if inputs is not None:
+        inputs.statuses["weather"] = weather_status(
+            sport,
+            snapshots=snapshots,
+            has_key=bool(settings.openweather_api_key),
+            venues=sport in WEATHER_SPORTS,
+        )
+    try:
+        async with InjuryClient(db_path=db_path) as injury_client:
+            await injury_client.ingest(sport)
+    except Exception as exc:  # a sport with no feed, or a feed that is down
+        logger.warning("injury fetch failed for %s: %s", sport, exc)
     return summary.as_dict()
 
 
 def projection_stage(
-    sport: str, games: Sequence[dict[str, Any]], *, use_mock: bool, injuries: dict[str, str]
+    sport: str,
+    games: Sequence[dict[str, Any]],
+    *,
+    use_mock: bool,
+    injuries: dict[str, str],
+    inputs: ModelInputs | None = None,
 ) -> tuple[list, dict[str, Any]]:
     """Baseline player projections plus one game projection per game."""
     lookup = baseline.team_lookup(sport)
+    role_model = RoleModel()
     if use_mock:
         first, second = mock.mock_stat_frames(sport)
     elif sport == "nfl":
         season = datetime.now(timezone.utc).year
         first, second = baseline.load_nfl_frames(baseline.seasons_to_load(season))
         second = baseline.latest_season_plays(second)
+        # Who is starting, and who is about to start because the man ahead of
+        # them is out. NFL only: nothing publishes college or basketball snaps
+        # in a form this can read, so those keep the per-game average.
+        try:
+            role_model = load_nfl_roles(baseline.seasons_to_load(season), season=season)
+        except Exception as exc:  # a release rebuilding must not stop the run
+            logger.warning("snap/injury roles unavailable: %s", exc)
+
+    if inputs is not None:
+        _record_context(inputs, sport, role_model, injuries)
     elif sport == "ncaaf":
         from src.models import cfb
 
@@ -168,7 +207,8 @@ def projection_stage(
 
     if sport in FOOTBALL_SPORTS:
         projections = baseline.build_nfl_projections(
-            first, second, games, team_lookup=lookup, injury_index=injuries, sport=sport
+            first, second, games, team_lookup=lookup, injury_index=injuries,
+            sport=sport, roles=role_model,
         )
         efficiency = baseline.nfl_team_efficiency(second)
         game_projections = {
@@ -186,6 +226,45 @@ def projection_stage(
             for game in games
         }
     return projections, game_projections
+
+
+#: Why a sport has no snap data. Only the NFL publishes it in a readable form.
+NO_SNAPS = {
+    "ncaaf": "college football publishes no snap counts, so roles come from usage alone",
+    "nba": "nba_api starting lineups need a residential connection",
+}
+
+
+def _record_context(
+    inputs: ModelInputs, sport: str, role_model: RoleModel, injuries: Mapping[str, str]
+) -> None:
+    """Note what the projections were actually able to take into account."""
+    coverage = role_model.coverage()
+    inputs.statuses["starters"] = starter_status(
+        players=coverage["players"],
+        detail=(
+            f"{coverage['players']} players across {coverage['teams']} teams, "
+            f"{coverage['promoted']} with a changed role"
+            if coverage["players"]
+            # A sport with no snap source at all gets its own reason: the role
+            # model's is about a thin window, which is not what is wrong here.
+            else NO_SNAPS.get(sport) or role_model.reason
+        ),
+    )
+
+    designations = coverage["designations"] or len(injuries)
+    lag = coverage["report_lag_weeks"]
+    if coverage["designations"]:
+        detail = (
+            f"league report, week {coverage['report_week']}"
+            + (f" ({lag} week(s) stale)" if lag else " (current)")
+            + f", {coverage['out']} ruled out"
+        )
+    elif injuries:
+        detail = f"live feed only, {len(injuries)} designations"
+    else:
+        detail = ""
+    inputs.statuses["injuries"] = injury_status(sport, designations=designations, detail=detail)
 
 
 async def reasoning_stage(
@@ -279,6 +358,9 @@ class Slate:
     sport: str
     mock: bool
     built_at: str
+    #: What the projections were able to take into account -- starters, injuries
+    #: and weather -- so a gap is reported rather than silently absent.
+    inputs: ModelInputs | None = None
     games: list[dict[str, Any]] = field(default_factory=list)
     game_projections: dict[str, Any] = field(default_factory=dict)
     legs: list[Leg] = field(default_factory=list)
@@ -317,6 +399,7 @@ async def build_slate(
     clock = _Stopwatch(timings if timings is not None else {})
     slate = Slate(
         sport=sport, mock=use_mock, built_at=db.utcnow(),
+        inputs=ModelInputs(sport=sport),
         timings=clock.timings,
     )
 
@@ -327,6 +410,7 @@ async def build_slate(
             db_path=db_path,
             include_props=include_props,
             max_events=max_events,
+            inputs=slate.inputs,
         )
 
     slate.games = db.fetch_all(
@@ -351,7 +435,7 @@ async def build_slate(
             for row in injury_rows
         )
         projections, game_projections = projection_stage(
-            sport, slate.games, use_mock=use_mock, injuries=index
+            sport, slate.games, use_mock=use_mock, injuries=index, inputs=slate.inputs
         )
         slate.projections = len(projections)
         slate.game_projections = game_projections
@@ -412,6 +496,7 @@ async def run_pipeline(
         timings=result.timings,
     )
     result.ingest = slate.ingest
+    result.inputs_summary = slate.inputs.summary() if slate.inputs else ""
     result.games = len(slate.games)
     result.projections = slate.projections
     result.context_results = slate.context_results
