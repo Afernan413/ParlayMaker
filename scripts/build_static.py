@@ -291,6 +291,13 @@ async def build_bundle(
             f"  {sport}: {len(slate.games)} games, {len(slate.legs)} bets, "
             f"{len(slate.edges)} clearing the EV floor"
         )
+        # What the projections could see. Printed because a silent gap is the
+        # thing that made weather look like it had been considered when the
+        # forecast had never been fetched.
+        if slate.inputs is not None:
+            for row in slate.inputs.as_rows():
+                mark = "yes" if row["available"] else "NO "
+                print(f"      {mark} {row['name']:9} {row['detail']}")
 
     # A sport the build was never asked for is also absent from the page, so say
     # why and what to run. The page has a button for every sport it knows about.
