@@ -14,6 +14,10 @@ on:
       - "src/**"
       - "config/**"
       - "scripts/build_static.py"
+      # build_slate lives here and the static build is built entirely on it, so
+      # a change to it has to republish. Left out, a pipeline fix shipped to the
+      # tests and never to the page.
+      - "run_pipeline.py"
       - "data/mock/**"
       # A retrain writes this; republish so the page prices with it.
       - "data/calibration.json"
