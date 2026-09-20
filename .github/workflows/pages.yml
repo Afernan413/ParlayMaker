@@ -84,6 +84,10 @@ jobs:
           python scripts/build_static.py --live --sports $SPORTS \
             --max-events "$MAX_EVENTS" 2>&1 | tee build.log
 
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
       - name: Report what was built
         if: always()
         run: |
@@ -98,10 +102,6 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           echo "=== what the model knew ==="
           grep -E "^  (nfl|ncaaf|nba):|^      (yes|NO )|^Skipped:" build.log || true
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
 
   deploy:
     needs: build
