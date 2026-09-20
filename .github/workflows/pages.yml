@@ -19,11 +19,19 @@ on:
       - "data/calibration.json"
       - ".github/workflows/pages.yml"
   schedule:
-    # 13:00 and 21:00 UTC. Each live run spends Odds API credits, so keep the
-    # cadence low unless you are on a paid tier -- see docs/DEPLOYMENT.md.
+    # 13:00 and 21:00 UTC. Each live run spends Odds API credits, per sport:
+    # 3 + games x 6, so ~27 per sport at --max-events 4. Two sports, twice a
+    # day, is roughly 1,600 credits a month -- over the free tier's 500. Drop a
+    # sport, lower --max-events, or cut to one run a day if that matters. The
+    # client refuses to spend below 50 remaining, so running out skips the
+    # sport rather than breaking the build. See docs/DEPLOYMENT.md.
     - cron: "0 13,21 * * *"
   workflow_dispatch:
     inputs:
+      sports:
+        description: "Sports to build (space separated)"
+        required: false
+        default: "nfl ncaaf"
       max_events:
         description: "Games to pull player props for (blank = all)"
         required: false
@@ -59,9 +67,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
           MAX_EVENTS: ${{ github.event.inputs.max_events || '4' }}
-          # NBA is not buildable from a hosted runner: stats.nba.com refuses
-          # datacenter IPs, so nba_api times out. Build it locally instead.
-          SPORTS: ${{ github.event.inputs.sports || 'nfl' }}
+          # NBA is left out on purpose: stats.nba.com refuses datacenter IPs, so
+          # nba_api times out on a hosted runner. It has to be built from a
+          # machine on a residential connection. The page says so on its button.
+          SPORTS: ${{ github.event.inputs.sports || 'nfl ncaaf' }}
         run: |
           # --live falls back to the cached fixtures when no key is set, so
           # this one command works with or without the secret. A sport that is

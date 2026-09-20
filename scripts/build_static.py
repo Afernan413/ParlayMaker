@@ -208,6 +208,21 @@ def engine_settings() -> dict[str, Any]:
     }
 
 
+#: Why a sport is absent when the build never tried it. Without this the page
+#: can only say "not in this build", which tells you nothing about what to do.
+NOT_BUILT: dict[str, str] = {
+    "nba": (
+        "not built here -- stats.nba.com refuses datacenter IPs, so nba_api times "
+        "out on a hosted runner. Build it from your own machine: "
+        "python scripts/build_static.py --live --sports nba"
+    ),
+}
+DEFAULT_NOT_BUILT = (
+    "not included in this build. Add it: python scripts/build_static.py --live "
+    "--sports nfl ncaaf"
+)
+
+
 def training_summary() -> dict[str, Any]:
     """What the model has learned, so the page can say when it last trained.
 
@@ -272,6 +287,12 @@ async def build_bundle(
             f"  {sport}: {len(slate.games)} games, {len(slate.legs)} bets, "
             f"{len(slate.edges)} clearing the EV floor"
         )
+
+    # A sport the build was never asked for is also absent from the page, so say
+    # why and what to run. The page has a button for every sport it knows about.
+    for sport in SPORT_KEYS:
+        if sport not in bundle["sports"] and sport not in bundle["skipped"]:
+            bundle["skipped"][sport] = NOT_BUILT.get(sport, DEFAULT_NOT_BUILT)
     return bundle
 
 

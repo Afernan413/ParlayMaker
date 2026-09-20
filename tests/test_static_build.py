@@ -23,6 +23,17 @@ def built(tmp_path_factory) -> tuple[Path, dict]:
     return out, bundle
 
 
+def _bundle_for(tmp_path, monkeypatch, *, sports) -> dict:
+    """Build a bundle for exactly these sports and return it."""
+    out = tmp_path / f"site-{'-'.join(sports)}"
+    code = build_static.main(
+        ["--out", str(out), "--mock", "--db", str(out / "build.db"), "--sports", *sports]
+    )
+    assert code == 0
+    raw = (out / "data.js").read_text()
+    return json.loads(raw[raw.index("{"): raw.rindex(";")])
+
+
 def test_every_file_the_page_needs_is_written(built):
     out, _ = built
     for name in ("index.html", "app.js", "engine.js", "styles.css", "data.js", ".nojekyll"):
@@ -70,6 +81,40 @@ def test_settings_travel_with_the_bundle(built):
     assert rules["min_sgp_correlation"] == settings.min_sgp_correlation
     assert rules["kelly_fraction"] == settings.kelly_fraction
     assert rules["min_legs"] == settings.min_legs and rules["max_legs"] == settings.max_legs
+
+
+def test_a_sport_that_was_not_built_says_why(built):
+    """A button that does nothing when pressed is the bug; the reason is the fix."""
+    _, bundle = built
+    for sport in ("nfl", "ncaaf", "nba"):
+        assert sport in bundle["sports"] or sport in bundle["skipped"]
+
+
+def test_an_unrequested_sport_is_recorded_with_what_to_run(tmp_path, monkeypatch):
+    bundle = _bundle_for(tmp_path, monkeypatch, sports=["nfl"])
+    assert set(bundle["sports"]) == {"nfl"}
+    assert "ncaaf" in bundle["skipped"]
+    assert "--sports" in bundle["skipped"]["ncaaf"], "say what to run, not just that it is absent"
+
+
+def test_nba_says_it_needs_a_residential_connection(tmp_path, monkeypatch):
+    """The one sport that cannot be built on the runner at all."""
+    bundle = _bundle_for(tmp_path, monkeypatch, sports=["nfl"])
+    assert "stats.nba.com" in bundle["skipped"]["nba"]
+
+
+def test_a_sport_that_was_built_is_not_also_marked_missing(tmp_path, monkeypatch):
+    bundle = _bundle_for(tmp_path, monkeypatch, sports=["nfl", "ncaaf"])
+    assert set(bundle["sports"]) == {"nfl", "ncaaf"}
+    assert set(bundle["skipped"]) == {"nba"}
+
+
+def test_the_page_explains_a_missing_sport_instead_of_ignoring_the_press():
+    script = _source("app.js")
+    assert "whySportIsMissing" in script
+    # Not `disabled`: a disabled button fires no click, so the reason never lands.
+    assert "button.disabled = !present" not in script
+    assert "seg-empty" in script
 
 
 def test_weeks_travel_with_the_bundle(built):

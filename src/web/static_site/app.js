@@ -51,6 +51,21 @@
   }
 
   const sportData = () => data.sports[state.sport];
+
+  const SPORT_NAMES = { nfl: "NFL", ncaaf: "College football", nba: "NBA" };
+
+  /**
+   * Why a sport has no data, in words worth reading.
+   *
+   * The build records a reason for every sport it skipped or was not asked
+   * for, so the page can say what happened and what to run instead of leaving
+   * a button that does nothing when pressed.
+   */
+  function whySportIsMissing(sport) {
+    const name = SPORT_NAMES[sport] || sport.toUpperCase();
+    const reason = (data.skipped || {})[sport];
+    return reason ? `${name}: ${reason}` : `${name} is not in this build.`;
+  }
   const rules = () => data.settings;
 
   /** Correlation between two legs; 0 for anything the engine did not pair. */
@@ -179,14 +194,14 @@
   }
 
   /** Say something once, briefly. Used when an action is refused. */
-  function flashNote(message) {
+  function flashNote(message, milliseconds = 6000) {
     const note = $("slip-note");
     note.textContent = message;
     note.hidden = false;
     clearTimeout(state.noteTimer);
     state.noteTimer = setTimeout(() => {
       note.hidden = true;
-    }, 6000);
+    }, milliseconds);
   }
 
   // ---------------------------------------------------------------- load
@@ -1006,8 +1021,13 @@
 
     for (const button of document.querySelectorAll(".seg[data-sport]")) {
       button.addEventListener("click", () => {
-        if (state.sport === button.dataset.sport) return;
-        state.sport = button.dataset.sport;
+        const sport = button.dataset.sport;
+        if (!data.sports[sport]) {
+          flashNote(whySportIsMissing(sport), 12000);
+          return;
+        }
+        if (state.sport === sport) return;
+        state.sport = sport;
         for (const other of document.querySelectorAll(".seg[data-sport]")) {
           other.setAttribute("aria-pressed", String(other === button));
         }
@@ -1068,18 +1088,16 @@
     }
     if (!available.includes(state.sport)) state.sport = available[0];
 
-    const skipped = data.skipped || {};
     for (const button of document.querySelectorAll(".seg[data-sport]")) {
       const sport = button.dataset.sport;
       const present = available.includes(sport);
-      button.disabled = !present;
+      // Marked rather than `disabled`: a disabled button fires no click, so
+      // tapping it would say nothing at all. The reason is worth more than the
+      // dead press, and a title tooltip does not exist on a phone.
+      button.classList.toggle("seg-empty", !present);
+      button.setAttribute("aria-disabled", String(!present));
       button.setAttribute("aria-pressed", String(sport === state.sport));
-      if (!present) {
-        // Say why it is missing rather than leaving a dead button.
-        button.title = skipped[sport]
-          ? `${sport.toUpperCase()} was skipped in this build: ${skipped[sport]}`
-          : `${sport.toUpperCase()} is not in this build`;
-      }
+      button.title = present ? "" : whySportIsMissing(sport);
     }
     wireEvents();
     restoreExplainer();
