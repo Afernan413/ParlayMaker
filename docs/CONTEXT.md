@@ -118,8 +118,23 @@ Three things about AccuWeather shape the client:
   and the rest goes unforecast. A plain `503` with no quota message is treated
   as a real outage and still tried per game.
 
-A full NFL Sunday is about 13 outdoor venues, so roughly 13 calls per build once
-the location keys are cached — two builds a day fits inside the free tier.
+Two further bounds, because the first live build showed why they were needed:
+
+* **The location-key cache does not survive a hosted build.** It lives in
+  SQLite, and the Pages runner starts from an empty database every time, so each
+  run pays two calls per venue rather than one. A 29-game slate is 58 calls —
+  past the day's whole allowance in a single build, and at a 20-second timeout it
+  stalled the build for a quarter of an hour. Seeding the keys as a committed
+  file would fix it properly; until then the budget below is what holds.
+* **Each run has a call budget** (`WEATHER_CALL_BUDGET`, 24 by default) and its
+  own shorter timeout (8 seconds, not the 20 used elsewhere — a forecast is not
+  worth waiting that long for). Running out of budget is the same clean stop as
+  running out of allowance: keep what was fetched, leave the rest unforecast.
+
+Weather is also only fetched for the games props were fetched for. Weather
+reaches a price through the reasoning layer's player-market adjustments, so a
+game with no props has nothing for a forecast to move — with `--max-events 4`
+that is 4 venues rather than 29.
 
 Kickoff times are compared in local terms, not UTC: an 8:20pm Eastern game is
 01:20 the next day in UTC, and matching UTC dates would ask for tomorrow's

@@ -59,6 +59,13 @@ class Settings(BaseSettings):
     #: mean re-adding the secret everywhere it is already set.
     openweather_api_key: str = ""
     accuweather_base_url: str = "https://dataservice.accuweather.com"
+    #: Calls a single run may spend on forecasts. The free tier allows 50 a day
+    #: and a hosted build starts with an empty location-key cache, so an
+    #: unbounded slate spends two per venue and blows the allowance in one run.
+    #: It is also the only hard stop on a slow provider stalling a build.
+    weather_call_budget: int = 24
+    #: Forecasts are not worth waiting 20 seconds for.
+    weather_timeout_seconds: float = 8.0
     nfl_injury_feed_url: str = (
         "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries"
     )

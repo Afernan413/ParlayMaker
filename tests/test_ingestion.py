@@ -364,6 +364,34 @@ async def test_a_real_provider_outage_is_not_mistaken_for_the_quota(db_path, mon
 
 
 @respx.mock
+async def test_a_runs_budget_stops_a_slate_rather_than_stalling_it(db_path, monkeypatch):
+    """The location-key cache lives in SQLite and a hosted build starts with an
+    empty database, so an unbounded slate pays two calls a venue -- 58 for a
+    29-game Sunday, which is past the 50-a-day allowance on its own. The budget
+    is also the only hard stop on a slow provider stalling a build."""
+    _freeze_now(monkeypatch, "2026-12-20T12:00:00Z")
+    geo = mock_geo()
+    hourly = respx.get(url__startswith="https://weather.test/forecasts/").mock(
+        return_value=httpx.Response(200, json=[
+            hour("2026-12-20T18:00:00+00:00", 40.0, 8.0, 200, 10, "Clear"),
+        ])
+    )
+    games = [dict(BILLS, game_id=f"g{i}") for i in range(20)]
+    db.upsert_games(games, db_path=db_path)
+    async with weather.WeatherClient(
+        "wkey", base_url="https://weather.test", db_path=db_path, call_budget=5
+    ) as weather_client:
+        snapshots = await weather_client.ingest_games(games)
+        assert weather_client.calls_made == 5
+
+    # The venue is the same, so its key is cached after the first lookup and the
+    # rest of the budget goes on forecasts.
+    assert geo.call_count == 1
+    assert hourly.call_count == 4
+    assert len(snapshots) == 4, "whatever was fetched before the budget ran out is kept"
+
+
+@respx.mock
 async def test_dome_game_makes_no_http_call(db_path):
     geo = respx.get(GEO)
     hourly = respx.get(HOURLY)

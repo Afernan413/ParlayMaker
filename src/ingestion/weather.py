@@ -18,6 +18,12 @@ Three things about AccuWeather shape this module:
   spent. That is a clean stop, not a failure: whatever has been fetched is
   kept and the rest of the slate is left without a forecast.
 
+The run also carries its own budget (``settings.weather_call_budget``), because
+the location-key cache lives in SQLite and a hosted build starts with an empty
+database -- so every run there pays two calls per venue, and a 29-game slate
+would spend 58 and exhaust the day's allowance in one go. The budget is the only
+hard stop on a slow provider stalling a build, too.
+
 The API key is read from ``OPENWEATHER_API_KEY``. The name is historical -- the
 deployed secret is called that, and renaming it would mean re-adding it
 everywhere.
@@ -286,6 +292,7 @@ class WeatherClient:
         base_url: str | None = None,
         client: httpx.AsyncClient | None = None,
         db_path: str | None = None,
+        call_budget: int | None = None,
     ) -> None:
         # Read from the OpenWeather-named setting on purpose: that is what the
         # deployed secret is called. See the module docstring.
@@ -295,11 +302,15 @@ class WeatherClient:
         self._owns_client = client is None
         self._client = client
         self._quota_spent = False
+        self.call_budget = (
+            settings.weather_call_budget if call_budget is None else call_budget
+        )
+        self.calls_made = 0
 
     async def __aenter__(self) -> "WeatherClient":
         if self._client is None:
             self._client = httpx.AsyncClient(
-                base_url=self.base_url, timeout=settings.http_timeout_seconds
+                base_url=self.base_url, timeout=settings.weather_timeout_seconds
             )
         return self
 
@@ -312,7 +323,7 @@ class WeatherClient:
     def client(self) -> httpx.AsyncClient:
         if self._client is None:
             self._client = httpx.AsyncClient(
-                base_url=self.base_url, timeout=settings.http_timeout_seconds
+                base_url=self.base_url, timeout=settings.weather_timeout_seconds
             )
         return self._client
 
@@ -323,7 +334,12 @@ class WeatherClient:
             raise RuntimeError("OPENWEATHER_API_KEY is not set")
         if self._quota_spent:
             raise WeatherQuotaExhausted("daily forecast allowance already spent")
+        if self.calls_made >= self.call_budget:
+            raise WeatherQuotaExhausted(
+                f"this run's forecast budget of {self.call_budget} calls is spent"
+            )
 
+        self.calls_made += 1
         response = await self.client.get(path, params={**params, "apikey": self.api_key})
         db.log_quota(
             self.api_name, path, status_code=response.status_code, db_path=self.db_path

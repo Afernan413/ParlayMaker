@@ -154,8 +154,13 @@ async def ingest_stage(
     )
     snapshots = 0
     if sport in WEATHER_SPORTS and settings.openweather_api_key:
+        # Only the games we fetched props for. Weather reaches a price through
+        # the reasoning layer's player-market adjustments, so a game with no
+        # props has nothing for a forecast to move -- and each forecast is a
+        # call against a 50-a-day allowance.
+        forecastable = games if max_events is None else games[:max_events]
         async with WeatherClient(db_path=db_path) as weather_client:
-            snapshots = len(await weather_client.ingest_games(games))
+            snapshots = len(await weather_client.ingest_games(forecastable))
     if inputs is not None:
         inputs.statuses["weather"] = weather_status(
             sport,
