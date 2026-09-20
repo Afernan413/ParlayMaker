@@ -192,9 +192,6 @@ def projection_stage(
             role_model = load_nfl_roles(baseline.seasons_to_load(season), season=season)
         except Exception as exc:  # a release rebuilding must not stop the run
             logger.warning("snap/injury roles unavailable: %s", exc)
-
-    if inputs is not None:
-        _record_context(inputs, sport, role_model, injuries)
     elif sport == "ncaaf":
         from src.models import cfb
 
@@ -204,6 +201,12 @@ def projection_stage(
     else:
         year = datetime.now(timezone.utc).year
         first, second = baseline.load_nba_frames(f"{year}-{str(year + 1)[-2:]}")
+
+    # After the whole chain, not inside it: an earlier version of this recorded
+    # the context between the nfl branch and the ncaaf one, which detached the
+    # remaining branches and left college football with no stat frames at all.
+    if inputs is not None:
+        _record_context(inputs, sport, role_model, injuries)
 
     if sport in FOOTBALL_SPORTS:
         projections = baseline.build_nfl_projections(

@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 import run_pipeline
@@ -70,6 +71,51 @@ async def test_dry_run_produces_a_valid_card(sport, db_path):
             assert leg.ev >= settings.min_leg_ev
         assert not (ticket.subjects & seen_subjects)  # diversification
         seen_subjects |= ticket.subjects
+
+
+@pytest.mark.parametrize("sport", ["nfl", "ncaaf", "nba"])
+def test_every_sports_live_branch_loads_its_frames(sport, monkeypatch):
+    """Regression: recording the model's context between the nfl and ncaaf
+    branches detached the rest of the chain, so a live college build raised
+    UnboundLocalError on the stat frames it never assigned. Mock runs take a
+    different branch entirely and could not have caught it."""
+    from src.models import baseline as baseline_module
+    from src.models.inputs import ModelInputs
+
+    frames = (pd.DataFrame(), pd.DataFrame())
+    called: list[str] = []
+
+    def stub(name):
+        def loader(*args, **kwargs):
+            called.append(name)
+            return frames
+        return loader
+
+    monkeypatch.setattr(baseline_module, "load_nfl_frames", stub("nfl"))
+    monkeypatch.setattr(baseline_module, "load_nba_frames", stub("nba"))
+    monkeypatch.setattr(baseline_module, "latest_season_plays", lambda frame, **kw: frame)
+    # The projections themselves are covered elsewhere; this is about whether
+    # each branch is reachable and assigns its frames at all.
+    monkeypatch.setattr(baseline_module, "build_nfl_projections", lambda *a, **k: [])
+    monkeypatch.setattr(baseline_module, "build_nba_projections", lambda *a, **k: [])
+    monkeypatch.setattr(baseline_module, "nfl_team_efficiency", lambda *a, **k: pd.DataFrame())
+    monkeypatch.setattr(
+        run_pipeline, "load_nfl_roles", lambda *a, **k: run_pipeline.RoleModel()
+    )
+    if sport == "ncaaf":
+        import src.models.cfb as cfb_module
+
+        monkeypatch.setattr(cfb_module, "load_cfb_frames", stub("ncaaf"))
+
+    inputs = ModelInputs(sport=sport)
+    projections, game_projections = run_pipeline.projection_stage(
+        sport, [], use_mock=False, injuries={}, inputs=inputs
+    )
+    assert called, f"{sport} never reached a stat loader"
+    assert projections == [] and game_projections == {}
+    # And the context was recorded for every sport, not only the first branch.
+    # Weather belongs to the ingest stage, so this stage owns the other two.
+    assert {row["name"] for row in inputs.as_rows()} == {"starters", "injuries"}
 
 
 async def test_a_mock_run_journals_nothing(db_path):
