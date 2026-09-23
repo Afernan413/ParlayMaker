@@ -119,6 +119,24 @@ def test_every_sports_live_branch_loads_its_frames(sport, monkeypatch):
     assert {row["name"] for row in inputs.as_rows()} == {"rosters", "starters", "injuries"}
 
 
+def test_the_injury_line_says_when_last_weeks_report_is_standing_in():
+    """Mid-week the model carries last week's ruled-out players forward. The
+    report used to count only this week's "Out" and say "0 ruled out"."""
+    from src.models.inputs import ModelInputs
+    from src.models.roles import RoleModel
+
+    model = RoleModel(
+        statuses={"a": "OUT_LAST_WEEK", "b": "OUT_LAST_WEEK"},
+        report_week=3, carried_from=2,
+    )
+    inputs = ModelInputs(sport="nfl")
+    run_pipeline._record_context(inputs, "nfl", model, {})
+    detail = inputs.statuses["injuries"].detail
+    assert "not yet published" in detail
+    assert "2 ruled out in week 2" in detail
+    assert "0 ruled out" not in detail
+
+
 async def test_a_mock_run_journals_nothing(db_path):
     """Fictional players never appear in a box score, so they must not queue."""
     from src.ingestion import db as store

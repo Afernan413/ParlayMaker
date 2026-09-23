@@ -304,7 +304,16 @@ def _record_context(
 
     designations = coverage["designations"] or len(injuries)
     lag = coverage["report_lag_weeks"]
-    if coverage["designations"]:
+    if coverage["designations"] and coverage.get("carried_from"):
+        # Mid-week: this week's designations are not out yet, so last week's are
+        # standing in. Saying "0 ruled out" here would describe the gap, not
+        # what the model is using.
+        detail = (
+            f"week {coverage['report_week']} designations not yet published; "
+            f"{coverage['out_last_week']} ruled out in week {coverage['carried_from']} "
+            f"carried forward at 63% availability"
+        )
+    elif coverage["designations"]:
         detail = (
             f"league report, week {coverage['report_week']}"
             + (f" ({lag} week(s) stale)" if lag else " (current)")
