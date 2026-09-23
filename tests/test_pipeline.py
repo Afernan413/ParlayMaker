@@ -119,6 +119,28 @@ def test_every_sports_live_branch_loads_its_frames(sport, monkeypatch):
     assert {row["name"] for row in inputs.as_rows()} == {"rosters", "starters", "injuries"}
 
 
+@pytest.mark.parametrize(
+    ("polled", "skipped", "available", "phrase"),
+    [
+        (0, 16, False, "game lines only"),
+        (2, 14, True, "14 skipped"),
+        (4, 0, True, "4 games' player props"),
+    ],
+)
+def test_the_report_says_when_player_props_were_not_fetched(polled, skipped, available, phrase):
+    """A slate of game lines only looked like any other slate."""
+    from src.ingestion.odds_api import IngestSummary
+    from src.models.inputs import ModelInputs
+
+    summary = IngestSummary(sport="nfl", events_polled=polled, quota_remaining=14,
+                            skipped_events=[f"e{i}" for i in range(skipped)])
+    inputs = ModelInputs(sport="nfl")
+    run_pipeline._record_props(inputs, summary, include_props=True)
+    status = inputs.statuses["props"]
+    assert status.available is available
+    assert phrase in status.detail
+
+
 def test_the_injury_line_says_when_last_weeks_report_is_standing_in():
     """Mid-week the model carries last week's ruled-out players forward. The
     report used to count only this week's "Out" and say "0 ruled out"."""

@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 #: The inputs worth reporting on, in the order a reader cares about them.
-INPUT_ORDER = ("rosters", "starters", "injuries", "weather")
+INPUT_ORDER = ("props", "rosters", "starters", "injuries", "weather")
 
 
 @dataclass(frozen=True)

@@ -136,6 +136,10 @@ async def ingest_stage(
     if use_mock:
         summary = mock.ingest_mock_slate(sport, db_path=db_path).as_dict()
         if inputs is not None:
+            inputs.record(
+                "props", bool(summary.get("props")), "sample slate",
+                int(summary.get("events_polled") or 0),
+            )
             # This slate's forecasts, not every row the database has ever held.
             count = int(summary.get("weather") or 0)
             inputs.record(
@@ -153,6 +157,8 @@ async def ingest_stage(
         except QuotaExhaustedError as exc:
             logger.error("aborting ingestion: %s", exc)
             raise
+    if inputs is not None:
+        _record_props(inputs, summary, include_props=include_props)
 
     games = db.fetch_all(
         "SELECT * FROM games WHERE sport = ?", (sport,), db_path=db_path
@@ -253,6 +259,37 @@ def projection_stage(
             for game in games
         }
     return projections, game_projections
+
+
+def _record_props(inputs: ModelInputs, summary: Any, *, include_props: bool) -> None:
+    """Whether player props were fetched, and if not, why.
+
+    Everything the model knows about players -- rosters, starters, injuries --
+    reaches a price only through a player prop. When the Odds API allowance
+    runs low the client stops fetching props and keeps the game lines, and a
+    slate of moneylines, spreads and totals looked like any other slate.
+    """
+    if not include_props:
+        inputs.record("props", False, "player props not requested for this build")
+        return
+    fetched = int(summary.events_polled or 0)
+    skipped = len(summary.skipped_events or [])
+    remaining = summary.quota_remaining
+    if skipped and fetched == 0:
+        inputs.record(
+            "props", False,
+            f"none fetched: Odds API allowance too low ({remaining} credits left) -- "
+            "game lines only until it resets",
+        )
+    elif skipped:
+        inputs.record(
+            "props", True,
+            f"{fetched} games' props fetched; {skipped} skipped as the Odds API "
+            f"allowance ran low ({remaining} left)",
+            fetched,
+        )
+    else:
+        inputs.record("props", fetched > 0, f"{fetched} games' player props", fetched)
 
 
 def _record_roster(
