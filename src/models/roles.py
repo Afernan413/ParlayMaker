@@ -195,6 +195,18 @@ class RoleModel:
     #: Which week's injury report the statuses came from, and how stale it is.
     report_week: int | None = None
     report_lag: int = 0
+    #: When the depth chart used was published, if one was.
+    depth_as_of: str | None = None
+    #: The week whose ruled-out players were carried forward because this
+    #: week's designations were not yet published; ``None`` if none were.
+    carried_from: int | None = None
+    #: ``(team, name) -> expected share`` for every quarterback on a depth
+    #: chart, including those with no snaps this season.
+    depth_shares: dict[tuple[str, str], float] = field(default_factory=dict)
+
+    def quarterback_share(self, team: Any, player: Any) -> float | None:
+        """A charted quarterback's expected share of the slot, else ``None``."""
+        return self.depth_shares.get((str(team or "").upper(), normalise_name(player)))
 
     def snaps_for(self, team: Any) -> float:
         return self.team_snaps.get(str(team or "").upper(), 0.0)
@@ -247,6 +259,11 @@ class RoleModel:
             "starters": sum(1 for role in self.roles.values() if role.starter),
             "report_week": self.report_week,
             "report_lag_weeks": self.report_lag,
+            "depth_chart": self.depth_as_of,
+            "carried_from": self.carried_from,
+            "out_last_week": sum(
+                1 for status in self.statuses.values() if status == "OUT_LAST_WEEK"
+            ),
         }
 
     def promotions(self, limit: int = 12) -> list[Role]:
@@ -401,6 +418,77 @@ def redistribute(group: Sequence[Role], team_snaps: float) -> dict[str, float]:
     }
 
 
+#: What a demoted quarterback is expected to play: mop-up snaps, not a slot.
+BACKUP_QB_SHARE = 0.05
+
+
+@dataclass(frozen=True)
+class DepthChart:
+    """Each team's latest published depth chart, ``(team, name) -> rank``.
+
+    The snap history can only say who *has* been playing. After a benching, a
+    starter's return from injury or a trade, the depth chart is the first place
+    the change shows up -- and for a quarterback it settles what snap shares
+    cannot: two quarterbacks who each started a game do not split the next one.
+    """
+
+    ranks: dict[tuple[str, str], tuple[str, int]] = field(default_factory=dict)
+    as_of: str | None = None
+
+    @property
+    def empty(self) -> bool:
+        return not self.ranks
+
+    def rank(self, team: Any, player: Any) -> int | None:
+        found = self.ranks.get((str(team or "").upper(), normalise_name(player)))
+        return found[1] if found else None
+
+    def quarterbacks(self, team: Any) -> list[tuple[str, int]]:
+        """``(normalised name, rank)`` for a team's quarterbacks, starter first."""
+        key = str(team or "").upper()
+        found = [
+            (name, rank) for (club, name), (position, rank) in self.ranks.items()
+            if club == key and position == "QB"
+        ]
+        return sorted(found, key=lambda item: item[1])
+
+
+def build_depth_chart(frame: pd.DataFrame | None) -> DepthChart:
+    """The latest snapshot per team from nflverse's dated depth charts."""
+    if frame is None or frame.empty:
+        return DepthChart()
+    rows = frame.dropna(subset=["team", "player_name", "pos_rank"]).copy()
+    if rows.empty:
+        return DepthChart()
+    rows["dt"] = pd.to_datetime(rows["dt"], utc=True, errors="coerce")
+    rows = rows[rows["dt"] == rows.groupby("team")["dt"].transform("max")]
+
+    ranks: dict[tuple[str, str], tuple[str, int]] = {}
+    for record in rows.to_dict("records"):
+        key = (str(record["team"]).upper(), normalise_name(record["player_name"]))
+        position = str(record.get("pos_abb") or "")
+        rank = int(record["pos_rank"])
+        # A player listed at several spots keeps his best rank at each position;
+        # only the quarterback ranks are acted on.
+        existing = ranks.get(key)
+        if existing is None or (position == "QB" and (existing[0] != "QB" or rank < existing[1])):
+            ranks[key] = (position, rank)
+    as_of = rows["dt"].max()
+    return DepthChart(ranks=ranks, as_of=as_of.isoformat() if pd.notna(as_of) else None)
+
+
+def starting_quarterback(team: str, depth: DepthChart, statuses: Mapping[str, str]) -> str | None:
+    """The highest-ranked quarterback on the chart who is not ruled out.
+
+    The chart lists an injured starter at the top -- it describes the roster,
+    not this week's availability -- so the report decides who is skipped.
+    """
+    for name, _rank in depth.quarterbacks(team):
+        if statuses.get((team, name), statuses.get(name, "ACTIVE")) != "OUT":
+            return name
+    return None
+
+
 def build_role_model(
     snap_counts: pd.DataFrame | None,
     injuries: Mapping[str, str] | Iterable[Any] | None = None,
@@ -410,6 +498,8 @@ def build_role_model(
     weeks: int | None = None,
     report_week: int | None = None,
     report_lag: int = 0,
+    depth: DepthChart | None = None,
+    carried_from: int | None = None,
 ) -> RoleModel:
     """Roles for a slate: how much each player plays, and how much they will.
 
@@ -425,7 +515,7 @@ def build_role_model(
         # is known from week one, and it is the correction that matters most.
         return RoleModel(
             statuses=status_by_name, team_statuses=status_by_team,
-            report_week=report_week, report_lag=report_lag,
+            report_week=report_week, report_lag=report_lag, carried_from=carried_from,
         )
 
     team_snap_counts = (
@@ -465,6 +555,62 @@ def build_role_model(
                     expected_share=share,
                 )
 
+    # Quarterbacks: the chart names the starter, and the slot is his. Snap
+    # shares alone split it between everyone who has started lately.
+    depth_shares: dict[tuple[str, str], float] = {}
+    if depth is not None and not depth.empty:
+        combined = dict(status_by_name)
+        combined.update({key: value for key, value in status_by_team.items()})
+        # Driven by the chart rather than by the snap groups, so a team whose
+        # quarterbacks have no snaps this season is still covered.
+        charted = {club for (club, _name), (pos, _rank) in depth.ranks.items() if pos == "QB"}
+        for team in sorted(charted):
+            group = groups.get((team, "QB"), [])
+            starter = starting_quarterback(team, depth, combined)
+            if starter is None:
+                continue
+            slot = min(max(sum(role.share for role in group), 1.0), MAX_SHARE)
+            # How likely the starter is to play. His own projection is already
+            # scaled by this through his availability; the next man up carries
+            # the rest, so a doubtful starter's backup is not priced as if he
+            # will certainly sit.
+            plays = status_multiplier(combined.get((team, starter), combined.get(starter)))
+            next_up = next(
+                (
+                    name for name, _rank in depth.quarterbacks(team)
+                    if name != starter
+                    and combined.get((team, name), combined.get(name, "ACTIVE")) != "OUT"
+                ),
+                None,
+            )
+            def expected(key: str, current: float) -> float:
+                if key == starter:
+                    return slot
+                if key == next_up:
+                    return plays * BACKUP_QB_SHARE + (1.0 - plays) * slot
+                return min(current, BACKUP_QB_SHARE)
+
+            # Every quarterback on the chart gets a share, including those with
+            # no snaps this season: a starter back from injury, or one who
+            # arrived by trade, is otherwise invisible here and would be priced
+            # off his old average as a second full-time starter.
+            for name, _rank in depth.quarterbacks(team):
+                if combined.get((team, name), combined.get(name)) == "OUT":
+                    continue
+                depth_shares[(team, name)] = expected(name, BACKUP_QB_SHARE)
+
+            for role in group:
+                key = normalise_name(role.player)
+                if role.out:
+                    continue
+                share = expected(key, role.share)
+                depth_shares[(team, key)] = share
+                roles[(team, key)] = Role(
+                    player=role.player, team=role.team, position=role.position,
+                    snaps=role.snaps, share=role.share, status=role.status,
+                    expected_share=share,
+                )
+
     # Everyone still at zero either sits outside a redistributed group -- a
     # lineman, say -- or is out. A player who is out expects no snaps at all;
     # anyone else expects what they already play.
@@ -485,6 +631,9 @@ def build_role_model(
         team_statuses=status_by_team,
         report_week=report_week,
         report_lag=report_lag,
+        depth_as_of=depth.as_of if depth is not None else None,
+        carried_from=carried_from,
+        depth_shares=depth_shares,
     )
 
 
@@ -601,7 +750,7 @@ def load_nfl_roles(
     years = sorted(set(seasons))
     snaps = nflreadpy.load_snap_counts(seasons=years).to_pandas()
     target_week = week if week is not None else next_week(snaps, season)
-    report_week, lag, injuries = latest_report(years, season, target_week)
+    report_week, lag, injuries, carried_from = latest_report(years, season, target_week)
 
     logger.info(
         "roles: %d snap rows for %s week %s; injury report from week %s (%d week(s) stale), "
@@ -609,38 +758,84 @@ def load_nfl_roles(
         len(snaps), season, target_week, report_week, lag,
         sum(1 for record in injuries if record.status == "OUT"),
     )
+    try:
+        depth = build_depth_chart(nflreadpy.load_depth_charts(seasons=[int(season)]).to_pandas())
+    except Exception as exc:  # the chart is an improvement, not a requirement
+        logger.warning("depth chart unavailable: %s", exc)
+        depth = DepthChart()
     return build_role_model(
         snaps, injuries, season=season, week=target_week,
-        report_week=report_week, report_lag=lag,
+        report_week=report_week, report_lag=lag, depth=depth,
+        carried_from=carried_from,
     )
 
 
+#: A week's report is final once game designations exist for this many teams.
+#: The Wednesday and Thursday reports carry practice participation only; the
+#: Out / Doubtful / Questionable designations are published on Friday.
+FINAL_REPORT_TEAMS = 16
+
+
+def report_is_final(frame: pd.DataFrame, season: int, week: int) -> bool:
+    """Has this week's report reached the game designations yet?"""
+    rows = frame[(frame["season"].astype(int) == int(season)) & (frame["week"].astype(int) == int(week))]
+    designated = rows[rows["report_status"].notna()]
+    return designated["team"].nunique() >= FINAL_REPORT_TEAMS
+
+
 def latest_report(seasons: Sequence[int], season: int, week: int):
-    """The newest injury report at or before ``week``, and how stale it is.
+    """The injury information for ``week``, and how it was arrived at.
 
-    Returns ``(report_week, weeks_stale, records)``. An empty list with a lag of
-    zero means no report was found at all, which is a real state -- preseason,
-    or a release that has not been built yet -- and one the caller should say
-    out loud rather than treat as "nobody is hurt".
+    Returns ``(report_week, weeks_stale, records, carried_from)``.
+
+    When the week's report is final, it is used as it stands. When it is not --
+    any day before Friday -- it has no game designations at all, and taking it
+    at face value concludes that nobody is hurt. That was the behaviour, and on
+    the Wednesday of week 3 it had the model treating a quarterback ruled out
+    for both of the first two weeks as available.
+
+    So mid-week, the last final report is carried forward: everyone it ruled out
+    becomes ``OUT_LAST_WEEK``, priced at the measured 63% availability rather
+    than as certainly out or certainly fine. Doubtful and questionable tags are
+    not carried -- they are about one game. ``carried_from`` names the week the
+    designations came from, or is ``None`` when the current report was used.
     """
-    from src.ingestion.injuries import load_nflverse_injuries
-
-    records = load_nflverse_injuries(seasons)
-    if not records:
-        return None, 0, []
+    from src.ingestion.injuries import InjuryRecord, parse_nflverse_injuries
 
     import nflreadpy
 
     frame = nflreadpy.load_injuries(seasons=sorted(set(seasons))).to_pandas()
-    in_season = frame[(frame["season"].astype(int) == int(season)) & (frame["week"].astype(int) <= week)]
+    if frame.empty:
+        return None, 0, [], None
+    in_season = frame[
+        (frame["season"].astype(int) == int(season)) & (frame["week"].astype(int) <= week)
+    ]
     if in_season.empty:
-        return None, 0, []
+        return None, 0, [], None
+    this_season = frame[frame["season"].astype(int) == int(season)]
 
     report_week = int(in_season["week"].astype(int).max())
-    from src.ingestion.injuries import parse_nflverse_injuries
+    current = parse_nflverse_injuries(this_season, week=report_week)
+    if report_is_final(frame, season, report_week):
+        return report_week, max(week - report_week, 0), current, None
 
-    return (
-        report_week,
-        max(week - report_week, 0),
-        parse_nflverse_injuries(frame[frame["season"].astype(int) == int(season)], week=report_week),
-    )
+    final_weeks = [
+        wk for wk in sorted(in_season["week"].astype(int).unique(), reverse=True)
+        if wk < report_week and report_is_final(frame, season, wk)
+    ]
+    if not final_weeks:
+        return report_week, max(week - report_week, 0), current, None
+    previous = final_weeks[0]
+    carried = [
+        InjuryRecord(
+            sport=record.sport, team=record.team, player_name=record.player_name,
+            position=record.position, status="OUT_LAST_WEEK", practice=record.practice,
+            detail=f"out in week {previous}; this week's designation not yet published",
+            source=record.source, report_date=record.report_date,
+        )
+        for record in parse_nflverse_injuries(this_season, week=previous)
+        if record.status == "OUT"
+    ]
+    # Anything the partial report already designates wins over the carry-over.
+    designated = [record for record in current if record.status != "ACTIVE"]
+    return report_week, max(week - report_week, 0), carried + designated, previous

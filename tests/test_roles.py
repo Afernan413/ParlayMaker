@@ -29,7 +29,7 @@ def snap_rows(spec: dict[tuple[str, str], list[tuple[int, float]]], season: int 
             rows.append(
                 {
                     "season": season, "week": week, "team": team, "player": player,
-                    "position": positions.get(player, "WR"),
+                    "position": "QB" if player.startswith("QB") else positions.get(player, "WR"),
                     "offense_snaps": snaps, "offense_pct": snaps / 60.0,
                 }
             )
@@ -324,3 +324,129 @@ def test_the_factor_is_bounded_both_ways():
     assert tiny.snap_factor == pytest.approx(low)
     big = Role(**{**role("WR2", 0.05, 3.0).__dict__, "expected_share": 1.0})
     assert big.snap_factor == pytest.approx(high)
+
+
+# ----------------------------------------------------------------------
+# depth charts
+# ----------------------------------------------------------------------
+from src.ingestion.injuries import normalize_status, status_multiplier  # noqa: E402
+from src.models.roles import (  # noqa: E402
+    BACKUP_QB_SHARE,
+    DepthChart,
+    build_depth_chart,
+    report_is_final,
+    starting_quarterback,
+)
+
+
+def depth_frame(rows, dt="2026-09-23T12:00:00Z"):
+    return pd.DataFrame(
+        [{"dt": dt, "team": team, "player_name": name, "pos_abb": pos, "pos_rank": rank}
+         for team, name, pos, rank in rows]
+    )
+
+
+def test_the_latest_depth_chart_snapshot_is_used():
+    frame = pd.concat([
+        depth_frame([("SEA", "Old Starter", "QB", 1)], dt="2026-09-01T00:00:00Z"),
+        depth_frame([("SEA", "New Starter", "QB", 1), ("SEA", "Old Starter", "QB", 2)]),
+    ])
+    chart = build_depth_chart(frame)
+    assert chart.quarterbacks("SEA")[0][0] == "newstarter"
+
+
+def test_the_starter_is_the_top_quarterback_not_ruled_out():
+    """The chart lists an injured starter at the top; the report skips him."""
+    chart = build_depth_chart(depth_frame([
+        ("SEA", "QB1", "QB", 1), ("SEA", "QB2", "QB", 2),
+    ]))
+    assert starting_quarterback("SEA", chart, {}) == "qb1"
+    assert starting_quarterback("SEA", chart, {("SEA", "qb1"): "OUT"}) == "qb2"
+
+
+def test_a_quarterback_ruled_out_last_week_is_still_the_probable_starter():
+    """63% of them play, so he starts -- priced at 63% availability."""
+    chart = build_depth_chart(depth_frame([("SEA", "QB1", "QB", 1), ("SEA", "QB2", "QB", 2)]))
+    assert starting_quarterback("SEA", chart, {("SEA", "qb1"): "OUT_LAST_WEEK"}) == "qb1"
+
+
+def test_the_chart_settles_a_quarterback_slot_that_snaps_would_split():
+    """Two quarterbacks who each started lately do not split the next game."""
+    frame = snap_rows({
+        ("ATL", "QB1"): [(1, 60.0), (2, 0.0)],
+        ("ATL", "QB2"): [(1, 0.0), (2, 60.0)],
+    })
+    chart = build_depth_chart(depth_frame([("ATL", "QB1", "QB", 1), ("ATL", "QB2", "QB", 2)]))
+    model = build_role_model(frame, [], season=2026, week=3, depth=chart)
+    assert model.get("ATL", "QB1").expected_share == pytest.approx(1.0)
+    assert model.get("ATL", "QB2").expected_share == pytest.approx(BACKUP_QB_SHARE)
+
+
+def test_a_starter_back_from_injury_is_restored_over_the_man_who_replaced_him():
+    """Snap history alone kept the replacement as the starter indefinitely."""
+    frame = snap_rows({
+        ("SEA", "QB1"): [(1, 3.0), (2, 0.0)],     # hurt early in week 1
+        ("SEA", "QB2"): [(1, 57.0), (2, 60.0)],   # took over
+    })
+    chart = build_depth_chart(depth_frame([("SEA", "QB1", "QB", 1), ("SEA", "QB2", "QB", 2)]))
+    model = build_role_model(frame, [], season=2026, week=3, depth=chart)
+    assert model.get("SEA", "QB1").expected_share == pytest.approx(1.0)
+    assert model.get("SEA", "QB2").expected_share == pytest.approx(BACKUP_QB_SHARE)
+
+
+def test_a_doubtful_starters_backup_carries_the_rest_of_the_starts():
+    frame = snap_rows({
+        ("SEA", "QB1"): [(1, 60.0), (2, 60.0)],
+        ("SEA", "QB2"): [(1, 2.0), (2, 2.0)],
+    })
+    chart = build_depth_chart(depth_frame([("SEA", "QB1", "QB", 1), ("SEA", "QB2", "QB", 2)]))
+    injured = [InjuryRecord(sport="nfl", team="SEA", player_name="QB1", position="QB",
+                            status="OUT_LAST_WEEK", practice=None, detail=None,
+                            source="test", report_date=None)]
+    model = build_role_model(frame, injured, season=2026, week=3, depth=chart)
+    plays = status_multiplier("OUT_LAST_WEEK")
+    assert model.get("SEA", "QB2").expected_share == pytest.approx(
+        plays * BACKUP_QB_SHARE + (1 - plays) * 1.0
+    )
+
+
+def test_a_charted_quarterback_with_no_snaps_still_gets_a_share():
+    """Traded in, or back from injury: invisible to the snaps, not to the chart.
+    Left out, he was priced off his old average as a second full-time starter."""
+    frame = snap_rows({("ATL", "QB9"): [(1, 60.0), (2, 60.0)]})
+    chart = build_depth_chart(depth_frame([
+        ("ATL", "Returning Starter", "QB", 1), ("ATL", "New Arrival", "QB", 2),
+        ("ATL", "QB9", "QB", 3),
+    ]))
+    model = build_role_model(frame, [], season=2026, week=3, depth=chart)
+    assert model.quarterback_share("ATL", "Returning Starter") == pytest.approx(1.0)
+    assert model.quarterback_share("ATL", "QB9") == pytest.approx(BACKUP_QB_SHARE)
+    assert model.quarterback_share("ATL", "Nobody") is None
+
+
+def test_without_a_chart_quarterbacks_keep_the_snap_redistribution():
+    frame = snap_rows({("SEA", "QB1"): [(1, 60.0), (2, 60.0)]})
+    model = build_role_model(frame, [], season=2026, week=3)
+    assert model.quarterback_share("SEA", "QB1") is None
+
+
+# ----------------------------------------------------------------------
+# the mid-week report
+# ----------------------------------------------------------------------
+def test_out_last_week_is_its_own_status_not_out():
+    """The substring search would have read OUT_LAST_WEEK as OUT."""
+    assert normalize_status("OUT_LAST_WEEK") == "OUT_LAST_WEEK"
+    assert status_multiplier("OUT_LAST_WEEK") == pytest.approx(0.63)
+
+
+def test_a_report_without_game_designations_is_not_final():
+    """Wednesday's report is practice participation only."""
+    wednesday = pd.DataFrame(
+        [{"season": 2026, "week": 3, "team": f"T{i}", "report_status": None} for i in range(30)]
+    )
+    friday = pd.DataFrame(
+        [{"season": 2026, "week": 2, "team": f"T{i}", "report_status": "Out"} for i in range(30)]
+    )
+    frame = pd.concat([wednesday, friday])
+    assert not report_is_final(frame, 2026, 3)
+    assert report_is_final(frame, 2026, 2)

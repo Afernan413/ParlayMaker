@@ -105,6 +105,28 @@ class Settings(BaseSettings):
     rolling_weeks: int = 4
     #: Most-recent-week-first weights for the 4-week rolling window.
     rolling_weights: tuple[float, ...] = (0.4, 0.3, 0.2, 0.1)
+    #: How much a game from an earlier season, and a game for a different team,
+    #: count toward a player's average. 1.0 is the model as it always was; the
+    #: values in use are the ones src/learning/turnover.py measured to predict
+    #: best on seasons the fit never saw.
+    history_season_decay: float = 1.0
+    history_team_decay: float = 1.0
+    #: Games averaged for a player's volume, per sport. Separate from
+    #: ``rolling_weeks``, which also sets the snap-share window: a role change
+    #: should be noticed within a few games even when production is averaged
+    #: over more of them.
+    #:
+    #: The NFL's 8 is measured (src/learning/turnover.py, fitted on 2023-24 and
+    #: scored on 2025-26): against 4 games it cut the error on the same
+    #: projections by 0.23 yards, 11 standard errors, and the Brier score from
+    #: 0.2075 to 0.2005. Ten games was no better than eight within the noise,
+    #: so the shorter window wins -- it goes stale more slowly.
+    volume_window_nfl: int = 8
+    #: Checked separately rather than assumed from the NFL: on 2025 college
+    #: football, fitted on 2024, eight games against four cut the paired error
+    #: by 0.26 yards (19 standard errors) and the Brier score 0.2133 -> 0.2081.
+    volume_window_ncaaf: int = 8
+    volume_window_nba: int = 4
 
     # --- reasoning layer --------------------------------------------
     max_context_adjustment: float = 0.20  # hard +/- ceiling on Claude shifts
@@ -131,6 +153,22 @@ class Settings(BaseSettings):
     @property
     def rolling_weight_list(self) -> list[float]:
         return list(self.rolling_weights[: self.rolling_weeks])
+
+    def volume_window(self, sport: str | None) -> int:
+        return int(getattr(self, f"volume_window_{(sport or 'nfl').lower()}", self.rolling_weeks))
+
+    def recency_weights(self, games: int) -> list[float]:
+        """Recency weights for ``games`` games, most recent first.
+
+        The configured weights, extended geometrically past their end. Both the
+        live model and the replay that calibrates it take their weights from
+        here: when they each had their own, setting an eight-game window would
+        have extended one and quietly truncated the other back to four.
+        """
+        weights = list(self.rolling_weights) or [1.0]
+        while len(weights) < games:
+            weights.append(weights[-1] * 0.7)
+        return weights[:games]
 
 
 @lru_cache(maxsize=1)

@@ -253,7 +253,8 @@ short version:
 
 | | NFL | College | NBA |
 | --- | --- | --- | --- |
-| Who is starting | snap shares, and a promotion when the man ahead is out | no snap source | no snap source |
+| Who is on the team | the league's weekly roster: trades, injured reserve, retirements | last team played for | last team played for |
+| Who is starting | snap shares, the depth chart for quarterbacks, and a promotion when the man ahead is out | no snap source | no snap source |
 | Who is hurt | the league's own weekly report + live feed | ESPN feed, patchy by conference | ESPN feed |
 | Weather | AccuWeather on outdoor venues; key read from `OPENWEATHER_API_KEY` | no venue coordinates | indoors, N/A |
 

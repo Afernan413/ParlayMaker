@@ -259,15 +259,79 @@ def nfl_team_efficiency(pbp: pd.DataFrame) -> pd.DataFrame:
     return table.fillna({"pass_success": 0.0, "rush_success": 0.0})
 
 
+def history_weights(
+    seasons: Sequence[int],
+    teams: Sequence[Any],
+    *,
+    target_season: int,
+    target_team: Any,
+    season_decay: float = 1.0,
+    team_decay: float = 1.0,
+    base: Sequence[float] | None = None,
+) -> list[float]:
+    """Weights for a player's recent games, most recent first.
+
+    The recency weights are the model's usual ones. On top of them, a game from
+    an earlier season is scaled by ``season_decay`` and a game played for a
+    different team by ``team_decay`` -- because a schedule, a coordinator or a
+    quarterback changing under a player makes his old numbers a weaker guide to
+    his new ones. Both default to 1.0, the old behaviour, so the decays are only
+    ever turned on by evidence (see ``src/learning/turnover.py``).
+
+    If every game is decayed to nothing -- a player traded this week, with no
+    games for his new team yet -- the plain recency weights are returned rather
+    than zeros: an old-team history is a weak guide, but it is the only one.
+    """
+    base = list(base or settings.recency_weights(len(seasons)))[: len(seasons)]
+    target = str(target_team or "")
+    weights = []
+    for weight, season, team in zip(base, seasons, teams):
+        if int(season) < int(target_season):
+            weight *= season_decay
+        if target and str(team or "") != target:
+            weight *= team_decay
+        weights.append(weight)
+    if sum(weights) <= 0:
+        return list(base)
+    return weights
+
+
 def nfl_player_volume(
-    weekly: pd.DataFrame, weeks: int | None = None
+    weekly: pd.DataFrame,
+    weeks: int | None = None,
+    *,
+    roster: Any = None,
+    season: int | None = None,
+    season_decay: float | None = None,
+    team_decay: float | None = None,
+    sport: str = "nfl",
 ) -> pd.DataFrame:
     """Recency-weighted per-game volume and usage for every player.
 
-    Expects ``nfl_data_py.import_weekly_data`` columns; missing optional
-    columns (``target_share``, ``air_yards_share``) are tolerated.
+    One row per player, on the team he plays for now.
+
+    That used to be one row per *(player, team)*, which gave a traded player a
+    second row for the team he left -- a ghost projection for a roster he is no
+    longer on, and when he faced his old team both rows claimed the same game
+    and market and whichever came last won. Now a player's recent games are
+    weighted by :func:`history_weights` against his current team and season, so
+    games for his old team can count for less without being thrown away.
+
+    ``roster`` (a :class:`~src.models.rosters.Roster`) is the authority on the
+    current team and on who can play; a player it lists as anything but active
+    -- injured reserve, practice squad, retired, released, or on no roster at
+    all -- gets no row. Without a roster (college, a mock slate) the team is the
+    one he last played for and nobody is dropped.
+
+    Players are grouped by ``player_id`` where the frame carries one, because
+    names collide: 2025 had two Byron Youngs and two Jonah Williamses. College
+    frames carry no id, so they are grouped by name and team as before --
+    merging two college players who share a name would be worse than a transfer
+    keeping a row for his old school.
     """
-    weeks = weeks or settings.rolling_weeks
+    weeks = weeks or settings.volume_window(sport)
+    season_decay = settings.history_season_decay if season_decay is None else season_decay
+    team_decay = settings.history_team_decay if team_decay is None else team_decay
     stat_cols = [c for c in NFL_STAT_MARKETS if c in weekly.columns]
     usage_cols = [
         c for c in ("targets", "carries", "attempts", "target_share", "air_yards_share")
@@ -275,17 +339,48 @@ def nfl_player_volume(
     ]
     name_col = "player_display_name" if "player_display_name" in weekly.columns else "player_name"
     team_col = "recent_team" if "recent_team" in weekly.columns else "team"
+    has_ids = "player_id" in weekly.columns and weekly["player_id"].notna().any()
+    group_keys = ["player_id"] if has_ids else [name_col, team_col]
+    use_roster = roster is not None and not getattr(roster, "empty", True)
 
     records: list[dict[str, Any]] = []
-    for (player, team), group in weekly.groupby([name_col, team_col]):
+    for _, group in weekly.dropna(subset=[name_col]).groupby(group_keys, sort=False):
         recent = _recent_weeks(group, weeks)
+        if recent.empty:
+            continue
+        player = str(recent.iloc[0][name_col])
+        last_team = str(recent.iloc[0].get(team_col) or "")
+
+        if use_roster:
+            if not roster.can_play(player):
+                continue
+            team = roster.team_of(player) or last_team
+        else:
+            team = last_team
+
+        # A frame with no season column (the mock fixtures) is one season, so
+        # nothing in it is from "last season".
+        seasons = (
+            recent["season"].astype(int).tolist() if "season" in recent.columns
+            else [0] * len(recent)
+        )
+        target_season = int(season) if season is not None else max(seasons)
+        weights = history_weights(
+            seasons,
+            recent[team_col].tolist(),
+            target_season=target_season,
+            target_team=team,
+            season_decay=season_decay,
+            team_decay=team_decay,
+        )
         row: dict[str, Any] = {
             "player_name": player,
             "team": team,
             "games": int(len(recent)),
+            "changed_team": bool((recent[team_col].astype(str) != team).any()),
         }
         for col in (*stat_cols, *usage_cols):
-            row[col] = rolling_weighted_mean(recent[col].tolist())
+            row[col] = rolling_weighted_mean(recent[col].tolist(), weights)
         records.append(row)
     return pd.DataFrame(records)
 
@@ -300,6 +395,8 @@ def build_nfl_projections(
     markets: Sequence[str] | None = None,
     sport: str = "nfl",
     roles: RoleModel | None = None,
+    roster: Any = None,
+    season: int | None = None,
 ) -> list[Projection]:
     """Baseline football player projections for a slate.
 
@@ -317,11 +414,34 @@ def build_nfl_projections(
     not -- college football, basketball, a mock slate -- the per-game average is
     used unchanged.
     """
-    volume = nfl_player_volume(weekly)
+    volume = nfl_player_volume(weekly, roster=roster, season=season, sport=sport)
     efficiency = nfl_team_efficiency(pbp)
     roles = roles or RoleModel()
     wanted = set(markets or NFL_STAT_MARKETS.values())
-    group_rates = position_group_rates(volume, roles)
+    # A production rate per snap has to divide production and snaps from the
+    # same games. Snaps are measured over the team's last `rolling_weeks`
+    # games, while volume now averages more than that -- so the per-snap path
+    # takes its production from a matching short window, not from the average.
+    #
+    # And from the same *season*: the snap window never reaches into last
+    # season, so neither may this. Otherwise a starter hurt three snaps into
+    # week 1 divides last season's 200 yards a game by those three snaps, and
+    # comes out at 67 yards a snap.
+    if not roles.empty:
+        this_season = (
+            weekly[weekly["season"].astype(int) == int(season)]
+            if season is not None and "season" in weekly.columns
+            else weekly
+        )
+        short_volume = nfl_player_volume(
+            this_season, weeks=settings.rolling_weeks, roster=roster, season=season, sport=sport
+        )
+    else:
+        short_volume = volume
+    group_rates = position_group_rates(short_volume, roles)
+    short_by_player = {
+        (row["team"], row["player_name"]): row for row in short_volume.to_dict("records")
+    }
     # Keyed on a normalised name so a feed's spelling still joins when the role
     # model is not available -- an injury report says "Michael Penix Jr." where
     # the box score says "Michael Penix", and left unjoined a ruled-out starter
@@ -386,11 +506,23 @@ def build_nfl_projections(
                     if base <= 0:
                         continue
 
+                    # No games this season means no rate of his own: the
+                    # per-snap path then prices him at the group's rate.
+                    short_row = short_by_player.get((row["team"], player))
+                    recent = short_row.get(stat, 0.0) if short_row else 0.0
                     mean, role_notes = _volume_for(
                         base, stat, role,
                         group_rates.get((stat_team, _position_of(role), stat)),
                         roles.snaps_for(stat_team),
+                        recent=float(recent) if recent is not None else base,
                     )
+                    # A charted quarterback with no snaps this season -- back from
+                    # injury, or new by trade -- has no role to reprice him, so
+                    # the depth chart's share scales his average directly.
+                    qb_share = roles.quarterback_share(stat_team, player)
+                    if role is None and qb_share is not None:
+                        mean = base * qb_share
+                        role_notes = (f"depth chart: {qb_share:.2f} of the quarterback slot",)
                     projections.append(
                         Projection(
                             sport=sport,
@@ -416,7 +548,13 @@ def _position_of(role) -> str:
 
 
 def _volume_for(
-    base: float, stat: str, role, group_rate: tuple[float, float] | None, team_snaps: float
+    base: float,
+    stat: str,
+    role,
+    group_rate: tuple[float, float] | None,
+    team_snaps: float,
+    *,
+    recent: float | None = None,
 ) -> tuple[float, tuple[str, ...]]:
     """Per-game volume, re-expressed per snap where the snap data allows it.
 
@@ -438,7 +576,8 @@ def _volume_for(
     if expected <= 0:
         return base, ()
     projected = per_snap_projection(
-        own_total=base,
+        # Production over the same games the snaps were counted in.
+        own_total=base if recent is None else recent,
         own_snaps=role.snaps,
         group_total=group_total,
         group_snaps=group_snaps,

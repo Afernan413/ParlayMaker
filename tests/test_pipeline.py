@@ -102,6 +102,7 @@ def test_every_sports_live_branch_loads_its_frames(sport, monkeypatch):
     monkeypatch.setattr(
         run_pipeline, "load_nfl_roles", lambda *a, **k: run_pipeline.RoleModel()
     )
+    monkeypatch.setattr(run_pipeline, "load_nfl_roster", lambda *a, **k: run_pipeline.Roster())
     if sport == "ncaaf":
         import src.models.cfb as cfb_module
 
@@ -114,8 +115,8 @@ def test_every_sports_live_branch_loads_its_frames(sport, monkeypatch):
     assert called, f"{sport} never reached a stat loader"
     assert projections == [] and game_projections == {}
     # And the context was recorded for every sport, not only the first branch.
-    # Weather belongs to the ingest stage, so this stage owns the other two.
-    assert {row["name"] for row in inputs.as_rows()} == {"starters", "injuries"}
+    # Weather belongs to the ingest stage, so this stage owns the other three.
+    assert {row["name"] for row in inputs.as_rows()} == {"rosters", "starters", "injuries"}
 
 
 async def test_a_mock_run_journals_nothing(db_path):

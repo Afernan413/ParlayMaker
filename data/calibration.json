@@ -2,160 +2,160 @@
   "version": 1,
   "sports": {
     "ncaaf": {
-      "fitted_at": "2026-09-19T22:37:53+00:00",
+      "fitted_at": "2026-09-23T14:23:52+00:00",
       "seasons": [
         2024,
-        2025
-      ],
-      "metrics": {
-        "holdout_weeks": 4,
-        "train_samples": 617538,
-        "before": {
-          "samples": 67929,
-          "brier": 0.233179,
-          "log_loss": 0.709606,
-          "hit_rate": 0.397739,
-          "claimed": 0.413723
-        },
-        "after": {
-          "samples": 67929,
-          "brier": 0.213339,
-          "log_loss": 0.615441,
-          "hit_rate": 0.397739,
-          "claimed": 0.395817
-        },
-        "brier_gain": 0.085088
-      },
-      "markets": {
-        "player_anytime_td": {
-          "samples": 8764,
-          "mean_factor": 0.754343,
-          "platt_a": 0.516664,
-          "platt_b": -0.335839
-        },
-        "player_pass_tds": {
-          "samples": 3847,
-          "mean_factor": 0.921733,
-          "platt_a": 0.836596,
-          "platt_b": 0.040344,
-          "dispersion": 1.306061,
-          "family": "negative_binomial",
-          "variance_multiple": 1.306061
-        },
-        "player_pass_yds": {
-          "samples": 4635,
-          "mean_factor": 0.998083,
-          "platt_a": 0.565055,
-          "platt_b": -0.250042,
-          "dispersion": 0.521927
-        },
-        "player_reception_yds": {
-          "samples": 24641,
-          "mean_factor": 0.980429,
-          "platt_a": 0.52101,
-          "platt_b": -0.101785,
-          "dispersion": 0.819133
-        },
-        "player_receptions": {
-          "samples": 24949,
-          "mean_factor": 0.975984,
-          "platt_a": 0.871798,
-          "platt_b": 0.18482,
-          "dispersion": 1.67119,
-          "variance_multiple": 1.67119
-        },
-        "player_rush_yds": {
-          "samples": 16940,
-          "mean_factor": 0.987682,
-          "platt_a": 0.532981,
-          "platt_b": -0.238185,
-          "dispersion": 0.74764
-        }
-      }
-    },
-    "nfl": {
-      "fitted_at": "2026-09-19T22:40:15+00:00",
-      "seasons": [
         2025,
         2026
       ],
       "metrics": {
         "holdout_weeks": 4,
-        "train_samples": 108417,
+        "train_samples": 711381,
         "before": {
-          "samples": 8354,
-          "brier": 0.218988,
-          "log_loss": 0.663262,
-          "hit_rate": 0.380057,
-          "claimed": 0.413489
+          "samples": 101273,
+          "brier": 0.243097,
+          "log_loss": 0.743236,
+          "hit_rate": 0.421445,
+          "claimed": 0.403665
         },
         "after": {
-          "samples": 8354,
-          "brier": 0.202359,
-          "log_loss": 0.590363,
-          "hit_rate": 0.380057,
-          "claimed": 0.404947
+          "samples": 101273,
+          "brier": 0.22173,
+          "log_loss": 0.635283,
+          "hit_rate": 0.421445,
+          "claimed": 0.381285
         },
-        "brier_gain": 0.075935
+        "brier_gain": 0.087894
       },
       "markets": {
         "player_anytime_td": {
-          "samples": 2651,
-          "mean_factor": 0.715471,
-          "platt_a": 0.403283,
-          "platt_b": -0.5402
+          "samples": 11887,
+          "mean_factor": 0.844888,
+          "platt_a": 0.430484,
+          "platt_b": -0.412774
         },
         "player_pass_tds": {
-          "samples": 552,
-          "mean_factor": 0.961267,
-          "platt_a": 0.861408,
-          "platt_b": 0.111842,
-          "dispersion": 1.155968,
+          "samples": 4711,
+          "mean_factor": 0.95099,
+          "platt_a": 0.834312,
+          "platt_b": 0.026431,
+          "dispersion": 1.292126,
           "family": "negative_binomial",
-          "variance_multiple": 1.155968
+          "variance_multiple": 1.292126
         },
         "player_pass_yds": {
-          "samples": 598,
-          "mean_factor": 0.989915,
-          "platt_a": 0.713337,
-          "platt_b": -0.010567,
-          "dispersion": 0.404258
+          "samples": 5724,
+          "mean_factor": 1.01712,
+          "platt_a": 0.561094,
+          "platt_b": -0.335092,
+          "dispersion": 0.523141
         },
         "player_reception_yds": {
-          "samples": 4434,
-          "mean_factor": 0.982572,
-          "platt_a": 0.506798,
-          "platt_b": -0.112847,
-          "dispersion": 0.747738
+          "samples": 28701,
+          "mean_factor": 0.997425,
+          "platt_a": 0.518105,
+          "platt_b": -0.134068,
+          "dispersion": 0.819746
         },
         "player_receptions": {
-          "samples": 4489,
-          "mean_factor": 0.980993,
-          "platt_a": 0.85994,
-          "platt_b": 0.163214,
-          "dispersion": 1.443848,
-          "variance_multiple": 1.443848
+          "samples": 29024,
+          "mean_factor": 0.990521,
+          "platt_a": 0.859379,
+          "platt_b": 0.166615,
+          "dispersion": 1.649811,
+          "variance_multiple": 1.649811
         },
         "player_rush_yds": {
-          "samples": 2607,
-          "mean_factor": 0.987206,
-          "platt_a": 0.468746,
-          "platt_b": -0.365015,
-          "dispersion": 0.677281
+          "samples": 20574,
+          "mean_factor": 1.001765,
+          "platt_a": 0.533344,
+          "platt_b": -0.284387,
+          "dispersion": 0.750946
+        }
+      }
+    },
+    "nfl": {
+      "fitted_at": "2026-09-23T14:20:54+00:00",
+      "seasons": [
+        2024,
+        2025,
+        2026
+      ],
+      "metrics": {
+        "holdout_weeks": 4,
+        "train_samples": 251115,
+        "before": {
+          "samples": 16259,
+          "brier": 0.220945,
+          "log_loss": 0.672593,
+          "hit_rate": 0.371548,
+          "claimed": 0.394176
+        },
+        "after": {
+          "samples": 16259,
+          "brier": 0.20189,
+          "log_loss": 0.590185,
+          "hit_rate": 0.371548,
+          "claimed": 0.382132
+        },
+        "brier_gain": 0.086243
+      },
+      "markets": {
+        "player_anytime_td": {
+          "samples": 7346,
+          "mean_factor": 0.825241,
+          "platt_a": 0.403174,
+          "platt_b": -0.554252
+        },
+        "player_pass_tds": {
+          "samples": 1250,
+          "mean_factor": 0.989202,
+          "platt_a": 0.858801,
+          "platt_b": 0.100191,
+          "variance_multiple": 1.084444
+        },
+        "player_pass_yds": {
+          "samples": 1461,
+          "mean_factor": 1.000456,
+          "platt_a": 0.637994,
+          "platt_b": -0.166954,
+          "dispersion": 0.409965
+        },
+        "player_reception_yds": {
+          "samples": 9973,
+          "mean_factor": 0.990285,
+          "platt_a": 0.503977,
+          "platt_b": -0.167289,
+          "dispersion": 0.74118
+        },
+        "player_receptions": {
+          "samples": 10035,
+          "mean_factor": 0.988523,
+          "platt_a": 0.834247,
+          "platt_b": 0.120461,
+          "dispersion": 1.436331,
+          "variance_multiple": 1.436331
+        },
+        "player_rush_yds": {
+          "samples": 6173,
+          "mean_factor": 0.976804,
+          "platt_a": 0.462588,
+          "platt_b": -0.410018,
+          "dispersion": 0.671264
         },
         "spreads": {
-          "samples": 302,
+          "samples": 602,
           "mean_factor": 1.0,
           "platt_a": 1.0,
           "platt_b": 0.0,
-          "dispersion": 12.306363
+          "dispersion": 12.5545
         },
         "totals": {
-          "samples": 302,
+          "samples": 602,
           "mean_factor": 1.0,
           "platt_a": 1.0,
           "platt_b": 0.0,
-          "dispersion": 13.404128
+          "dispersion": 12.999638
         }
       }
     }

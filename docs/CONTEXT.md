@@ -10,6 +10,55 @@ The run summary and the page both carry a live version of this — `starters`,
 `injuries`, `weather` with what each one actually covered — from
 `src/models/inputs.py`. If it says `starters=none`, the model did not know.
 
+## Who is on the team at all
+
+`src/models/rosters.py`. NFL only.
+
+The volume model learns from box scores, and box scores remember everyone who
+ever played. Measured on the week-3 slate of 2026, **40% of the player rows the
+model projected from were wrong**: a player on a team he no longer plays for
+(22%), on injured reserve, retired or on the practice squad (8%), or on no
+roster at all (10%). A.J. Brown was still being projected for Philadelphia; he
+is on New England, on injured reserve.
+
+The weekly injury report cannot catch any of that — players on injured reserve
+are not listed on it, and retired or released players never are. The league's
+weekly roster can, so it decides two things:
+
+* **which team** a player is on. A traded player's projection moves with him,
+  and he no longer has a second, ghost row for the team he left. That row was
+  not harmless: when a player faced his old team, both rows claimed the same
+  game and market and whichever came last won.
+* **whether he can play.** Only the active roster takes the field.
+
+Players are grouped by `player_id` rather than by name, because names collide
+— 2025 had two Byron Youngs and two Jonah Williamses. College carries no ids, so
+it keeps grouping by name and team.
+
+## How much of a player's history to trust
+
+`src/learning/turnover.py`, which anyone can re-run.
+
+The obvious response to a league that turns over is to trust old numbers less:
+discount last season, discount games for a team a player has left. Both were
+tested, fitted on 2023-24 and scored on 2025-26, and **both made the model
+worse** — last season at half weight raised the Brier score, at a quarter it
+raised it more, and discounting a player's old team hurt most for exactly the
+players who had changed teams. A four-game window is short enough that stale
+games age out on their own, and early in a season last year's games are the
+best evidence there is.
+
+What did help was the opposite: **more history, not less**. Averaging eight
+games instead of four cut the error on the same projections by 0.23 yards (11
+standard errors) and the Brier score from 0.2075 to 0.2005. Ten games was no
+better than eight within the noise, so eight — the shorter window goes stale
+more slowly. Role changes, which a longer average would be slow to notice, are
+the role model's job below, on its own four-game snap window.
+
+The decays are still in the code (`HISTORY_SEASON_DECAY`, `HISTORY_TEAM_DECAY`)
+at 1.0, so the question can be re-asked as seasons accumulate rather than
+settled by opinion.
+
 ## Who is starting
 
 `src/models/roles.py`. NFL only.
@@ -43,10 +92,8 @@ Two things this deliberately does **not** do:
   changed, the calibration is an approximation — the dispersion was fitted on
   the per-game recipe. Closing that means joining snap counts into the
   walk-forward replay, which is not done yet.
-* **It does not read a depth chart.** Two quarterbacks who each played full
-  games split the slot evenly, which is the honest hedge but not the right
-  answer when the depth chart would settle it. `nflreadpy.load_depth_charts()`
-  is the missing input.
+* **It does not trust snaps to name a quarterback.** The depth chart does
+  that — see below.
 
 It needs two games of the current season before it says anything. The window
 does not reach back into last season — rosters change, and a share built from
@@ -55,6 +102,26 @@ off, and says so.
 
 **College football and basketball have no snap source**, so they keep the
 per-game average throughout.
+
+### Quarterbacks: the depth chart
+
+Snap history can only say who *has* been playing. After a benching, a starter's
+return from injury or a trade, the depth chart is where the change shows first.
+For quarterbacks it decides the slot:
+
+* the **starter** is the highest-ranked quarterback on the latest chart who is
+  not ruled out — the chart lists an injured starter at the top, so the report
+  decides who is skipped;
+* the **next man up** carries the starts the starter might miss: if the starter
+  is 63% to play, the backup is priced for the other 37%;
+* everyone else is a backup.
+
+Every charted quarterback gets a share, including those with no snaps this
+season. That mattered on the first real slate: Seattle's starter missed week 2
+and his backup took 96% of the snaps, so snap history alone kept the backup as
+the starter and the returning starter as a 4% reserve. In Atlanta, the next man
+up had arrived from another team with no Atlanta snaps, and was being priced off
+his old average as a second full-time starter alongside the first.
 
 ## Who is hurt
 
@@ -72,12 +139,21 @@ designation. It carries the team and the position, which matters twice over:
 Designations become multipliers: `OUT` removes the player, `DOUBTFUL` 0.25,
 `QUESTIONABLE` 0.88, `PROBABLE` 0.97.
 
-**The report lags.** It is filed Wednesday to Friday and the nflverse release
-trails that, so the week being priced may have no report yet. Rather than
-concluding nobody is hurt, the most recent published week is used and how stale
-it is is recorded. A week-old report still has everyone on injured reserve
-right; what it misses is this week's new injuries, which is what the live ESPN
-feed alongside it is for.
+**The report fills in over the week.** Wednesday's and Thursday's reports
+carry practice participation only; the Out / Doubtful / Questionable
+designations are published on Friday. On the Wednesday of week 3 the report had
+22 rows from one team and no designations at all, and taking it at face value
+concluded nobody in the league was hurt.
+
+So a report only counts as final once designations exist for half the league.
+Until then, last week's final report is carried forward — and not as a verdict.
+A player ruled out last week is `OUT_LAST_WEEK`, priced at **63% availability**,
+because that is what the history says: of 3,413 players ruled out in a week of
+the 2023-25 regular seasons, 33% were out again the next week, 2% doubtful, 17%
+questionable and 48% off the report. Weighted by the usual multipliers that is
+0.63 — and the same 0.63 whether a player had been out one week or several.
+Treating him as out would be wrong two times in three; treating him as fine,
+one time in three.
 
 Availability does not depend on the snap window, so it applies from week one of
 a season even when role changes do not.

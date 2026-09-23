@@ -22,7 +22,12 @@ from src.ingestion import db
 logger = logging.getLogger(__name__)
 
 #: Canonical statuses, most severe first. Order matters for `worst_status`.
-STATUS_ORDER = ("OUT", "DOUBTFUL", "QUESTIONABLE", "PROBABLE", "ACTIVE")
+#:
+#: ``OUT_LAST_WEEK`` is not a league designation. It is what the model knows
+#: about a player ruled out last week when this week's game designations have
+#: not been published yet -- they come on Friday, and a build on any other day
+#: would otherwise read the gap as "nobody is hurt".
+STATUS_ORDER = ("OUT", "DOUBTFUL", "OUT_LAST_WEEK", "QUESTIONABLE", "PROBABLE", "ACTIVE")
 
 STATUS_MAP: dict[str, str] = {
     "out": "OUT",
@@ -48,6 +53,14 @@ STATUS_MAP: dict[str, str] = {
 STATUS_MULTIPLIER: dict[str, float] = {
     "OUT": 0.0,
     "DOUBTFUL": 0.25,
+    # Measured, not guessed: of 3,413 players ruled out in a week of the
+    # 2023-25 regular seasons, 33% were out again the next week, 2% doubtful,
+    # 17% questionable and 48% off the report. Weighting each by the multipliers
+    # here gives 0.63 -- and the same 0.63 whether the player had been out one
+    # week or several. (Some of the 48% went to injured reserve, which the
+    # weekly roster removes separately, so for a player still active 0.63 is if
+    # anything cautious.)
+    "OUT_LAST_WEEK": 0.63,
     "QUESTIONABLE": 0.88,
     "PROBABLE": 0.97,
     "ACTIVE": 1.0,
@@ -58,6 +71,11 @@ def normalize_status(raw: str | None) -> str:
     """Map a feed's free-text status onto :data:`STATUS_ORDER`."""
     if not raw:
         return "ACTIVE"
+    # A canonical value passes straight through. Without this, "OUT_LAST_WEEK"
+    # would fall to the substring search below and come out as "OUT".
+    canonical = str(raw).strip().upper()
+    if canonical in STATUS_ORDER:
+        return canonical
     key = str(raw).strip().lower()
     if key in STATUS_MAP:
         return STATUS_MAP[key]

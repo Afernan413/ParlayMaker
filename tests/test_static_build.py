@@ -122,7 +122,7 @@ def test_what_the_model_knew_travels_with_the_bundle(built):
     _, bundle = built
     for sport in bundle["sports"].values():
         names = [row["name"] for row in sport["inputs"]]
-        assert names == ["starters", "injuries", "weather"]
+        assert names == ["rosters", "starters", "injuries", "weather"]
         for row in sport["inputs"]:
             assert isinstance(row["available"], bool)
             assert row["detail"], "an input with no explanation is the old silence"

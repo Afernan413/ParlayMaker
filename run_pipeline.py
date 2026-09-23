@@ -30,6 +30,7 @@ from src.models import baseline
 from src.models.legs import Leg
 from src.models.inputs import ModelInputs, injury_status, starter_status, weather_status
 from src.models.roles import RoleModel, load_nfl_roles
+from src.models.rosters import Roster, load_nfl_roster
 from src.notifications.notifier import Notifier, render_console
 from src.optimizer import clv
 from src.optimizer.ev_calculator import find_edges
@@ -137,7 +138,11 @@ async def ingest_stage(
         if inputs is not None:
             # This slate's forecasts, not every row the database has ever held.
             count = int(summary.get("weather") or 0)
-            inputs.record("weather", bool(count), "bundled fixture forecast", count)
+            inputs.record(
+                "weather", bool(count),
+                "bundled fixture forecast" if count else "no fixture forecast for this sport",
+                count,
+            )
         return summary
 
     async with OddsAPIClient(db_path=db_path) as client:
@@ -187,6 +192,8 @@ def projection_stage(
     """Baseline player projections plus one game projection per game."""
     lookup = baseline.team_lookup(sport)
     role_model = RoleModel()
+    roster = Roster()
+    season = datetime.now(timezone.utc).year
     if use_mock:
         first, second = mock.mock_stat_frames(sport)
     elif sport == "nfl":
@@ -200,6 +207,13 @@ def projection_stage(
             role_model = load_nfl_roles(baseline.seasons_to_load(season), season=season)
         except Exception as exc:  # a release rebuilding must not stop the run
             logger.warning("snap/injury roles unavailable: %s", exc)
+        # Who is on which team, and who can play at all. The injury report
+        # cannot say: injured reserve is not on it, and nor are the retired or
+        # released. See src/models/rosters.py.
+        try:
+            roster = load_nfl_roster(season)
+        except Exception as exc:
+            logger.warning("weekly roster unavailable: %s", exc)
     elif sport == "ncaaf":
         from src.models import cfb
 
@@ -215,11 +229,13 @@ def projection_stage(
     # remaining branches and left college football with no stat frames at all.
     if inputs is not None:
         _record_context(inputs, sport, role_model, injuries)
+        _record_roster(inputs, sport, roster, use_mock=use_mock)
 
     if sport in FOOTBALL_SPORTS:
         projections = baseline.build_nfl_projections(
             first, second, games, team_lookup=lookup, injury_index=injuries,
-            sport=sport, roles=role_model,
+            sport=sport, roles=role_model, roster=roster,
+            season=None if use_mock else season,
         )
         efficiency = baseline.nfl_team_efficiency(second)
         game_projections = {
@@ -237,6 +253,29 @@ def projection_stage(
             for game in games
         }
     return projections, game_projections
+
+
+def _record_roster(
+    inputs: ModelInputs, sport: str, roster: Roster, *, use_mock: bool = False
+) -> None:
+    """Note whether team membership came from the league's roster."""
+    if roster.empty:
+        if use_mock:
+            detail = "sample slate: no roster check"
+        elif sport == "nfl":
+            detail = "league roster unavailable this run; teams come from each player's last game"
+        else:
+            detail = "no weekly roster for this sport; teams come from each player's last game"
+        inputs.record("rosters", False, detail)
+        return
+    coverage = roster.coverage()
+    inactive = coverage["players"] - coverage["active"]
+    inputs.record(
+        "rosters", True,
+        f"league roster, week {coverage['week']}: {coverage['active']} active, "
+        f"{inactive} on reserve, practice squad, retired or released",
+        coverage["active"],
+    )
 
 
 #: Why a sport has no snap data. Only the NFL publishes it in a readable form.

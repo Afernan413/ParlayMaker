@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from config.settings import settings
-from src.models.baseline import NFL_STAT_MARKETS, rolling_weighted_mean
+from src.models.baseline import NFL_STAT_MARKETS, history_weights, rolling_weighted_mean
 from src.models.distributions import DistributionSpec, over_probabilities
 
 logger = logging.getLogger(__name__)
@@ -85,8 +85,18 @@ def observations(
     markets: dict[str, str] | None = None,
     min_history: int = 2,
     stat_markets: dict[str, str] | None = None,
+    season_decay: float = 1.0,
+    team_decay: float = 1.0,
+    window: int | None = None,
+    base_weights: Sequence[float] | None = None,
 ) -> list[Observation]:
     """Walk every player-week forward, projecting from the past only.
+
+    ``season_decay``, ``team_decay``, ``window`` and ``base_weights`` shape how
+    a player's history is weighted, through the same
+    :func:`~src.models.baseline.history_weights` the live model uses. Their
+    defaults reproduce the model as it has always been; the turnover study in
+    :mod:`src.learning.turnover` sweeps them.
 
     ``weekly`` is an nflverse-shaped frame: one row per player per game, with
     ``season``, ``week``, ``player_display_name``/``player_name`` and the stat
@@ -114,21 +124,39 @@ def observations(
     # Phase one: walk the weeks forward and record the projections. No
     # probabilities yet -- pricing a row at a time means building a scipy
     # distribution 685,000 times over on a college season.
+    # By id where the frame has one, as the live model does: names collide
+    # (2025 had two Byron Youngs), and a replay that merged them would fit its
+    # corrections to careers that never existed.
+    group_key = (
+        "player_id" if "player_id" in frame.columns and frame["player_id"].notna().any()
+        else name_col
+    )
     rows: list[dict[str, Any]] = []
-    for player, played in frame.groupby(name_col, sort=False):
+    for _, played in frame.groupby(group_key, sort=False):
         played = played.sort_values(["season", "week"])
+        player = str(played.iloc[-1][name_col])
         for position in range(len(played)):
             row = played.iloc[position]
             history = played.iloc[:position]
             if len(history) < min_history:
                 continue
             # Most recent games first, exactly as the live model sees them.
-            recent = history.iloc[::-1].head(settings.rolling_weeks)
+            span = window or settings.volume_window(sport)
+            recent = history.iloc[::-1].head(span)
+            weights = history_weights(
+                recent["season"].tolist(),
+                recent[team_col].tolist() if team_col in recent.columns else [None] * len(recent),
+                target_season=int(row["season"]),
+                target_team=row.get(team_col),
+                season_decay=season_decay,
+                team_decay=team_decay,
+                base=_base_weights(base_weights, span),
+            )
 
             for stat, market in stat_markets.items():
                 if market not in shapes:
                     continue
-                projected = rolling_weighted_mean(recent[stat].tolist())
+                projected = rolling_weighted_mean(recent[stat].tolist(), weights)
                 actual = float(row[stat]) if pd.notna(row[stat]) else 0.0
                 if projected <= 0:
                     continue
@@ -181,6 +209,20 @@ def _priced(rows: Sequence[dict[str, Any]]) -> list[Observation]:
     # the weeks in the order they were played.
     results.sort(key=lambda row: (row.season, row.week, row.player, row.market, row.line))
     return results
+
+
+def _base_weights(weights: Sequence[float] | None, span: int) -> list[float]:
+    """Recency weights for a window of ``span`` games, most recent first.
+
+    Longer than the configured weights, the tail decays geometrically from the
+    last configured weight rather than being cut off.
+    """
+    if not weights:
+        return settings.recency_weights(span)
+    configured = list(weights)
+    while len(configured) < span:
+        configured.append(configured[-1] * 0.7)
+    return configured[:span]
 
 
 def _lines_for(spec: DistributionSpec, projected: float) -> list[float]:
