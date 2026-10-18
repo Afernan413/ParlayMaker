@@ -16,6 +16,8 @@
     slip: [],
     pricing: null,
     picksSeed: 1337,
+    week: null,          // which week's slate we are building for
+    noteTimer: null,
     mode: "longshot",   // what this tool is for; Value is a click away
     legsById: new Map(),
     correlations: new Map(),
@@ -49,6 +51,21 @@
   }
 
   const sportData = () => data.sports[state.sport];
+
+  const SPORT_NAMES = { nfl: "NFL", ncaaf: "College football", nba: "NBA" };
+
+  /**
+   * Why a sport has no data, in words worth reading.
+   *
+   * The build records a reason for every sport it skipped or was not asked
+   * for, so the page can say what happened and what to run instead of leaving
+   * a button that does nothing when pressed.
+   */
+  function whySportIsMissing(sport) {
+    const name = SPORT_NAMES[sport] || sport.toUpperCase();
+    const reason = (data.skipped || {})[sport];
+    return reason ? `${name}: ${reason}` : `${name} is not in this build.`;
+  }
   const rules = () => data.settings;
 
   /** Correlation between two legs; 0 for anything the engine did not pair. */
@@ -98,10 +115,121 @@
       note.hidden = true;
     }
 
-    $("status").textContent =
-      `${sport.games.length} games · ${sport.legs.length} priced bets · ` +
-      `${sport.legs.filter(hasEdge).length} rated +EV · ` +
-      `${sport.adjustments} context adjustments · built ${age.text}`;
+    const games = weekGames();
+    const legs = weekLegs();
+    const span = weeksAvailable().length > 1 ? `${weekLabelOf(state.week)} · ` : "";
+    $("status").textContent = span +
+      `${games.length} games · ${legs.length} priced bets · ` +
+      `${legs.filter(hasEdge).length} rated +EV · ` +
+      `${sport.adjustments} context adjustments · built ${age.text}` +
+      describeTraining();
+    renderInputs();
+  }
+
+  /**
+   * What the model could actually see: starters, injuries, weather.
+   *
+   * Every one of these is optional in practice -- a forecast needs a key, an
+   * injury report needs the league to publish one, a snap share needs a couple
+   * of games played. Listing them stops the page implying the model weighed
+   * something it never saw.
+   */
+  function renderInputs() {
+    const list = $("model-inputs");
+    const rows = sportData().inputs || [];
+    list.innerHTML = "";
+    list.hidden = rows.length === 0;
+    for (const row of rows) {
+      const item = document.createElement("li");
+      item.className = `model-input ${row.available ? "known" : "unknown"}`;
+      const label = document.createElement("span");
+      label.className = "model-input-name";
+      label.textContent = row.name;
+      const detail = document.createElement("span");
+      detail.className = "model-input-detail";
+      detail.textContent = row.detail || (row.available ? "in use" : "not available");
+      item.append(label, detail);
+      list.append(item);
+    }
+  }
+
+  /**
+   * What the model learned from past results, if anything.
+   *
+   * The corrections are already inside every price on this page; this only
+   * says where they came from, so a stale model is visible rather than
+   * implied.
+   */
+  function describeTraining() {
+    const trained = (data.training || {})[state.sport];
+    if (!trained || !trained.observations) return "";
+    const seasons = (trained.seasons || []).join("/");
+    const gain = trained.brier_gain
+      ? ` (${(trained.brier_gain * 100).toFixed(1)}% sharper out of sample)`
+      : "";
+    return ` · trained on ${trained.observations.toLocaleString()} graded results` +
+      `${seasons ? ` from ${seasons}` : ""}${gain}`;
+  }
+
+  // ---------------------------------------------------------------- weeks
+  /**
+   * A parlay has to settle together, so everything is scoped to one week.
+   *
+   * The feed hands back every upcoming event, so a slate routinely holds this
+   * Sunday's games and next Thursday's. Mixing them was producing tickets that
+   * could not resolve for nine days, half of them priced off a week-old
+   * projection. The picker only appears when there is more than one week to
+   * choose between.
+   */
+  function weeksAvailable() {
+    return sportData().weeks || [];
+  }
+
+  function renderWeekPicker() {
+    const weeks = weeksAvailable();
+    const picker = $("week-picker");
+    const select = $("week-select");
+
+    if (!weeks.some((week) => week.key === state.week)) {
+      state.week = weeks.length ? weeks[0].key : null;
+    }
+
+    picker.hidden = weeks.length < 2;
+    select.innerHTML = "";
+    for (const week of weeks) {
+      const option = document.createElement("option");
+      option.value = week.key;
+      option.textContent = `${week.label} (${week.games} game${week.games === 1 ? "" : "s"})`;
+      option.selected = week.key === state.week;
+      select.append(option);
+    }
+  }
+
+  /** Legs on the selected week. A leg with no week is never hidden. */
+  function weekLegs() {
+    return engine.inWeek(sportData().legs, state.week);
+  }
+
+  function weekGames() {
+    const games = sportData().games;
+    if (!state.week) return games;
+    return games.filter((game) => !game.week || game.week === state.week);
+  }
+
+  function weekLabelOf(key) {
+    const found = weeksAvailable().find((week) => week.key === key);
+    return found ? found.label : key;
+  }
+
+  /** Say something once, briefly. Used when an action is refused. */
+  function flashNote(message, milliseconds = 6000) {
+    const note = $("slip-note");
+    note.textContent = message;
+    note.hidden = false;
+    clearTimeout(state.noteTimer);
+    state.noteTimer = setTimeout(() => {
+      note.hidden = true;
+    }, milliseconds);
   }
 
   // ---------------------------------------------------------------- load
@@ -117,6 +245,7 @@
     state.pricing = null;
     $("build-results").innerHTML = "";
 
+    renderWeekPicker();
     renderFreshness();
     renderPicks();
     renderGames();
@@ -152,6 +281,7 @@
       built = engine.buildCard(sport.legs, lookup, {
         rules: rules(),
         mode: state.mode,
+        week: state.week,
         maxTickets: 3,
         minMultiple: longshot ? Number($("ls-target").value) || 100 : undefined,
         maxLegs: longshot ? 8 : undefined,
@@ -233,7 +363,7 @@
     // --- best single bets ---
     const singles = $("picks-singles");
     singles.innerHTML = "";
-    const top = sport.legs
+    const top = weekLegs()
       .filter(hasEdge)
       .sort((a, b) => b.ev - a.ev)
       .slice(0, 6);
@@ -309,12 +439,12 @@
 
   // --------------------------------------------------------------- games
   function renderGames() {
-    const sport = sportData();
     const grid = $("game-grid");
+    const games = weekGames();
     grid.innerHTML = "";
-    $("games-count").textContent = `${sport.games.length} games`;
+    $("games-count").textContent = `${games.length} games`;
 
-    for (const game of sport.games) {
+    for (const game of games) {
       const card = document.createElement("article");
       card.className = "game-card";
 
@@ -400,14 +530,14 @@
     const sport = sportData();
     const gameSelect = $("filter-game");
     gameSelect.innerHTML = '<option value="">All games</option>';
-    for (const game of sport.games) {
+    for (const game of weekGames()) {
       const option = document.createElement("option");
       option.value = game.game_id;
       option.textContent = game.label;
       gameSelect.append(option);
     }
 
-    const markets = [...new Set(sport.legs.map((leg) => leg.market_label))].sort();
+    const markets = [...new Set(weekLegs().map((leg) => leg.market_label))].sort();
     const marketSelect = $("filter-market");
     marketSelect.innerHTML = '<option value="">All markets</option>';
     for (const market of markets) {
@@ -425,7 +555,7 @@
     const edgesOnly = $("filter-edges").checked;
     const sort = $("filter-sort").value;
 
-    const legs = sportData().legs.filter((leg) => {
+    const legs = weekLegs().filter((leg) => {
       if (edgesOnly && !hasEdge(leg)) return false;
       if (game && leg.game_id !== game) return false;
       if (market && leg.market_label !== market) return false;
@@ -450,7 +580,7 @@
     const list = $("leg-list");
     const legs = visibleLegs();
     list.innerHTML = "";
-    $("legs-count").textContent = `${legs.length} of ${sportData().legs.length}`;
+    $("legs-count").textContent = `${legs.length} of ${weekLegs().length}`;
     $("legs-empty").hidden = legs.length > 0;
 
     const fragment = document.createDocumentFragment();
@@ -707,6 +837,7 @@
         const result = engine.buildCard(sportData().legs, lookup, {
           rules: rules(),
           mode: state.mode,
+          week: state.week,
           legs: state.mode === "longshot" ? null : (legsValue ? Number(legsValue) : null),
           minMultiple: state.mode === "longshot"
             ? Number($("ls-target").value) || 100 : undefined,
@@ -785,10 +916,33 @@
   // -------------------------------------------------------------- events
   function toggleLeg(legId) {
     const index = state.slip.indexOf(legId);
-    if (index >= 0) state.slip.splice(index, 1);
-    else state.slip.push(legId);
+    if (index >= 0) {
+      state.slip.splice(index, 1);
+    } else {
+      const leg = state.legsById.get(legId);
+      const clash = slipWeek();
+      if (leg && leg.week && clash && leg.week !== clash) {
+        // Refused rather than warned: a slip spanning two weeks cannot settle
+        // together, so there is no version of it worth pricing.
+        flashNote(
+          `That bet is from ${weekLabelOf(leg.week)}; your slip is ` +
+          `${weekLabelOf(clash)}. Clear the slip to switch weeks.`
+        );
+        return;
+      }
+      state.slip.push(legId);
+    }
     syncLegButtons();
     priceSlip();
+  }
+
+  /** The week the slip is already committed to, if any. */
+  function slipWeek() {
+    for (const id of state.slip) {
+      const leg = state.legsById.get(id);
+      if (leg && leg.week) return leg.week;
+    }
+    return null;
   }
 
   function showView(view) {
@@ -895,8 +1049,13 @@
 
     for (const button of document.querySelectorAll(".seg[data-sport]")) {
       button.addEventListener("click", () => {
-        if (state.sport === button.dataset.sport) return;
-        state.sport = button.dataset.sport;
+        const sport = button.dataset.sport;
+        if (!data.sports[sport]) {
+          flashNote(whySportIsMissing(sport), 12000);
+          return;
+        }
+        if (state.sport === sport) return;
+        state.sport = sport;
         for (const other of document.querySelectorAll(".seg[data-sport]")) {
           other.setAttribute("aria-pressed", String(other === button));
         }
@@ -907,6 +1066,11 @@
     for (const tab of document.querySelectorAll(".tab[data-view]")) {
       tab.addEventListener("click", () => showView(tab.dataset.view));
     }
+
+    $("week-select").addEventListener("change", (event) => {
+      state.week = event.target.value || null;
+      loadSport();   // clears the slip: it belonged to the other week
+    });
 
     $("build-run").addEventListener("click", runBuild);
 
@@ -952,18 +1116,16 @@
     }
     if (!available.includes(state.sport)) state.sport = available[0];
 
-    const skipped = data.skipped || {};
     for (const button of document.querySelectorAll(".seg[data-sport]")) {
       const sport = button.dataset.sport;
       const present = available.includes(sport);
-      button.disabled = !present;
+      // Marked rather than `disabled`: a disabled button fires no click, so
+      // tapping it would say nothing at all. The reason is worth more than the
+      // dead press, and a title tooltip does not exist on a phone.
+      button.classList.toggle("seg-empty", !present);
+      button.setAttribute("aria-disabled", String(!present));
       button.setAttribute("aria-pressed", String(sport === state.sport));
-      if (!present) {
-        // Say why it is missing rather than leaving a dead button.
-        button.title = skipped[sport]
-          ? `${sport.toUpperCase()} was skipped in this build: ${skipped[sport]}`
-          : `${sport.toUpperCase()} is not in this build`;
-      }
+      button.title = present ? "" : whySportIsMissing(sport);
     }
     wireEvents();
     restoreExplainer();
